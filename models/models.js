@@ -43,77 +43,27 @@ var UserSchema = new Schema ({
   }
 })
 
-var TaskSchema = new Schema ({
-  subject: {
+var LogSchema = new Schema ({
+  request_id: {
+    type: [Schema.ObjectId],
+    ref: 'Request'
+  },
+  pending: {
+    type: Boolean,
+    default: false
+  },
+  approver: {
     type: String,
-    required: true
-  },
-  day: {
-    type: Date,
-    required: true
-  },
-  eventId: {
-    type: String
-  },
-  requesterId: {
-    type: Schema.ObjectId,
-    ref: 'User'
-  }
-});
-
-// need to validate if the types of some of these fields are correct
-var MeetingSchema = new Schema({
-  day: {
-    type: String,
-    required: true
-  },
-  time: {
-    type: String,
-    required: true
-  },
-  invitees:{
-    type: Array,
-    required: true
-  },
-  googleCal: {},
-  status: {
-    type: String
-  },
-  createdAt: {
-    type: Date
-  },
-  requesterId: {
-    type: Schema.ObjectId,
-    ref: 'User'
-  },
-  subject: {
-    type: String
-  }
-});
-
-var InviteRequestSchema = new Schema({
-  eventId: {
-    type: String
-  },
-  inviteeId: {
-    type: String
-  },
-  requesterId: {
-    type: String
-  },
-  status: {
-    type: String
+    default: undefined
   }
 })
 
+var Request = mongoose.model('Request', RequestSchema)
 var User = mongoose.model('User', UserSchema)
-var Task = mongoose.model('Task', TaskSchema)
-var Meeting = mongoose.model('Meeting', MeetingSchema)
-var InviteRequest = mongoose.model('InviteRequest', InviteRequestSchema)
+var Log = mongoose.model('Log', LogSchema)
 
 module.exports = {
+  Request: Request,
   User: User,
-  Task: Task,
-  Meeting: Meeting,
-  InviteRequest: InviteRequest
+  Log: Log
 };
