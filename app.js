@@ -55,9 +55,6 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }));
-app.use(flash())
-app.use(passport.initialize());
-app.use(passport.session());
 
 passport.serializeUser(function(user, done) {
   done(null, user._id);
@@ -83,17 +80,21 @@ passport.use(new LocalStrategy({
       // if no user present, auth failed
       if (!user) {
         console.log('user: ' + username + ' does not exist')
-        return done(null, false, { message: 'Incorrect username.' });
+        return done(null, false, { message: 'Incorrect username or password' });
       }
       // if passwords do not match, auth failed
       if (user.password !== password) {
-        return done(null, false, { message: 'Incorrect password.' });
+        return done(null, false, { message: 'Incorrect username or password' });
       }
       // auth has succeeded
       return done(null, user);
     });
   }
 ));
+
+app.use(flash())
+app.use(passport.initialize());
+app.use(passport.session());
 
 // include routes to use
 app.use('/', auth(passport))
