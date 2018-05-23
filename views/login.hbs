@@ -9,7 +9,12 @@
       <link rel="shortcut icon" type="image/x-icon" href="favicon.ico"/>
     </head>
     <body>
-        <div class = "container">
+        {{#if error}}
+        <div class="alert alert-danger" role="alert">
+            Incorrect Username or Password
+        </div>
+        {{/if}}
+        <div class="container col-xs-5">
         	<div class="wrapper">
         		<form action="" method="post" name="Login_Form" class="form-signin">
         		    <h3 class="form-signin-heading">RI Broadcast System. Please Sign In</h3>

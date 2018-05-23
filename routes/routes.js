@@ -9,7 +9,6 @@ var Request = Models.Request
 
 // redirect to login if not signed in
 router.use(function(req, res, next){
-  console.log('made it to the wall')
   if (!req.user) {
     res.redirect('/login');
   } else {
@@ -19,7 +18,6 @@ router.use(function(req, res, next){
 
 // load screen, different if admin
 router.get('/', function(req, res) {
-  console.log('made it to the slash')
   User.findById(req.user._id).then(
     (user) => {
       res.send('exists!')
