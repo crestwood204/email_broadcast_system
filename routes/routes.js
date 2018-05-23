@@ -7,37 +7,24 @@ var Models = require('./models/models')
 var User = Models.User
 var Request = Models.Request
 
-// redirect to login
+// redirect to login if not signed in
+router.use(function(req, res, next){
+  if (!req.user) {
+    res.redirect('/login');
+  } else {
+    return next();
+  }
+});
+
+// load screen, different if admin
 router.get('/', function(req, res) {
-  res.redirect('/login')
-})
-
-// load login page
-router.get('/login', function(req, res) {
-    res.render('login')
-})
-
-// handles user login, redirecting based on user type
-router.post('/login', function(req, res) {
-  var username = req.body.username
-  var password = req.body.password
-
-  User.findOne({username: username, password: password}).then(
+  User.findById(req.user._id).then(
     (user) => {
-      if (user.approver) {
-        res.redirect('view') // TODO: should be sending user submissions through
-      } else {
-        res.redirect('view')
-      }
+      res.send('exists!')
     },
     (err) => {
-      res.status(400).send('unauthorized')
+      res.status(500).send('Database Error: "/"')
     }
   )
-})
-
-router.get('/view', function(req, res) {
-
-})
-
+});
 module.exports = router
