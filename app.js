@@ -1,17 +1,9 @@
-// require express to create the server
 var express = require('express');
-
-// require handlebars for the view engine
 var exphbs  = require('express-handlebars');
-
-// require body parser for middleware
 var bodyParser = require('body-parser');
-
-// require mongoose for mongodb connection
 var mongoose = require('mongoose');
-
-// require path to link hbs files
 var path = require('path');
+var logger = require('morgan');
 
 // check if MONGODB_URI environmental variable is present
 if (!process.env.MONGODB_URI) {
@@ -39,7 +31,8 @@ app.engine('.hbs', exphbs({extname: '.hbs'}));
 app.set('view engine', 'hbs');
 app.use(express.static(path.join(__dirname, 'public')));
 
-// add body parser to middleware
+// add middleware to parse body requests and log requests
+app.use(logger('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -58,6 +51,7 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
+  console.log('error handler')
   // render the error page
   res.status(err.status || 500);
   res.render('error');

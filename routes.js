@@ -12,24 +12,22 @@ router.get('/login', function(req, res) {
 })
 
 // handles user login, redirecting based on user type
-router.post('/login', function(req, res) {
+router.post('/login_post', function(req, res) {
+  console.log(received)
   var payload = JSON.parse(req.body.payload)
   var username = payload.username
   var password = payload.password
 
   User.findOne({username: username, password: password}).then(
     (user) => {
-      if (user.type == 'submitter') {
-        res.redirect('submitter') // TODO: should be sending user submissions through
-      } else if (user.type == 'approver') {
-        // TODO: get all broadcasts
-        res.redirect('approver') // TODO: should be sending all through
+      if (user.approver) {
+        res.redirect('approver') // TODO: should be sending user submissions through
       } else {
-        console.log('DB Error:' + username + ' does not have a type')
+        res.redirect('submitter')
       }
     },
     (err) => {
-      console.log('LOGIN POST ERROR: ' + err)
+      res.status(400).send('unauthorized')
     }
   )
 })
