@@ -8,10 +8,11 @@ var session = require('express-session')
 var cookieParser = require('cookie-parser');
 var passport = require('passport');
 var LocalStrategy = require('passport-local');
-var MongoStore = require('connect-mongo/es5')(session);
-var models = require('./models/models')
+var MongoStore = require('connect-mongo')(session);
+var models = require('./models/models');
 var auth = require('./routes/auth');
 var routes = require('./routes/routes');
+var flash = require('connect-flash');
 
 // check if MONGODB_URI environmental variable is present
 if (!process.env.MONGODB_URI) {
@@ -54,7 +55,7 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }));
-
+app.use(flash())
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -69,9 +70,11 @@ passport.deserializeUser(function(id, done) {
 });
 
 // passport strategy
-passport.use(new LocalStrategy(function(username, password, done) {
+passport.use(new LocalStrategy({
+  passReqToCallback : true
+}, function(req, username, password, done) {
     // Find the user with the given username
-    models.User.findOne({ username: username }, function (err, user) {
+    models.User.findOne({ "username": username }, function (err, user) {
       // if there's an error, finish trying to authenticate (auth failed)
       if (err) {
         console.error(err);
@@ -79,7 +82,7 @@ passport.use(new LocalStrategy(function(username, password, done) {
       }
       // if no user present, auth failed
       if (!user) {
-        console.log(user);
+        console.log('user: ' + username + ' does not exist')
         return done(null, false, { message: 'Incorrect username.' });
       }
       // if passwords do not match, auth failed

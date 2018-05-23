@@ -12,9 +12,11 @@ module.exports = function(passport) {
   })
 
   // handles user login, redirecting based on user type
-  router.post('/login', passport.authenticate('local'), function(req, res) {
-    res.redirect('/');
-  });
+  router.post('/login', passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/login',
+    failureFlash: true
+  }));
 
   // handles user logout
   router.get('/logout', function(req, res) {
