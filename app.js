@@ -4,6 +4,14 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var path = require('path');
 var logger = require('morgan');
+var session = require('express-session')
+var cookieParser = require('cookie-parser');
+var passport = require('passport');
+var LocalStrategy = require('passport-local');
+var MongoStore = require('connect-mongo/es5')(session);
+var models = require('./models/models')
+var auth = require('./routes/auth');
+var routes = require('./routes/routes');
 
 // check if MONGODB_URI environmental variable is present
 if (!process.env.MONGODB_URI) {
@@ -35,9 +43,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(logger('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cookieParser(process.env.SECRET))
 
-//REQUIRE IN ROUTES FROM ROUTES.JS
-var routes = require('./routes');
+// Passport - Session Middleware for Authentication
+app.use(session({
+    secret: process.env.SECRET,
+    name: 'session',
+    store: new MongoStore({ mongooseConnection: mongoose.connection }),
+    proxy: true,
+    resave: true,
+    saveUninitialized: true
+}));
 
 // include routes to use
 app.use('/', routes);

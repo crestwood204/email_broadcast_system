@@ -4,14 +4,14 @@ $(document).ready(function() {
     var username = $('#username').val();
     var password = $('#password').val();
     $.ajax({
-      url: '/login_post',
-      method: 'post',
+      url: '/login',
+      method: 'POST',
       data: {
         'username': username,
         'password': password,
       },
       error: function(err) {
-        console.log('error' + err)
+        console.log(err)
       },
       success: function(res) {
         console.log('success')
