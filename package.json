@@ -1,0 +1,27 @@
+{
+  "name": "email_broadcast_system",
+  "version": "1.0.0",
+  "description": "email broadcast system for the rothman institute",
+  "main": "app.js",
+  "scripts": {
+    "test": "nodemon app.js",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crestwood204/email_broadcast_system.git"
+  },
+  "author": "Andrew Ong",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/crestwood204/email_broadcast_system/issues"
+  },
+  "homepage": "https://github.com/crestwood204/email_broadcast_system#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "express-handlebars": "^3.0.0",
+    "mongoose": "^5.1.2",
+    "path": "^0.12.7"
+  }
+}
