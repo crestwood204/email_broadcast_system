@@ -8,7 +8,7 @@ var User = Models.User
 var Request = Models.Request
 
 // redirect to login if not signed in
-router.use(function(req, res, next){
+router.use(function(req, res, next) {
   if (!req.user) {
     res.redirect('/login');
   } else {
