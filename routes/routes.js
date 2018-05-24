@@ -6,6 +6,8 @@ var router = express.Router()
 var Models = require('../models/models')
 var User = Models.User
 var Request = Models.Request
+var Log = Models.Log
+var Group = Models.Group
 
 // redirect to login if not signed in
 router.use(function(req, res, next) {
@@ -16,16 +18,33 @@ router.use(function(req, res, next) {
   }
 });
 
-// load screen, different if admin
+// load screen
 router.get('/', function(req, res) {
   User.findById(req.user._id).then(
     (user) => {
-      res.send('exists!')
+      res.render('home', {'request': req.query.request})
     },
     (err) => {
       res.status(500).send('Database Error: "/"')
     }
   )
 });
+
+router.get('/new_request', function(req, res) {
+  // want to render home with appropriate email groups
+  res.render('new_request')
+})
+
+router.post('/new_request', function(req, res) {
+  var to = req.body.toField
+  var subject = req.body.subject
+  var body = req.body.body
+  if (typeof to === 'object') {
+    console.log('object')
+  } else {
+    console.log('string')
+  }
+  res.redirect('/?request=true')
+})
 
 module.exports = router

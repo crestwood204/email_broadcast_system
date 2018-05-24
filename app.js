@@ -12,7 +12,6 @@ var MongoStore = require('connect-mongo')(session);
 var models = require('./models/models');
 var auth = require('./routes/auth');
 var routes = require('./routes/routes');
-var flash = require('connect-flash');
 
 // check if MONGODB_URI environmental variable is present
 if (!process.env.MONGODB_URI) {
@@ -92,7 +91,6 @@ passport.use(new LocalStrategy({
   }
 ));
 
-app.use(flash())
 app.use(passport.initialize());
 app.use(passport.session());
 

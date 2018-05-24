@@ -58,12 +58,25 @@ var LogSchema = new Schema ({
   }
 })
 
+var GroupSchema = new Schema ({
+  name: {
+    type: String,
+    required: true
+  },
+  emails: {
+    type: [String],
+    required: true
+  }
+})
+
 var Request = mongoose.model('Request', RequestSchema)
 var User = mongoose.model('User', UserSchema)
 var Log = mongoose.model('Log', LogSchema)
+var Group = mongoose.model('Group', GroupSchema)
 
 module.exports = {
   Request: Request,
   User: User,
-  Log: Log
+  Log: Log,
+  Group: Group
 };

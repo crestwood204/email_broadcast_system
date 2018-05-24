@@ -8,7 +8,6 @@ var models = require('../models/models');
 module.exports = function(passport) {
   // load login page
   router.get('/login', function(req, res) {
-    console.log(req.query.error)
     res.render('login', {"error": req.query.error})
   })
 
