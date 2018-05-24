@@ -7,3 +7,17 @@
     margin-left: 15%;
     margin-right: 15%;
 }
+
+.from {
+    float: right;
+}
+
+.no-highlight {
+    outline: none;
+    margin-left: 15%;
+}
+
+.number {
+    float: left;
+    padding-right: 10%;
+}
