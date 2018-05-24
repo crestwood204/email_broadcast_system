@@ -105,34 +105,32 @@ router.post('/new_request', function(req, res) {
 })
 
 router.get('/pending_requests', function(req, res) {
-  if (req.user.approver) {
-    //TODO: Get rid of the if else and just include param approver
-    res.redirect('/')
-  } else {
-    User.findById(req.user._id)
-      .populate({
-        path: 'pendingRequests',
-        model: 'Request'
-      })
-      .exec(function(err, user) {
-        if (err) {
-          console.log("pending_requests error_fetching_requests database_error")
-          res.redirect('/?request=failure')
-        } else {
-            success = false
-            failed = false
-            if (req.query.request === 'success') {
-              success = true
-            }
-            if (req.query.request === 'failed') {
-              failed = true
-            }
-            res.render('pending_requests', {'pendingRequests': user.pendingRequests, 'success': success, 'failed': failed})
-        }
-      })
-  }
-
-
+  User.findById(req.user._id)
+    .populate({
+      path: 'pendingRequests',
+      model: 'Request'
+    })
+    .exec(function(err, user) {
+      if (err) {
+        console.log("pending_requests error_fetching_requests database_error")
+        res.redirect('/?request=failure')
+      } else {
+          success = false
+          failed = false
+          if (req.query.request === 'success') {
+            success = true
+          }
+          if (req.query.request === 'failed') {
+            failed = true
+          }
+          res.render('pending_requests', {
+            'pendingRequests': user.pendingRequests,
+            'success': success,
+            'failed': failed,
+            'approver': req.user.approver
+          })
+      }
+    })
 })
 
 router.get('/log', function(req, res) {

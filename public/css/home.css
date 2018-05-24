@@ -14,10 +14,25 @@
 
 .no-highlight {
     outline: none;
-    margin-left: 15%;
 }
 
+.margin-left {
+    margin-left: 15%;
+}
 .number {
     float: left;
     padding-right: 10%;
+}
+
+.display-inline {
+    display: inline-block
+}
+
+.right {
+    text-align: right
+}
+
+.border-top {
+    border-top: 1px solid gray;
+    margin-top: 5px;
 }

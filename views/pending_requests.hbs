@@ -10,6 +10,36 @@
 {{/if}}
 <div class="content">
     {{#each pendingRequests}}
-        <div>{{this.to}}, {{this.subject}}, {{this.body}}</div>
+        <li id="log-list" class="list-group-item">
+            <div>
+                <span class="number">
+                    {{@index}}. {{item}}
+                </span>
+                <span class="to">
+                    To: {{this.to}}
+                </span>
+                <span class="from">
+                    From: {{this.from}}
+                </span>
+            </div>
+            <div>
+                <button class="no-highlight margin-left" data-toggle="collapse" data-target="#{{this._id}}">Body</button>
+            </div>
+            <div id={{this._id}} class="collapse">
+                <div class="border-top">
+                    {{this.body}}
+                <div>
+                <div class="right">
+                    {{#if @root.approver}}
+                        <span class="display-inline">
+                            <button id=accept-{{this._id}} type="button" class="no-highlight accept-btn btn-xs btn-success">Accept</button>
+                            <button id=reject-{{this._id}} type="button" class="no-highlight reject-btn btn-xs btn-danger">Reject</button>
+                        </span>
+                    {{/if}}
+                <div>
+            </div>
+
+        </li>
     {{/each}}
 </div>
+<script src="/js/pending_requests.js"></script>
