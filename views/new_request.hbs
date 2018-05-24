@@ -1,72 +1,19 @@
-<html lang="en">
-    <head>
-      <meta charset="utf-8">
-
-      <title>RI Broadcast System</title>
-      <meta name="Email Broadcast " content="Broadcast System">
-      <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
-      <link rel="stylesheet" type="text/css" href="css/home.css">
-      <link rel="shortcut icon" type="image/x-icon" href="favicon.ico"/>
-    </head>
-    <body>
-        <nav class="navbar navbar-default">
-          <div class="container-fluid">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-              <a class="navbar-brand" href="/">Brand</a>
-            </div>
-
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-              <ul class="nav navbar-nav">
-                <li class="active"><a href="/">Home <span class="sr-only">(current)</span></a></li>
-                <li><a href="#">Pending Requests</a></li>
-              </ul>
-              <ul class="nav navbar-nav navbar-right">
-                <li><a href="#">Log</a></li>
-                <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-                  <ul class="dropdown-menu">
-                    <li><a href="#">Action</a></li>
-                    <li><a href="#">Another action</a></li>
-                    <li><a href="#">Something else here</a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="/logout">Logout</a></li>
-                  </ul>
-                </li>
-              </ul>
-            </div><!-- /.navbar-collapse -->
-          </div><!-- /.container-fluid -->
-        </nav>
-        <form class="content" method="post" action="/new_request">
-            <div class="form-group">
-              <label for="toField">To:</label><br>
-              <select name="toField" class="selectpicker" multiple>
-                  <option>Physicians</option>
-                  <option>Nurses</option>
-                  <option>IT</option>
-              </select>
-            </div>
-            <div class="form-group">
-                <label for="subject">Subject:</label>
-                <input name="subject" type="subject" class="form-control" id="subject" aria-describedby="requestSubject" placeholder="Enter subject">
-            </div>
-            <div class="form-group">
-                <label for="body">Body:</label>
-                <textarea name="body" class="form-control" rows="5" id="body"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </body>
-    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
-</html>
+<form class="content" method="post" action="/new_request">
+    <div class="form-group">
+      <label for="toField">To:</label><br>
+      <select name="toField" class="selectpicker" multiple>
+          {{#each groups}}
+          <option>{{this}}</option>
+          {{/each}}
+      </select>
+    </div>
+    <div class="form-group">
+        <label for="subject">Subject:</label>
+        <input name="subject" type="subject" class="form-control" id="subject" aria-describedby="requestSubject" placeholder="Enter subject">
+    </div>
+    <div class="form-group">
+        <label for="body">Body:</label>
+        <textarea name="body" class="form-control" rows="5" id="body"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

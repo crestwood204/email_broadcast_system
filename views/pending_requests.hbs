@@ -1,0 +1,15 @@
+{{#if success}}
+<div class="alert alert-success" role="alert">
+    Broadcast was processed.
+</div>
+{{/if}}
+{{#if failed}}
+<div class="alert alert-danger" role="alert">
+    Database Error! Broadcast was not processed.
+</div>
+{{/if}}
+<div class="content">
+    {{#each pendingRequests}}
+        <div>{{this.to}}, {{this.subject}}, {{this.body}}</div>
+    {{/each}}
+</div>

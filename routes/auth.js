@@ -8,7 +8,7 @@ var models = require('../models/models');
 module.exports = function(passport) {
   // load login page
   router.get('/login', function(req, res) {
-    res.render('login', {"error": req.query.error})
+    res.render('login', {layout: false, "error": req.query.error})
   })
 
   // handles user login, redirecting based on user type

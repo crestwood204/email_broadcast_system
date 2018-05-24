@@ -3,7 +3,7 @@ var Schema = mongoose.Schema;
 
 var RequestSchema = new Schema ({
   to: {
-    type: String,
+    type: [String],
     required: true
   },
   from: {
@@ -51,6 +51,10 @@ var LogSchema = new Schema ({
   pending: {
     type: Boolean,
     default: false
+  },
+  approved: {
+    type: Boolean,
+    default: undefined
   },
   approver: {
     type: String,

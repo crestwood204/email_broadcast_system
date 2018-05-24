@@ -1,0 +1,25 @@
+<ul id="log" class="list-group">
+    {{#each logs}}
+        <li class="list-group-item">
+            <div>
+                <span class="to">
+                    To: {{this.request_id}}
+                </span>
+                <span class="from">
+                    From: {{this.request_id}}
+                </span>
+            </div>
+            <div>
+                {{#if this.approved}}
+                    <span class="approved">
+                        Approved by: {{this.approver}}
+                    </span>
+                {{/if}}
+                <button data-toggle="collapse" data-target="#demo">Collapsible</button>
+            </div>
+            <div id="demo" class="collapse">
+            Lorem ipsum dolor text....
+            </div>
+        </li>
+    {{/each}}
+</ul>
