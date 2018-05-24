@@ -149,4 +149,21 @@ router.get('/log', function(req, res) {
       }
     })
 })
+
+router.put('/accept_pending_request', function(req, res) {
+  // edit the request
+  Request.findByIdAndUpdate(req.body.id, {$set: {
+    pending: false,
+    approved: true,
+    approver: req.user.username
+  }}, function(err) {
+    console.log("accept_pending_request put_approver_info_on_request database_error")
+    res.redirect('/?request=failed')
+  })
+})
+
+router.put('/reject_pending_request', function(req, res) {
+
+})
+
 module.exports = router

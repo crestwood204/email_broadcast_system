@@ -9,7 +9,7 @@ $(document).ready(function() {
 
   var accept_reject = function(that, url) {
     event.preventDefault();
-    var id = $(that).attr('id')substring(7)
+    var id = $(that).attr('id').substring(7)
     $.ajax({
       url: url,
       method: 'put',

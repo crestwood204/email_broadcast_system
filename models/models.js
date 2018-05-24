@@ -17,6 +17,18 @@ var RequestSchema = new Schema ({
   body: {
     type: String,
     required: true
+  },
+  pending: {
+    type: Boolean,
+    default: true
+  },
+  approved: {
+    type: Boolean,
+    default: undefined
+  },
+  approver: {
+    type: String,
+    default: undefined
   }
 })
 
@@ -48,17 +60,9 @@ var LogSchema = new Schema ({
     type: [Schema.ObjectId],
     ref: 'Request'
   },
-  pending: {
-    type: Boolean,
-    default: false
-  },
-  approved: {
-    type: Boolean,
-    default: undefined
-  },
-  approver: {
+  type: {
     type: String,
-    default: undefined
+    required: true
   }
 })
 
