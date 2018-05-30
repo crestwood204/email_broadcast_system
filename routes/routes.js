@@ -23,7 +23,7 @@ router.use(function(req, res, next) {
 router.get('/', function(req, res) {
   User.findById(req.user._id).then(
     (user) => {
-      res.render('home', {'request': req.query.request})
+      res.render('home', {'request': req.query.request, 'approver': req.user.approver})
     },
     (err) => {
       res.status(500).send('Database Error: "/"')
@@ -34,7 +34,7 @@ router.get('/', function(req, res) {
 router.get('/new_request', function(req, res) {
   Group.find({}).then(
     (groups) => {
-      res.render('new_request', {"groups": groups.map(x => x.name)})
+      res.render('new_request', {"groups": groups.map(x => x.name), 'approver': req.user.approver})
     },
     (err) => {
       res.status(500).send('Database Error: "/new_request"')
@@ -167,7 +167,7 @@ router.put('/decide_request', function(req, res) {
           console.log("decide_request update database_error")
           res.redirect('/?request=failed')
         } else {
-          sendEmail(to)
+          // TODO:?? sendEmail(request.to, request.subject, request.body)
           // make log
           var new_log = new Log({
             request_id: request._id,
@@ -185,5 +185,42 @@ router.put('/decide_request', function(req, res) {
     }
   })
 })
+
+var sendEmail = function(to, subject, text) {
+  // change to from an array to a string
+  to = to.join(', ')
+  // create reusable transporter object using the default SMTP transport
+    let transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+            user: process.env.EMAIL,
+            pass: process.env.EMAIL_PASS
+        }
+    });
+
+    // setup email data with unicode symbols
+    let mailOptions = {
+        from: '"Fred Foo 👻" <foo@example.com>', // sender address
+        to: 'bar@example.com, baz@example.com', // list of receivers
+        subject: 'Hello ✔', // Subject line
+        text: 'Hello world?', // plain text body
+        html: '<b>Hello world?</b>' // html body
+    };
+
+    // send mail with defined transport object
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.log(error);
+        }
+        console.log('Message sent: %s', info.messageId);
+        // Preview only available when sending through an Ethereal account
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+
+        // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+        // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+    });
+}
 
 module.exports = router

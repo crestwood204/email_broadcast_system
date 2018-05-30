@@ -36,3 +36,11 @@
     border-top: 1px solid gray;
     margin-top: 5px;
 }
+
+.approved {
+    float: right;
+}
+
+.nrbtn:focus {
+    outline: none
+}
