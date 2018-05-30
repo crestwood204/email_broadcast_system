@@ -18,12 +18,16 @@ router.use('/', function(req, res, next) {
 
 router.get('/edit_users', function(req, res) {
     var success = undefined
+    var failed = undefined
     if (req.query.request === 'success') {
       success = true
     }
+    if (req.query.request === 'failed') {
+      failed = true
+    }
     User.find({}).then(
       (users) => {
-        res.render('edit_views/edit_users', {'users': users, 'success': success, 'approver': req.user.approver})
+        res.render('edit_views/edit_users', {'users': users, 'success': success, 'failed': failed, 'approver': req.user.approver})
       },
       (err) => {
         console.log('edit_users fetch database_error')
@@ -93,7 +97,18 @@ router.post('/new_user', function(req, res) {
 })
 
 router.get('/edit_user', function(req, res) {
-  
+  User.findOne({'username': req.query.user}, function(err, user) {
+    if (err) {
+      console.log('edit_user user_lookup database_error')
+      res.redirect('/edit_users', 'request=failed')
+    } else {
+      if (!user) {
+        res.redirect('/edit_users', 'request=failed')
+      } else {
+          res.render('edit_views/edit_user', {'user': user})
+      }
+    }
+  })
 })
 
 router.get('/edit_groups', function(req, res) {

@@ -1,0 +1,30 @@
+<div class="content">
+    <h2> Edit User </h2>
+    
+    <form method="PUT">
+      <div class="form-group">
+        <label for="inputUsername" class="col-2 col-form-label">Username</label>
+        <input class="form-control" name="username" value={{user.username}} type="inputUsername" id="inputUsername" placeholder="Username">
+      </div>
+      <div class="form-group">
+        <label for="inputEmail" class="col-2 col-form-label">Email Address</label>
+        <input class="form-control" name="email" value={{user.email}} type="inputEmail" id="inputEmail" placeholder="Email Address">
+      </div>
+      <div class="form-group">
+        <label for="inputPassword" class="col-2 col-form-label">Password</label>
+        <input class="form-control" name="password" value={{user.password}} type="password" id="inputPassword" placeholder="Password">
+      </div>
+      <div class="form-check">
+        <label class="form-check-label">
+            {{#if user.approver}}
+                <input type="checkbox" name="approver" class="form-check-input" checked>
+            {{else}}
+                <input type="checkbox" name="approver" class="form-check-input">
+            {{/if}}
+          Approver
+        </label>
+      </div>
+      <a href="/edit_users"><button type="button" class="btn btn-danger">Cancel</button></a>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</div>
