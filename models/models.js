@@ -7,8 +7,8 @@ var RequestSchema = new Schema ({
     required: true
   },
   from: {
-    type: String,
-    required: true
+    type: Schema.ObjectId,
+    ref: 'User'
   },
   subject: {
     type: String,
@@ -48,16 +48,12 @@ var UserSchema = new Schema ({
   email: {
     type: String,
     required: true
-  },
-  pendingRequests: {
-    type: [Schema.ObjectId],
-    ref: 'Request'
   }
 })
 
 var LogSchema = new Schema ({
   request_id: {
-    type: [Schema.ObjectId],
+    type: Schema.ObjectId,
     ref: 'Request'
   },
   type: {

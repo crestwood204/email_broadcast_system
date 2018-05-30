@@ -45,14 +45,14 @@ router.post('/new_request', function(req, res) {
   var to = req.body.toField
   var subject = req.body.subject
   var body = req.body.body
-  var from = req.user.email
+  var from = req.user._id
 
   // convert toField into an array if it is a string
   if (typeof to !== 'object') {
     to = [to]
   }
 
-  // add to approver's requests
+  // save request object
   var new_request = new Request({
     to: to,
     from: from,
@@ -61,24 +61,14 @@ router.post('/new_request', function(req, res) {
   })
   new_request.save(function(err, request) {
     if (err) {
-      console.log('new_request approver_requests database_error')
+      console.log('new_request save database_error')
       res.redirect('/pending_requests?request=failed')
     }
-
-    // add to submitter's pending requests
-    var pendingRequests = req.user.pendingRequests
-    pendingRequests.push(request._id)
-    User.findByIdAndUpdate(req.user._id, {$set: {pendingRequests : pendingRequests}}, function(err) {
-      if (err) {
-        console.log("new_request add_submit_pending_requests database_error")
-        res.redirect('/pending_requests?request=failed')
-      }
-    })
 
     // add to log
     var new_log = new Log({
       request_id: request._id,
-      pending: true
+      type: 'NEW_BROADCAST'
     })
 
     new_log.save(function(err, log) {
@@ -90,7 +80,8 @@ router.post('/new_request', function(req, res) {
     // send emails to approvers
     User.find({}).then(
       (users) => {
-        var approver_emails = users.filter(x => x.approver === true)
+        var approver_emails = users.filter(x => x.approver === true).
+          map(x => x.email)
         //send emails
         //TODO: send emails
         console.log(approver_emails)
@@ -105,30 +96,31 @@ router.post('/new_request', function(req, res) {
 })
 
 router.get('/pending_requests', function(req, res) {
-  User.findById(req.user._id)
+  success = false
+  failed = false
+  if (req.query.request === 'success') {
+    success = true
+  }
+  if (req.query.request === 'failed') {
+    failed = true
+  }
+  Request.find({})
     .populate({
-      path: 'pendingRequests',
-      model: 'Request'
+      path: 'from',
+      model: 'User'
     })
-    .exec(function(err, user) {
+    .exec(function(err, requests) {
       if (err) {
-        console.log("pending_requests error_fetching_requests database_error")
-        res.redirect('/?request=failure')
+        console.log("pending_requests error_fetching requests database_error")
       } else {
-          success = false
-          failed = false
-          if (req.query.request === 'success') {
-            success = true
-          }
-          if (req.query.request === 'failed') {
-            failed = true
-          }
-          res.render('pending_requests', {
-            'pendingRequests': user.pendingRequests,
-            'success': success,
-            'failed': failed,
-            'approver': req.user.approver
-          })
+        requests = requests.filter(x => x.from._id.toString() === req.user._id.toString())
+        pendingRequests = requests.filter(x => x.pending)
+        res.render('pending_requests', {
+          'pendingRequests': pendingRequests,
+          'success': success,
+          'failed': failed,
+          'approver': req.user.approver
+        })
       }
     })
 })
@@ -137,14 +129,18 @@ router.get('/log', function(req, res) {
   Log.find({})
     .populate({
       path: 'request_id',
-      model: 'Request'
+      model: Request,
+      populate: {
+          path: 'from',
+          model: User
+      }
     })
     .exec(function(err, logs) {
       if (err) {
         console.log("log error_fetching_logs database_error")
         res.redirect('/?request=failure')
       } else {
-        console.log(logs[0].request_id)
+        console.log(logs)
         res.render('log', {'logs': logs})
       }
     })
