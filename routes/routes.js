@@ -156,10 +156,25 @@ router.put('/accept_pending_request', function(req, res) {
     pending: false,
     approved: true,
     approver: req.user.username
-  }}, function(err) {
-    console.log("accept_pending_request put_approver_info_on_request database_error")
-    res.redirect('/?request=failed')
-  })
+  }}, function(err, request) {
+    if (err) {
+      console.log("accept_pending_request put_approver_info_on_request database_error")
+      res.redirect('/?request=failed')
+    } else {
+      //TODO:// update pending Requests:::: remove from pending requests
+    //
+    //   var pendingRequests =
+    //   User.findOneAndUpdate({'email': request.from}), {$set: {
+    //     pendingRequests: pendingRequests
+    //   }}, function(err, user) {
+    //     if (err) {
+    //       console.log('accept_pending_request remove_from_pending_requests database_error')
+    //       res.redirect('/?request=failed')
+    //     }
+    //   }
+    // }
+  }})
+  // make a log
 })
 
 router.put('/reject_pending_request', function(req, res) {
