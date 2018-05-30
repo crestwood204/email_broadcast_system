@@ -1,28 +1,33 @@
-<ul id="log" class="list-group">
-    {{#each logs}}
-        <li id="log-list" class="list-group-item">
-            <div>
-                <span class="number">
-                    {{@index}}. {{item}}
-                </span>
-                <span class="to">
-                    Type: {{this.request_id.[0].type}}
-                </span>
-                <span class="from">
-                    From: {{this.request_id.[0].from}}
-                </span>
-            </div>
-            <div>
-                {{#if this.approved}}
-                    <span class="approved">
-                        Approved by: {{this.approver}}
+{{#if approver}}
+    <ul id="log" class="list-group">
+        {{#each logs}}
+            <li id="log-list" class="list-group-item">
+                <div>
+                    <span class="number">
+                        {{@index}}. {{item}}
                     </span>
-                {{/if}}
-                <button class="no-highlight" data-toggle="collapse" data-target="#{{this._id}}">Body</button>
-            </div>
-            <div id={{this._id}} class="collapse">
-                {{this.request_id.[0].body}}
-            </div>
-        </li>
-    {{/each}}
-</ul>
+                    <span class="to">
+                        Type: {{this.type}}
+                    </span>
+                    <span class="from">
+                        From: {{this.request_id.from.username}}
+                    </span>
+                </div>
+                <div>
+                    <button class="no-highlight" data-toggle="collapse" data-target="#{{this._id}}">Body</button>
+                    {{#if this.request_id.approved}}
+                        <span class="approved">
+                            Approved by: {{this.request_id.approver}}
+                        </span>
+                    {{/if}}
+                </div>
+                <div id={{this._id}} class="collapse">
+                    {{this.request_id.body}}
+                </div>
+            </li>
+        {{/each}}
+    </ul>
+    <script src="/js/log.js"></script>
+{{else}}
+    <div> You Do Not Have Access To This Feature. Contact IT For Access. </div>
+{{/if}}

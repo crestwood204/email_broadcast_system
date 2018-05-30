@@ -1,5 +1,6 @@
 //REQUIRE IN EXPRESS AND EXPRESS ROUTER TO CREATE ROUTES TO REQUIRE IN APP.JS
 var express = require('express')
+var nodemailer = require('nodemailer')
 var router = express.Router()
 
 //REQUIRE IN MODELS
@@ -68,7 +69,7 @@ router.post('/new_request', function(req, res) {
     // add to log
     var new_log = new Log({
       request_id: request._id,
-      type: 'NEW_BROADCAST'
+      type: 'Broadcast Request'
     })
 
     new_log.save(function(err, log) {
@@ -113,10 +114,12 @@ router.get('/pending_requests', function(req, res) {
       if (err) {
         console.log("pending_requests error_fetching requests database_error")
       } else {
-        requests = requests.filter(x => x.from._id.toString() === req.user._id.toString())
+        if (!req.user.approver) {
+            requests = requests.filter(x => x.from._id.toString() === req.user._id.toString())
+        }
         pendingRequests = requests.filter(x => x.pending)
         res.render('pending_requests', {
-          'pendingRequests': pendingRequests,
+          'pendingRequests': pendingRequests.reverse(),
           'success': success,
           'failed': failed,
           'approver': req.user.approver
@@ -140,41 +143,47 @@ router.get('/log', function(req, res) {
         console.log("log error_fetching_logs database_error")
         res.redirect('/?request=failure')
       } else {
-        console.log(logs)
-        res.render('log', {'logs': logs})
+        res.render('log', {'logs': logs.reverse(), 'approver': req.user.approver})
       }
     })
 })
 
-router.put('/accept_pending_request', function(req, res) {
+router.put('/decide_request', function(req, res) {
   // edit the request
-  Request.findByIdAndUpdate(req.body.id, {$set: {
-    pending: false,
-    approved: true,
-    approver: req.user.username
-  }}, function(err, request) {
-    if (err) {
-      console.log("accept_pending_request put_approver_info_on_request database_error")
-      res.redirect('/?request=failed')
-    } else {
-      //TODO:// update pending Requests:::: remove from pending requests
-    //
-    //   var pendingRequests =
-    //   User.findOneAndUpdate({'email': request.from}), {$set: {
-    //     pendingRequests: pendingRequests
-    //   }}, function(err, user) {
-    //     if (err) {
-    //       console.log('accept_pending_request remove_from_pending_requests database_error')
-    //       res.redirect('/?request=failed')
-    //     }
-    //   }
-    // }
-  }})
-  // make a log
-})
+  var approved = req.body.decision === 'approve'
+  var type = 'Broadcast Rejected'
+  if (approved) {
+    type = 'Broadcast Approved'
+  }
 
-router.put('/reject_pending_request', function(req, res) {
+  Request.findById(req.body.id, function(err, request) {
+    if (request.pending) {
+      Request.update({_id: req.body.id}, {$set: {
+        pending: false,
+        approved: true,
+        approver: req.user.username
+      }}, function(err, updated_request) {
+        if (err) {
+          console.log("decide_request update database_error")
+          res.redirect('/?request=failed')
+        } else {
+          sendEmail(to)
+          // make log
+          var new_log = new Log({
+            request_id: request._id,
+            type: type
+          })
 
+          new_log.save(function(err, log) {
+            if (err) {
+              console.log('decide_request update_log database_error')
+              res.redirect('/pending_requests?request=failed')
+            }
+          })
+        }
+      })
+    }
+  })
 })
 
 module.exports = router

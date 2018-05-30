@@ -31,8 +31,8 @@
                 <div>
                 <div class="right">
                     {{#if @root.approver}}
-                        <span class="display-inline">
-                            <button id=accept-{{this._id}} type="button" class="no-highlight accept-btn btn-xs btn-success">Accept</button>
+                        <span id=decision-{{this._id}} class="display-inline">
+                            <button id=accept-{{this._id}} type="button" class="no-highlight accept-btn btn-xs btn-success">Approve</button>
                             <button id=reject-{{this._id}} type="button" class="no-highlight reject-btn btn-xs btn-danger">Reject</button>
                         </span>
                     {{/if}}
