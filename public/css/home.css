@@ -8,10 +8,6 @@
     margin-right: 15%;
 }
 
-.from {
-    float: right;
-}
-
 .no-highlight {
     outline: none;
 }
@@ -19,17 +15,18 @@
 .margin-left {
     margin-left: 15%;
 }
+
 .number {
     float: left;
     padding-right: 10%;
 }
 
 .display-inline {
-    display: inline-block
+    display: inline-block;
 }
 
 .right {
-    text-align: right
+    text-align: right;
 }
 
 .border-top {
@@ -37,8 +34,12 @@
     margin-top: 5px;
 }
 
-.approved {
+.float-right {
     float: right;
+}
+
+.float-left {
+    float: left;
 }
 
 .nrbtn:focus {

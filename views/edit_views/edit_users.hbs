@@ -1,6 +1,38 @@
-<!-- Create New User -->
-<button type="button" class="btn btn-secondary">Add New User +</button>
+{{#if success}}
+<div class="alert alert-success" role="alert">
+    New User Created
+</div>
+{{/if}}
 
-<!-- Modify Current Users -->
+<div class="content">
+    <!-- Create New User -->
+    <div>
+        <a href="/new_user"><button type="button" class="btn btn-primary">Add New User</button></a>
+    </div>
 
-<!-- Banned Users -->
+    <!-- Modify Current Users -->
+    <h1> Active Users </h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Username</th>
+                <th scope="col">Approver</th>
+                <th scope="col">Email</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each users}}
+                <tr>
+                    <th scope="row">{{this.username}}</th>
+                    <td>{{this.approver}}</td>
+                    <td>{{this.email}}</td>
+                    <td><a href="edit_user?user={{this.username}}"><button type="button" class="btn btn-primary">Edit</button></a></td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+    <!-- Deactivated Users -->
+    <h1> Deactivated Users </h1>
+</div>
