@@ -51,3 +51,7 @@
     line-height: 0px !important;
     border-top: none !important;
 }
+
+.description {
+    font-size: 10pt;
+}

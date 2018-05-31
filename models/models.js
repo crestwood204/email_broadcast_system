@@ -61,7 +61,7 @@ var LogSchema = new Schema ({
     type: Schema.ObjectId,
     ref: 'Request'
   },
-  type: {
+  change: {
     type: String,
     required: true
   },
@@ -69,29 +69,47 @@ var LogSchema = new Schema ({
     type: Schema.ObjectId,
     ref: 'User'
   },
-  title: {
+  description: {
     type: String,
     required: true
   },
-  obj_type: {
+  type: {
     type: String,
     required: true
   },
   date: {
     type: Date,
     required: true
+  },
+  edit_user_id: {
+    type: Schema.ObjectId,
+    ref: 'User'
   }
 })
 
-LogSchema.statics.makeLog = function(type, user_id, title, obj_type, err_msg, request_id) {
-  var new_log = new Log({
-    type: type,
-    user_id: user_id,
-    title: title,
-    obj_type: obj_type,
-    request_id: request_id,
-    date: new Date()
-  })
+LogSchema.statics.log = function(change, user_id, description, type, err_msg, request_id, edit_user_id) {
+  var new_log = undefined
+
+  if (request_id) {
+    new_log = new Log({
+      change: change,
+      user_id: user_id,
+      description: description,
+      type: type,
+      request_id: request_id,
+      date: new Date()
+    })
+  } else {
+    new_log = new Log({
+      change: change,
+      user_id: user_id,
+      description: description,
+      type: type,
+      edit_user_id: edit_user_id,
+      date: new Date()
+    })
+  }
+
 
   new_log.save(function(err, log) {
     if (err) {

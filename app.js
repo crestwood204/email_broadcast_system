@@ -41,15 +41,23 @@ app.engine('.hbs', exphbs({
   extname: '.hbs',
   helpers:{
     // Function to do basic mathematical operation in handlebar
-    math: function(lvalue, operator, rvalue) {lvalue = parseFloat(lvalue);
-        rvalue = parseFloat(rvalue);
-        return {
-            "+": lvalue + rvalue,
-            "-": lvalue - rvalue,
-            "*": lvalue * rvalue,
-            "/": lvalue / rvalue,
-            "%": lvalue % rvalue
-        }[operator];
+    math: function(lvalue, operator, rvalue) {
+      lvalue = parseFloat(lvalue);
+      rvalue = parseFloat(rvalue);
+      return {
+          "+": lvalue + rvalue,
+          "-": lvalue - rvalue,
+          "*": lvalue * rvalue,
+          "/": lvalue / rvalue,
+          "%": lvalue % rvalue
+    }[operator];
+    },
+    // Function to check equality
+    equal: function(lvalue, operator, rvalue) {
+      return {
+        "===": lvalue === rvalue
+        "!==": lvalue !== rvalue
+      }[operator]
     }
   }
 }));

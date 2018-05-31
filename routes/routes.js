@@ -67,17 +67,8 @@ router.post('/new_request', function(req, res) {
     }
 
     // add to log
-    var new_log = new Log({
-      request_id: request._id,
-      type: 'Broadcast Request'
-    })
+    Log.log('Create', req.user._id, 'Broadcast Request Created', 'Broadcast', 'post new_request database_error', request._id)
 
-    new_log.save(function(err, log) {
-      if (err) {
-        console.log('new_request update_log database_error')
-        res.redirect('/pending_requests?request=failed')
-      }
-    })
     // send emails to approvers
     User.find({}).then(
       (users) => {
@@ -146,6 +137,13 @@ router.get('/log', function(req, res) {
         console.log("log error_fetching_logs database_error")
         res.redirect('/?request=failure')
       } else {
+        logs.map(
+          (x) => {
+            var date_str = x.date.toLocaleString().split(', ')
+            x.date_string = date_str[0]
+            x.time_string = date_str[1]
+          }
+        )
         res.render('log', {'logs': logs.reverse(), 'user': req.user})
       }
     })
@@ -154,16 +152,16 @@ router.get('/log', function(req, res) {
 router.post('/decide_request', function(req, res) {
   // edit the request
   var approved = req.body.decision === 'approve'
-  var type = 'Broadcast Rejected'
+  var change = 'Rejected'
   if (approved) {
-    type = 'Broadcast Approved'
+    change = 'Approved'
   }
 
   Request.findById(req.body.id, function(err, request) {
     if (request.pending) {
       Request.update({_id: req.body.id}, {$set: {
         pending: false,
-        approved: true,
+        approved: approved,
         approver: req.user.username
       }}, function(err, updated_request) {
         if (err) {
@@ -172,17 +170,7 @@ router.post('/decide_request', function(req, res) {
         } else {
           // TODO:?? sendEmail(request.to, request.subject, request.body)
           // make log
-          var new_log = new Log({
-            request_id: request._id,
-            type: type
-          })
-
-          new_log.save(function(err, log) {
-            if (err) {
-              console.log('decide_request update_log database_error')
-              res.redirect('/pending_requests?request=failed')
-            }
-          })
+          Log.log(change, req.user._id, 'Broadcast Request ' + change, 'Broadcast', 'post decide_request database_error', updated_request._id)
         }
       })
     }

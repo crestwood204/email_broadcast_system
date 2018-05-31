@@ -96,6 +96,8 @@ router.post('/new_user', function(req, res) {
             console.log('new_user save database_error')
             res.redirect('/new_user?database_error=true')
           } else {
+            // make a log
+            Log.log('Create', req.user._id, 'New User Created', 'User', 'post new_user database_error', null, user._id)
             res.redirect('/edit_users?request=success')
           }
         })
@@ -132,13 +134,37 @@ router.post('/edit_user', function(req, res) {
     'email': email,
     'password': password,
     'approver': approver
-  }, { new: true }, function(err, user) {
+  }, function(err, user) {
     if (err) {
       console.log('edit_user post_edit database_error')
       res.redirect('/edit_users?request=failed')
     } else {
-      // TODO: make a log
-      res.redirect('/edit_users?update=true')
+      // make a log
+      var title = ''
+      if (email !== user.email) {
+        title += 'Email Changed '
+      }
+      if (password !== user.password) {
+        title += 'Password Changed '
+      }
+      if (approver !== user.approver) {
+        if (approver) {
+          title += 'Promoted '
+        } else {
+          title += 'Demoted '
+        }
+      }
+
+      title.trim().split(' ').join(', ')
+
+      if (!title) {
+        // nothing was edited, so don't make a log
+        res.redirect('/edit_users?update=true')
+      } else {
+        Log.log('Edit', req.user._id, 'User ' + title, 'User', 'post edit_user database_error', null, user._id)
+        res.redirect('/edit_users?update=true')
+      }
+
     }
   })
 })
@@ -152,9 +178,10 @@ router.put('/deactivate_user', function(req, res) {
     if (err) {
       res.status(500).send('database error when deactiving user')
     }
-    res.status(200).send('user deactivated')
+    // make a log
+    Log.log('Deactivated', req.user._id, 'User Deactivated', 'User', 'put deactivate_user database_error', null, user._id)
 
-    // TODO: make log
+    res.status(200).send('user deactivated')
   })
 })
 
@@ -165,11 +192,11 @@ router.put('/activate_user', function(req, res) {
   }}, function(err, user) {
     if (err) {
       res.status(500).send('datbase error when activating user')
-
     }
-    res.status(200).send('user activated')
+    // make a log
+    Log.log('Activated', req.user._id, 'User Activated', 'User', 'put activate_user database_error', null, user._id)
 
-    // TODO: make log
+    res.status(200).send('user activated')
   })
 })
 
