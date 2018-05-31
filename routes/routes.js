@@ -23,7 +23,6 @@ router.use(function(req, res, next) {
 router.get('/', function(req, res) {
   User.findById(req.user._id).then(
     (user) => {
-      console.log(req.user)
       res.render('home', {'request': req.query.request, 'user': req.user})
     },
     (err) => {
