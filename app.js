@@ -55,7 +55,7 @@ app.engine('.hbs', exphbs({
     // Function to check equality
     equal: function(lvalue, operator, rvalue) {
       return {
-        "===": lvalue === rvalue
+        "===": lvalue === rvalue,
         "!==": lvalue !== rvalue
       }[operator]
     }

@@ -137,14 +137,16 @@ router.get('/log', function(req, res) {
         console.log("log error_fetching_logs database_error")
         res.redirect('/?request=failure')
       } else {
-        logs.map(
+        var new_logs = logs.map(
           (x) => {
             var date_str = x.date.toLocaleString().split(', ')
             x.date_string = date_str[0]
             x.time_string = date_str[1]
+            return x
           }
         )
-        res.render('log', {'logs': logs.reverse(), 'user': req.user})
+        console.log(new_logs)
+        res.render('log', { 'user': req.user})
       }
     })
 })
@@ -163,14 +165,14 @@ router.post('/decide_request', function(req, res) {
         pending: false,
         approved: approved,
         approver: req.user.username
-      }}, function(err, updated_request) {
+      }}, function(err) {
         if (err) {
           console.log("decide_request update database_error")
           res.redirect('/?request=failed')
         } else {
           // TODO:?? sendEmail(request.to, request.subject, request.body)
           // make log
-          Log.log(change, req.user._id, 'Broadcast Request ' + change, 'Broadcast', 'post decide_request database_error', updated_request._id)
+          Log.log(change, req.user._id, 'Broadcast Request ' + change, 'Broadcast', 'post decide_request database_error', request._id)
         }
       })
     }
