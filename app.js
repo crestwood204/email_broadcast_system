@@ -36,7 +36,22 @@ var port = process.env.PORT || 3000;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.engine('.hbs', exphbs({defaultLayout: 'main', extname: '.hbs'}));
+app.engine('.hbs', exphbs({
+  defaultLayout: 'main',
+  extname: '.hbs',
+  helpers:{
+    // Function to do basic mathematical operation in handlebar
+    math: function(lvalue, operator, rvalue) {lvalue = parseFloat(lvalue);
+        rvalue = parseFloat(rvalue);
+        return {
+            "+": lvalue + rvalue,
+            "-": lvalue - rvalue,
+            "*": lvalue * rvalue,
+            "/": lvalue / rvalue,
+            "%": lvalue % rvalue
+        }[operator];
+    }
+}));
 app.set('view engine', 'hbs');
 app.use(express.static(path.join(__dirname, 'public')));
 

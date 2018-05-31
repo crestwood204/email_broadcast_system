@@ -1,4 +1,47 @@
-{{#if approver}}
+{{#if user.approver}}
+    <h1> Audit Log </h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Type</th>
+                <th scope="col">Title</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each users}}
+                {{#unless this.active}}
+                    <tr>
+                        <th scope="row" id="username-{{this._id}}" >{{this.username}}</th>
+                        <td>{{this.approver}}</td>
+                        <td>{{this.email}}</td>
+                        <td><button type="button" class="btn btn-warning" data-toggle="modal" data-target="#activate_modal-{{this._id}}">Activate</button></td>
+                    </tr>
+                    <!-- Modal -->
+                    <div class="modal fade" id="activate_modal-{{this._id}}" tabindex="-1" role="dialog" aria-labelledby="deactiveUserModal" aria-hidden="true">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="activateUserModalLabel-{{this._id}}">Activate User</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                            <span> Are you sure you want to activate </span> <b id="activate_username-{{this._id}}"> </b><span>?</span>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="button" id={{this._id}} class="btn btn-warning activate_confirm">Activate</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                {{/unless}}
+            {{/each}}
+        </tbody>
+    </table>
     <ul id="log" class="list-group">
         {{#each logs}}
             <li class="list-group-item">
