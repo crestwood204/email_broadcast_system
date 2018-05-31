@@ -46,6 +46,24 @@
     outline: none
 }
 
+.no-hover:hover {
+    background-color: #5cb85c !important;
+}
+
+.name {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857143;
+    color: #333;
+    white-space: nowrap;
+    text-decoration: none;
+    background-color: transparent;
+    box-sizing: border-box;
+    cursor: default;
+}
+
 .blank-row {
     padding: 0px !important;
     line-height: 0px !important;

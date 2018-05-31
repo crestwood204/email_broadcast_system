@@ -4,8 +4,8 @@
         <thead>
             <tr>
                 <th scope="col">#</th>
-                <th scope="col">Title</th>
                 <th scope="col">Type</th>
+                <th scope="col">Title</th>
                 <th scope="col">Time</th>
                 <th scope="col">Date</th>
                 <th scope="col"></th>
@@ -15,8 +15,8 @@
             {{#each logs}}
                 <tr>
                     <th scope="row"> {{math @index "+" 1}}</th>
-                    <td>{{this.change}}</td>
                     <td>{{this.type}}</td>
+                    <td>{{this.change}}</td>
                     <td>{{this.time_string}}</td>
                     <td>{{this.date_string}}</td>
                     <td><button type="button" class="btn btn-primary toggle-row" data-toggle="collapse" data-target="#{{this._id}}"> Details </button></td>
@@ -32,16 +32,16 @@
                             {{#compare this.change "Rejected"}}
                                 <div> Rejected By: {{this.request_id.approver}} </div>
                             {{/compare}}
-                            {{#compare this.change "Create"}}
+                            {{#compare this.change "Created"}}
                                 <div> Created By: {{this.user_id.username}} </div>
                             {{/compare}}
-                            {{#compare this.change "Edit"}}
+                            {{#compare this.change "Edited"}}
                                 <div> Edited By: {{this.user_id.username}} </div>
                             {{/compare}}
-                            {{#compare this.change "Activate"}}
+                            {{#compare this.change "Activated"}}
                                 <div> Activated By: {{this.user_id.username}} </div>
                             {{/compare}}
-                            {{#compare this.change "Deactivate"}}
+                            {{#compare this.change "Deactivated"}}
                                 <div> Deactivated By: {{this.user_id.username}} </div>
                             {{/compare}}
                             <div class="description"> </div>

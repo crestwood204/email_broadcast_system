@@ -9,37 +9,47 @@
 </div>
 {{/if}}
 <div class="content">
-    {{#each pendingRequests}}
-        <li id="log-list" class="list-group-item">
-            <div>
-                <span class="number">
-                    {{@index}}. {{item}}
-                </span>
-                <span class="to">
-                    To: {{this.to}}
-                </span>
-                <span class="float-right">
-                    From: {{this.from.username}}
-                </span>
-            </div>
-            <div>
-                <button class="no-highlight" data-toggle="collapse" data-target="#{{this._id}}">Body</button>
-            </div>
-            <div id={{this._id}} class="collapse">
-                <div class="border-top">
-                    {{this.body}}
-                <div>
-                <div class="right">
-                    {{#if @root.user.approver}}
-                        <span id=decision-{{this._id}} class="display-inline">
-                            <button id=accept-{{this._id}} type="button" class="no-highlight accept-btn btn-xs btn-success">Approve</button>
-                            <button id=reject-{{this._id}} type="button" class="no-highlight reject-btn btn-xs btn-danger">Reject</button>
-                        </span>
-                    {{/if}}
-                <div>
-            </div>
-
-        </li>
-    {{/each}}
+    <h1> Pending Broadcasts </h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">username</th>
+                <th scope="col">To</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each pendingRequests}}
+                <tr>
+                    <th scope="row">{{math @index "+" 1}}</th>
+                    <td>{{this.from.username}}</td>
+                    <td>{{this.to}}</td>
+                    <td><button type="button" class="btn btn-primary toggle-row" data-toggle="collapse" data-target="#{{this._id}}"> Details </button></td>
+                </tr>
+                <tr>
+                    <td class="blank-row"> </td>
+                    <td class="blank-row details" colspan="3">
+                        <div id="{{this._id}}" class="collapse out">
+                            <div> From: {{this.from.email}} </div>
+                            <div> To: {{this.to}} </div>
+                            <div class="description"> Subject: {{this.subject}}</div>
+                            <div> Body: {{this.body}}</div>
+                            <div class="right">
+                                <div class="description"> </div>
+                                {{#if @root.user.approver}}
+                                    <span id=decision-{{this._id}} class="display-inline">
+                                        <button id=accept-{{this._id}} type="button" class="no-highlight accept-btn btn-xs btn-success">Approve</button>
+                                        <button id=reject-{{this._id}} type="button" class="no-highlight reject-btn btn-xs btn-danger">Reject</button>
+                                    </span>
+                                {{/if}}
+                            <div>
+                        </div>
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
 </div>
+<script src="/js/log.js"></script>
 <script src="/js/pending_requests.js"></script>

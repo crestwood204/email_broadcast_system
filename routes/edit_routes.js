@@ -97,7 +97,7 @@ router.post('/new_user', function(req, res) {
             res.redirect('/new_user?database_error=true')
           } else {
             // make a log
-            Log.log('Create', req.user._id, 'New User Created', 'User', 'post new_user database_error', null, user._id)
+            Log.log('Created', req.user._id, 'New User Created', 'User', 'post new_user database_error', null, user._id)
             res.redirect('/edit_users?request=success')
           }
         })
@@ -161,7 +161,7 @@ router.post('/edit_user', function(req, res) {
         // nothing was edited, so don't make a log
         res.redirect('/edit_users?update=true')
       } else {
-        Log.log('Edit', req.user._id, 'User ' + title, 'User', 'post edit_user database_error', null, user._id)
+        Log.log('Edited', req.user._id, 'User ' + title, 'User', 'post edit_user database_error', null, user._id)
         res.redirect('/edit_users?update=true')
       }
 
