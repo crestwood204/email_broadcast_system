@@ -35,7 +35,7 @@ router.get('/edit_users', function(req, res) {
     }
     User.find({}).then(
       (users) => {
-        res.render('edit_views/edit_users', {'users': users, 'success': success, 'failed': failed, 'update': update, 'deactivate': deactivate, 'approver': req.user.approver})
+        res.render('edit_views/edit_users', { 'users': users, 'success': success, 'failed': failed, 'update': update, 'deactivate': deactivate, 'user': req.user })
       },
       (err) => {
         console.log('edit_users fetch database_error')
@@ -60,7 +60,7 @@ router.get('/new_user', function(req, res) {
   if (req.query.username_taken) {
     msg = "Username is taken. Please choose a different username"
   }
-  res.render('edit_views/new_user', {'approver': req.user.approver, 'msg': msg})
+  res.render('edit_views/new_user', {'user': req.user, 'msg': msg})
 })
 
 router.post('/new_user', function(req, res) {
@@ -113,7 +113,7 @@ router.get('/edit_user', function(req, res) {
       if (!user) {
         res.redirect('/edit_users?request=failed')
       } else {
-          res.render('edit_views/edit_user', {'user': user, 'approver': req.user.approver})
+          res.render('edit_views/edit_user', {'user': req.user, 'profile': user})
       }
     }
   })
@@ -128,37 +128,53 @@ router.post('/edit_user', function(req, res) {
     approver = true
   }
 
-  User.findOneAndUpdate({ 'username': username }, { $set: {
-    'username': username,
+  User.findOneAndUpdate({ 'username': username }, {
     'email': email,
     'password': password,
     'approver': approver
-  }}, function(err, user) {
+  }, { new: true }, function(err, user) {
     if (err) {
       console.log('edit_user post_edit database_error')
       res.redirect('/edit_users?request=failed')
     } else {
-      // make a log
+      // TODO: make a log
       res.redirect('/edit_users?update=true')
     }
   })
 })
 
 router.put('/deactivate_user', function(req, res) {
-  console.log('hi')
   var username = req.body.username
 
   User.findOneAndUpdate({ 'username': username }, { $set: {
     'active': false
   }}, function(err, user) {
+    if (err) {
+      res.status(500).send('database error when deactiving user')
+    }
     res.status(200).send('user deactivated')
 
-    // make log
+    // TODO: make log
+  })
+})
+
+router.put('/activate_user', function(req, res) {
+  var id = req.body.id
+  User.findByIdAndUpdate(id, { $set: {
+    'active': true
+  }}, function(err, user) {
+    if (err) {
+      res.status(500).send('datbase error when activating user')
+
+    }
+    res.status(200).send('user activated')
+
+    // TODO: make log
   })
 })
 
 router.get('/edit_groups', function(req, res) {
-    res.render('edit_views/edit_groups', {'approver': req.user.approver})
+    res.render('edit_views/edit_groups', {'user': req.user})
 })
 
 module.exports = router

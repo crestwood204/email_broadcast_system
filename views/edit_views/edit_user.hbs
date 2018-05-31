@@ -4,16 +4,17 @@
     <form method="POST">
       <div class="form-group">
         <label for="inputUsername" class="col-2 col-form-label">Username</label>
-        <input class="form-control" name="username" value={{user.username}} type="inputUsername" id="inputUsername" placeholder="Username">
+        <input class="form-control" value={{profile.username}} type=inputUsername disabled>
+        <input name="username" value={{profile.username}} type="hidden" id="inputUsername" placeholder="Username">
       </div>
       <div class="form-group">
         <label for="inputEmail" class="col-2 col-form-label">Email Address</label>
-        <input class="form-control" name="email" value={{user.email}} type="inputEmail" id="inputEmail" placeholder="Email Address">
+        <input class="form-control" name="email" value={{profile.email}} type="inputEmail" id="inputEmail" placeholder="Email Address">
       </div>
       <div class="form-group">
         <label for="inputPassword" class="col-2 col-form-label">Password</label>
         <div class="input-group" id="show_hide_password">
-            <input class="form-control" name="password" value={{user.password}} type="password" id="inputPassword" placeholder="Password">
+            <input class="form-control" name="password" value={{profile.password}} type="password" id="inputPassword" placeholder="Password">
             <div class="input-group-addon">
             <a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
         </div>
@@ -21,7 +22,7 @@
       </div>
       <div class="form-check">
         <label class="form-check-label">
-            {{#if user.approver}}
+            {{#if profile.approver}}
                 <input type="checkbox" name="approver" class="form-check-input" checked>
             {{else}}
                 <input type="checkbox" name="approver" class="form-check-input">

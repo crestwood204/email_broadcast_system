@@ -86,6 +86,11 @@ passport.use(new LocalStrategy({
       if (user.password !== password) {
         return done(null, false, { message: 'Incorrect username or password' });
       }
+
+      // if user is deactivated, auth failed
+      if (!user.active) {
+        return done(null, false, { message: 'User is not active' });
+      }
       // auth has succeeded
       return done(null, user);
     });
@@ -112,7 +117,7 @@ app.use(function(err, req, res, next) {
   console.log('error handler')
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.render('error', { 'user': req.user });
 });
 
 app.listen(port, function () {
