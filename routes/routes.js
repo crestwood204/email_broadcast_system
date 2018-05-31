@@ -148,7 +148,7 @@ router.get('/log', function(req, res) {
     })
 })
 
-router.put('/decide_request', function(req, res) {
+router.post('/decide_request', function(req, res) {
   // edit the request
   var approved = req.body.decision === 'approve'
   var type = 'Broadcast Rejected'

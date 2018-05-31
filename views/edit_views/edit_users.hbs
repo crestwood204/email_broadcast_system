@@ -29,16 +29,40 @@
         </thead>
         <tbody>
             {{#each users}}
-                <tr>
-                    <th scope="row">{{this.username}}</th>
-                    <td>{{this.approver}}</td>
-                    <td>{{this.email}}</td>
-                    <td><a href="edit_user?user={{this.username}}"><button type="button" class="btn btn-primary">Edit</button></a></td>
-                </tr>
+                {{#if this.active}}
+                    <tr>
+                        <th scope="row">{{this.username}}</th>
+                        <td>{{this.approver}}</td>
+                        <td>{{this.email}}</td>
+                        <td><a href="edit_user?user={{this.username}}"><button type="button" class="btn btn-primary">Edit</button></a></td>
+                    </tr>
+                {{/if}}
             {{/each}}
         </tbody>
     </table>
 
     <!-- Deactivated Users -->
     <h1> Deactivated Users </h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Username</th>
+                <th scope="col">Approver</th>
+                <th scope="col">Email</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each users}}
+                {{#unless this.active}}
+                    <tr>
+                        <th scope="row">{{this.username}}</th>
+                        <td>{{this.approver}}</td>
+                        <td>{{this.email}}</td>
+                        <td><a href="edit_user?user={{this.username}}"><button type="button" class="btn btn-warning">Activate</button></a></td>
+                    </tr>
+                {{/unless}}
+            {{/each}}
+        </tbody>
+    </table>
 </div>

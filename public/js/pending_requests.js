@@ -30,7 +30,7 @@ $(document).ready(function() {
     var id = $(that).attr('id').substring(7)
     $.ajax({
       url: '/decide_request',
-      method: 'put',
+      method: 'post',
       data: {
         'id': id,
         'decision': decision

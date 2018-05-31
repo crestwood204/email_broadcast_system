@@ -1,7 +1,7 @@
 <div class="content">
+    <button type="button" class="btn btn-danger float-right">Deactivate User</button>
     <h2> Edit User </h2>
-    
-    <form method="PUT">
+    <form method="POST">
       <div class="form-group">
         <label for="inputUsername" class="col-2 col-form-label">Username</label>
         <input class="form-control" name="username" value={{user.username}} type="inputUsername" id="inputUsername" placeholder="Username">
@@ -12,7 +12,12 @@
       </div>
       <div class="form-group">
         <label for="inputPassword" class="col-2 col-form-label">Password</label>
-        <input class="form-control" name="password" value={{user.password}} type="password" id="inputPassword" placeholder="Password">
+        <div class="input-group" id="show_hide_password">
+            <input class="form-control" name="password" value={{user.password}} type="password" id="inputPassword" placeholder="Password">
+            <div class="input-group-addon">
+            <a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
+        </div>
+        </div>
       </div>
       <div class="form-check">
         <label class="form-check-label">
@@ -28,3 +33,4 @@
       <button type="submit" class="btn btn-primary">Save</button>
     </form>
 </div>
+<script src="/js/edit_user.js"></script>

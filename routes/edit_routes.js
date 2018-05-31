@@ -103,12 +103,25 @@ router.get('/edit_user', function(req, res) {
       res.redirect('/edit_users', 'request=failed')
     } else {
       if (!user) {
-        res.redirect('/edit_users', 'request=failed')
+        res.redirect('/edit_users?request=failed')
       } else {
-          res.render('edit_views/edit_user', {'user': user})
+          res.render('edit_views/edit_user', {'user': user, 'approver': req.user.approver})
       }
     }
   })
+})
+
+router.post('/edit_user', function(req, res) {
+  var username = req.body.username
+  var email = req.body.email
+  var password = req.body.password
+  var approver = false
+  if (req.body.approver) {
+    approver = true
+  }
+
+  User.findOneAndUpdate({})
+
 })
 
 router.get('/edit_groups', function(req, res) {

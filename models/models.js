@@ -48,6 +48,11 @@ var UserSchema = new Schema ({
   email: {
     type: String,
     required: true
+  },
+  active: {
+    type: Boolean,
+    default: true,
+    required: true
   }
 })
 
