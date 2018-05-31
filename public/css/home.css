@@ -45,3 +45,9 @@
 .nrbtn:focus {
     outline: none
 }
+
+.blank-row {
+    padding: 0px !important;
+    line-height: 0px !important;
+    border-top: none !important;
+}

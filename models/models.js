@@ -76,6 +76,10 @@ var LogSchema = new Schema ({
   obj_type: {
     type: String,
     required: true
+  },
+  date: {
+    type: Date,
+    required: true
   }
 })
 
@@ -85,12 +89,13 @@ LogSchema.statics.makeLog = function(type, user_id, title, obj_type, err_msg, re
     user_id: user_id,
     title: title,
     obj_type: obj_type,
-    request_id: request_id
+    request_id: request_id,
+    date: new Date()
   })
 
   new_log.save(function(err, log) {
     if (err) {
-      console.log(err_msg + ' database_error')
+      console.log(err_msg)
     }
   })
 }

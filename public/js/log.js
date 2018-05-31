@@ -1,8 +1,11 @@
 $(document).ready(function() {
-  var types = $('.to')
-  for (var i = 0; i < types.length - 1; i++) {
-    if ($(types[i]).text().trim().substring(6) === 'Broadcast Request') {
-      $(types[i]).parent().siblings(0).find('.approved').hide()
+  $('.toggle-row').on('click', function(event) {
+    if ($($(this).attr('data-target')).hasClass('in')) {
+        $($(this).attr('data-target')).parent().addClass('blank-row')
+        $($(this).attr('data-target')).parent().siblings(0).addClass('blank-row')
+    } else {
+        $($(this).attr('data-target')).parent().removeClass('blank-row')
+        $($(this).attr('data-target')).parent().siblings(0).removeClass('blank-row')
     }
-  }
+  })
 })

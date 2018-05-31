@@ -130,14 +130,17 @@ router.get('/pending_requests', function(req, res) {
 
 router.get('/log', function(req, res) {
   Log.find({})
-    .populate({
+    .populate([{
       path: 'request_id',
       model: Request,
       populate: {
           path: 'from',
           model: User
       }
-    })
+    }, {
+      path: 'user_id',
+      model: 'User'
+    }])
     .exec(function(err, logs) {
       if (err) {
         console.log("log error_fetching_logs database_error")
