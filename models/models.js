@@ -64,8 +64,36 @@ var LogSchema = new Schema ({
   type: {
     type: String,
     required: true
+  },
+  user_id: {
+    type: Schema.ObjectId,
+    ref: 'User'
+  },
+  title: {
+    type: String,
+    required: true
+  },
+  obj_type: {
+    type: String,
+    required: true
   }
 })
+
+LogSchema.statics.makeLog = function(type, user_id, title, obj_type, err_msg, request_id) {
+  var new_log = new Log({
+    type: type,
+    user_id: user_id,
+    title: title,
+    obj_type: obj_type,
+    request_id: request_id
+  })
+
+  new_log.save(function(err, log) {
+    if (err) {
+      console.log(err_msg + ' database_error')
+    }
+  })
+}
 
 var GroupSchema = new Schema ({
   name: {

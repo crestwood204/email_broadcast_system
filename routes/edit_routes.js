@@ -17,17 +17,25 @@ router.use('/', function(req, res, next) {
 })
 
 router.get('/edit_users', function(req, res) {
+    var update = undefined
     var success = undefined
     var failed = undefined
+    var deactivate = undefined
     if (req.query.request === 'success') {
       success = true
     }
     if (req.query.request === 'failed') {
       failed = true
     }
+    if (req.query.update === 'true') {
+      update = true
+    }
+    if (req.query.deactivate === 'true') {
+      deactivate = true
+    }
     User.find({}).then(
       (users) => {
-        res.render('edit_views/edit_users', {'users': users, 'success': success, 'failed': failed, 'approver': req.user.approver})
+        res.render('edit_views/edit_users', {'users': users, 'success': success, 'failed': failed, 'update': update, 'deactivate': deactivate, 'approver': req.user.approver})
       },
       (err) => {
         console.log('edit_users fetch database_error')
@@ -120,8 +128,33 @@ router.post('/edit_user', function(req, res) {
     approver = true
   }
 
-  User.findOneAndUpdate({})
+  User.findOneAndUpdate({ 'username': username }, { $set: {
+    'username': username,
+    'email': email,
+    'password': password,
+    'approver': approver
+  }}, function(err, user) {
+    if (err) {
+      console.log('edit_user post_edit database_error')
+      res.redirect('/edit_users?request=failed')
+    } else {
+      // make a log
+      res.redirect('/edit_users?update=true')
+    }
+  })
+})
 
+router.put('/deactivate_user', function(req, res) {
+  console.log('hi')
+  var username = req.body.username
+
+  User.findOneAndUpdate({ 'username': username }, { $set: {
+    'active': false
+  }}, function(err, user) {
+    res.status(200).send('user deactivated')
+
+    // make log
+  })
 })
 
 router.get('/edit_groups', function(req, res) {
