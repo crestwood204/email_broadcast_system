@@ -52,6 +52,12 @@
     border-top: none !important;
 }
 
-.description {
+.details {
     font-size: 10pt;
+}
+
+.description {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
 }

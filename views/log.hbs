@@ -6,8 +6,8 @@
                 <th scope="col">#</th>
                 <th scope="col">Title</th>
                 <th scope="col">Type</th>
-                <!-- <th scope="col">Time</th> -->
-                <!-- <th scope="col">Date</th> -->
+                <th scope="col">Time</th>
+                <th scope="col">Date</th>
                 <th scope="col"></th>
             </tr>
         </thead>
@@ -17,18 +17,43 @@
                     <th scope="row"> {{math @index "+" 1}}</th>
                     <td>{{this.change}}</td>
                     <td>{{this.type}}</td>
-                    <!-- <td>{{this.time_string}}</td> -->
-                    <!-- <td>{{this.date_string}}</td> -->
+                    <td>{{this.time_string}}</td>
+                    <td>{{this.date_string}}</td>
                     <td><button type="button" class="btn btn-primary toggle-row" data-toggle="collapse" data-target="#{{this._id}}"> Details </button></td>
                 </tr>
                 <tr>
                     <td class="blank-row"> </td>
-                    <td class="blank-row" colspan="4">
+                    <td class="blank-row details" colspan="5">
                         <div id="{{this._id}}" class="collapse out">
-                            <!-- <span class="description"> Description: {{this.description}} </span> -->
-                            <!-- {{#if equal this.type "===" "User"}}
-                                User
-                            {{/if}} -->
+                            <div> Description: {{this.description}} </div>
+                            {{#compare this.change "Approved"}}
+                                <div> Approved By: {{this.request_id.approver}} </div>
+                            {{/compare}}
+                            {{#compare this.change "Rejected"}}
+                                <div> Rejected By: {{this.request_id.approver}} </div>
+                            {{/compare}}
+                            {{#compare this.change "Create"}}
+                                <div> Created By: {{this.user_id.username}} </div>
+                            {{/compare}}
+                            {{#compare this.change "Edit"}}
+                                <div> Edited By: {{this.user_id.username}} </div>
+                            {{/compare}}
+                            {{#compare this.change "Activate"}}
+                                <div> Activated By: {{this.user_id.username}} </div>
+                            {{/compare}}
+                            {{#compare this.change "Deactivate"}}
+                                <div> Deactivated By: {{this.user_id.username}} </div>
+                            {{/compare}}
+                            <div class="description"> </div>
+                            {{#compare this.type "Broadcast"}}
+                                <div> From: {{this.request_id.from.email}} </div>
+                                <div> To: {{this.request_id.to}} </div>
+                                <div class="description"> Subject: {{this.request_id.subject}}</div>
+                                <div> Body: {{this.request_id.body}}</div>
+                            {{/compare}}
+                            {{#compare this.type "User"}}
+                                <div> User Edited: {{this.edit_user_id.username}}</div>
+                            {{/compare}}
                         </div>
 
                     </td>

@@ -131,6 +131,9 @@ router.get('/log', function(req, res) {
     }, {
       path: 'user_id',
       model: 'User'
+    }, {
+      path: 'edit_user_id',
+      model: 'User'
     }])
     .exec(function(err, logs) {
       if (err) {
@@ -145,8 +148,7 @@ router.get('/log', function(req, res) {
             return x
           }
         )
-        console.log(new_logs)
-        res.render('log', { 'user': req.user})
+        res.render('log', { 'logs': new_logs.reverse(), 'user': req.user})
       }
     })
 })
