@@ -23,7 +23,8 @@ router.use(function(req, res, next) {
 router.get('/', function(req, res) {
   User.findById(req.user._id).then(
     (user) => {
-      res.render('home', {'request': req.query.request, 'approver': req.user.approver})
+      console.log(req.user)
+      res.render('home', {'request': req.query.request, 'user': req.user})
     },
     (err) => {
       res.status(500).send('Database Error: "/"')
@@ -34,7 +35,7 @@ router.get('/', function(req, res) {
 router.get('/new_request', function(req, res) {
   Group.find({}).then(
     (groups) => {
-      res.render('new_request', {"groups": groups.map(x => x.name), 'approver': req.user.approver})
+      res.render('new_request', {"groups": groups.map(x => x.name), 'user': req.user})
     },
     (err) => {
       res.status(500).send('Database Error: "/new_request"')
@@ -122,7 +123,7 @@ router.get('/pending_requests', function(req, res) {
           'pendingRequests': pendingRequests.reverse(),
           'success': success,
           'failed': failed,
-          'approver': req.user.approver
+          'user': req.user
         })
       }
     })
@@ -143,7 +144,7 @@ router.get('/log', function(req, res) {
         console.log("log error_fetching_logs database_error")
         res.redirect('/?request=failure')
       } else {
-        res.render('log', {'logs': logs.reverse(), 'approver': req.user.approver})
+        res.render('log', {'logs': logs.reverse(), 'user': req.user})
       }
     })
 })
