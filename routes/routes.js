@@ -147,6 +147,9 @@ router.get('/log', function(req, res) {
         console.log("log error_fetching_logs database_error")
         res.redirect('/?request=failure')
       } else {
+        logs = logs.sort(function(a, b) {
+          return b.date - a.date
+        })
         var new_logs = logs.map(
           (x) => {
             var date_str = x.date.toLocaleString().split(', ')
@@ -155,8 +158,8 @@ router.get('/log', function(req, res) {
             return x
           }
         )
-        console.log(logs[0])
-        res.render('log', { 'logs': new_logs.reverse(), 'user': req.user})
+
+        res.render('log', { 'logs': new_logs, 'user': req.user})
       }
     })
 })
