@@ -20,8 +20,8 @@
                     <tr>
                         <th scope="row">{{this.title}}</th>
                         <td>{{this.subject}}</td>
-                        <td>{{this.createdBy}}</td>
-                        <td><a href="edit_user?user={{this.username}}"><button type="button" class="btn btn-primary">Edit</button></a></td>
+                        <td>{{this.createdBy.username}}</td>
+                        <td><a href="edit_template?template={{this._id}}"><button type="button" class="btn btn-primary">Edit</button></a></td>
                     </tr>
             {{/each}}
         </tbody>
