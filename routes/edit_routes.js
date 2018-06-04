@@ -246,7 +246,7 @@ router.post('/new_template', function(req, res) {
       res.redirect('/new_template?request=database_error')
     } else {
       // make a log
-      Log.log('Created', req.user._id, 'New Template Created', 'Template', 'post new_template database_error', null, null, template._id)
+      Log.log('Created', req.user._id, 'New Template Created', 'Template', 'post new_template database_error', null, null, template._id, null, title)
       res.redirect('/edit_templates?request=success')
     }
   })
@@ -301,11 +301,24 @@ router.post('/edit_template', function(req, res) {
         // nothing was edited, so don't make a log
         res.redirect('/edit_templates?request=updated')
       } else {
-        Log.log('Edited', req.user._id, log_title, 'Template', 'post edit_template database_error', null, null, template._id)
+        Log.log('Edited', req.user._id, log_title, 'Template', 'post edit_template database_error', null, null, template._id, null, title)
         res.redirect('/edit_templates?request=updated')
       }
     }
   })
 })
 
+router.put('/delete_template', function(req, res) {
+  var id = req.body.template_id
+  var template_title = req.body.template_title
+  Template.deleteOne({'_id': id}, function(err) {
+    if (err) {
+      console.log('put delete_template database_error')
+    } else {
+      // make a log
+      Log.log('Deleted', req.user._id, 'Template Deleted', 'Template', 'put delete_template database_error', null, null, null, null, template_title)
+      res.send('Template Deleted Successfully')
+    }
+  })
+})
 module.exports = router

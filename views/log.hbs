@@ -44,6 +44,9 @@
                             {{#compare this.change "Deactivated"}}
                                 <div> Deactivated By: {{this.user_id.username}} </div>
                             {{/compare}}
+                            {{#compare this.change "Deleted"}}
+                                <div> Deleted By: {{this.user_id.username}} </div>
+                            {{/compare}}
                             <div class="description"> </div>
                             {{#compare this.type "Broadcast"}}
                                 <div> From: {{this.request_id.from.email}} </div>
@@ -53,6 +56,17 @@
                             {{/compare}}
                             {{#compare this.type "User"}}
                                 <div> User Edited: {{this.edit_user_id.username}}</div>
+                            {{/compare}}
+                            {{#if this.template_id.username}}
+                                {{#compare this.type "Template"}}
+                                    <div> Template Edited: {{this.template_id.title}}</div>
+                                {{/compare}}
+                            {{/if}}
+                            {{#compare this.type "Template"}}
+                                <div> Title: {{this.template_id.template_title}} </div>
+                                {{#compare this.template_id "null"}}
+                                    <div> {{ Template has been deleted }} </div>
+                                {{/compare}}
                             {{/compare}}
                         </div>
 

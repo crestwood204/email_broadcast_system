@@ -60,6 +60,7 @@ app.engine('.hbs', exphbs({
           '==':       function(l,r) { return l == r; },
           '===':      function(l,r) { return l === r; },
           '!=':       function(l,r) { return l != r; },
+          '!==':      function(l,r) { return l !== r; },
           '<':        function(l,r) { return l < r; },
           '>':        function(l,r) { return l > r; },
           '<=':       function(l,r) { return l <= r; },
