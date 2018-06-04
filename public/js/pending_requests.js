@@ -10,7 +10,7 @@ $(document).ready(function() {
     $('#reject-' + id).hide()
 
     // add accepted symbol
-    $('#decision-' + id).append(`<btn class="no-highlight no-hover btn-sm btn-success">Accepted</btn>`)
+    $('#decision-' + id).append(`<btn class="no-highlight no-hover btn-sm btn-success">Approved</btn>`)
   })
 
   $('.reject-btn').on('click', function(event) {

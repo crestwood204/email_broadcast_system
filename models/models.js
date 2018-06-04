@@ -85,45 +85,36 @@ var LogSchema = new Schema ({
     type: Schema.ObjectId,
     ref: 'User'
   },
-  templated_id: {
+  template_id: {
     type: Schema.ObjectId,
     ref: 'Template'
+  },
+  group_id: {
+    type: Schema.ObjectId,
+    ref: 'Group'
   }
-
 })
 
-LogSchema.statics.log = function(change, user_id, description, type, err_msg, request_id, edit_user_id, template_id) {
-  var new_log = undefined
+LogSchema.statics.log = function(change, user_id, description, type, err_msg, request_id, edit_user_id, template_id, group_id) {
+  var new_log = new Log({
+    change: change,
+    user_id: user_id,
+    description: description,
+    type: type,
+    date: new Date()
+  })
 
   if (request_id) {
-    new_log = new Log({
-      change: change,
-      user_id: user_id,
-      description: description,
-      type: type,
-      request_id: request_id,
-      date: new Date()
-    })
+    new_log['request_id'] = request_id
   } else if (edit_user_id) {
-    new_log = new Log({
-      change: change,
-      user_id: user_id,
-      description: description,
-      type: type,
-      edit_user_id: edit_user_id,
-      date: new Date()
-    })
+    new_log['edit_user_id'] = edit_user_id
   } else if (template_id) {
-    new_log = new Log({
-      change: change,
-      user_id: user_id,
-      description: description,
-      type: type,
-      template_id: template_id,
-      date: new Date()
-    })
+    new_log['template_id'] = template_id
+  } else if (group_id) {
+    new_log['group_id'] = group_id
+  } else {
+    throw "Log Function Must Have A Schema.ObjectId"
   }
-
 
   new_log.save(function(err, log) {
     if (err) {
