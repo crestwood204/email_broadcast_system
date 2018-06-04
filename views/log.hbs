@@ -63,9 +63,11 @@
                                 {{/compare}}
                             {{/if}}
                             {{#compare this.type "Template"}}
-                                <div> Title: {{this.template_id.template_title}} </div>
-                                {{#compare this.template_id "null"}}
-                                    <div> {{ Template has been deleted }} </div>
+                                <div> Title: {{this.template_title}} </div>
+                                {{#compare this.change "Deleted" operator="!=="}}
+                                    {{#unless this.template_id}}
+                                        <div> Note: Template has been Deleted </div>
+                                    {{/unless}}
                                 {{/compare}}
                             {{/compare}}
                         </div>

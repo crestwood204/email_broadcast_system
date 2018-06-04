@@ -158,7 +158,6 @@ router.get('/log', function(req, res) {
             return x
           }
         )
-
         res.render('log', { 'logs': new_logs, 'user': req.user})
       }
     })
