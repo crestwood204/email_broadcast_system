@@ -79,3 +79,7 @@
     padding-bottom: 8px;
     margin-bottom: 8px;
 }
+
+.display-none {
+    display: none;
+}

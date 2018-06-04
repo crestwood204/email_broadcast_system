@@ -35,10 +35,20 @@ router.get('/', function(req, res) {
 router.get('/new_request', function(req, res) {
   Group.find({}).then(
     (groups) => {
-      res.render('new_request', {"groups": groups.map(x => x.name), 'user': req.user})
+      Template.find({}).then(
+        (templates) => {
+          templates = templates.sort(function(a, b) {
+            return a.name - b.name
+          })
+          res.render('new_request', {"groups": groups.map(x => x.name), 'templates': templates, 'user': req.user})
+        },
+        (err) => {
+            res.status(500).send('Database Error: "/new_request templates"')
+        }
+      )
     },
     (err) => {
-      res.status(500).send('Database Error: "/new_request"')
+      res.status(500).send('Database Error: "/new_request groups"')
     }
   )
 })
@@ -86,6 +96,18 @@ router.post('/new_request', function(req, res) {
   })
   //redirect
   res.redirect('/pending_requests?request=success')
+})
+
+router.get('/get_template', function(req,res) {
+  var template_id = req.body.template_id
+  Template.findById(template_id, function(err, template) {
+    if (err) {
+      res.status(500).send('Database Error While Retrieving Template')
+    } else {
+      console.log(template)
+      res.status(200).send(JSON.stringify(template))
+    }
+  })
 })
 
 router.get('/pending_requests', function(req, res) {
@@ -174,6 +196,10 @@ router.post('/decide_request', function(req, res) {
   }
 
   Request.findById(req.body.id, function(err, request) {
+    if (err) {
+      console.log("decide_request update database_error")
+      res.redirect('/?request=failed')
+    }
     if (request.pending) {
       Request.update({_id: req.body.id}, {$set: {
         pending: false,

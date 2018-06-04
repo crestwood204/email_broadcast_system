@@ -1,3 +1,6 @@
+<div id="error_msg" class="alert alert-warning display-none" role="alert">
+    Error Retrieving Template
+</div>
 <form class="content" method="post" action="/new_request">
     <div class="form-row">
         <div class="form-group col-md-6">
@@ -21,8 +24,8 @@
       <label for="templateField">Template:</label>
       <select id="templateField" class="form-control">
         <option value="Choose..."selected>Choose...</option>
-        {{#each groups}}
-            <option>{{this}}</option>
+        {{#each templates}}
+            <option id="{{this._id}}">{{this.title}}</option>
         {{/each}}
       </select>
     </div>
