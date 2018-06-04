@@ -143,10 +143,10 @@ router.post('/edit_user', function(req, res) {
       // make a log
       var title = ''
       if (email !== user.email) {
-        title += 'Email Changed '
+        title += 'Email_Changed '
       }
       if (password !== user.password) {
-        title += 'Password Changed '
+        title += 'Password_Changed '
       }
       if (approver !== user.approver) {
         if (approver) {
@@ -156,13 +156,13 @@ router.post('/edit_user', function(req, res) {
         }
       }
 
-      title.trim().split(' ').join(', ')
+      title = title.trim().split(' ').join(', ')
 
-      if (!title) {
+      if (title === '') {
         // nothing was edited, so don't make a log
         res.redirect('/edit_users?update=true')
       } else {
-        Log.log('Edited', req.user._id, 'User ' + title, 'User', 'post edit_user database_error', null, user._id)
+        Log.log('Edited', req.user._id, title, 'User', 'post edit_user database_error', null, user._id)
         res.redirect('/edit_users?update=true')
       }
 
@@ -206,7 +206,7 @@ router.get('/edit_groups', function(req, res) {
 })
 
 router.get('/edit_templates', function(req, res) {
-  // [queries request=failed for db fail query, request=no_template for template not found, request=delete for delete template successful]
+  // [queries request=failed for db fail query, request=no_template for template not found, request=delete for delete template successful, request=updated for successful edit save]
   Template.find({})
     .populate({
       path: 'createdBy',
@@ -246,7 +246,7 @@ router.post('/new_template', function(req, res) {
       res.redirect('/new_template?request=database_error')
     } else {
       // make a log
-      Log.log('Created', req.user._id, 'New Template Created', 'Template', 'post new_template database_error', null, req.user._id)
+      Log.log('Created', req.user._id, 'New Template Created', 'Template', 'post new_template database_error', null, null, template._id)
       res.redirect('/edit_templates?request=success')
     }
   })
@@ -272,46 +272,38 @@ router.post('/edit_template', function(req, res) {
   var title = req.body.title
   var subject = req.body.subject
   var body = req.body.body
-  var editedBy = req.user.username
-  if (req.body.approver) {
-    approver = true
-  }
+  var id = req.query.template
 
-  User.findOneAndUpdate({ 'username': username }, {
-    'email': email,
-    'password': password,
-    'approver': approver
-  }, function(err, user) {
+  Template.findByIdAndUpdate(id, {
+    'title': title,
+    'subject': subject,
+    'body': body
+  }, function(err, template) {
     if (err) {
-      console.log('edit_user post_edit database_error')
-      res.redirect('/edit_users?request=failed')
+      console.log('edit_template post_edit database_error')
+      res.redirect('/edit_templates?request=failed')
     } else {
       // make a log
-      var title = ''
-      if (email !== user.email) {
-        title += 'Email Changed '
+      var log_title = ''
+      if (title !== template.title) {
+        log_title += 'Title_Changed '
       }
-      if (password !== user.password) {
-        title += 'Password Changed '
+      if (subject !== template.subject) {
+        log_title += 'Subject_Changed '
       }
-      if (approver !== user.approver) {
-        if (approver) {
-          title += 'Promoted '
-        } else {
-          title += 'Demoted '
-        }
+      if (body !== template.body) {
+        log_title += 'Body_Changed '
       }
 
-      title.trim().split(' ').join(', ')
+      log_title = log_title.trim().split(' ').join(', ')
 
-      if (!title) {
+      if (log_title === '') {
         // nothing was edited, so don't make a log
-        res.redirect('/edit_users?update=true')
+        res.redirect('/edit_templates?request=updated')
       } else {
-        Log.log('Edited', req.user._id, 'User ' + title, 'User', 'post edit_user database_error', null, user._id)
-        res.redirect('/edit_users?update=true')
+        Log.log('Edited', req.user._id, log_title, 'Template', 'post edit_template database_error', null, null, template._id)
+        res.redirect('/edit_templates?request=updated')
       }
-
     }
   })
 })
