@@ -20,63 +20,43 @@ router.use('/', function(req, res, next) {
 router.get('/edit_users', function(req, res) {
   var messages = {
     'database': 'The database failed to respond to this request. Please try again or contact IT for support.',
-    'not_found': 'Template could not be found in the database! Please try again or create a new template.',
-    'deleted': 'Template deleted successfully!',
-    'updated': 'Template updated succesfully!',
-    'created': 'Template created successfully!'
+    'not_found': 'User could not be found in the database! Please try again or contact IT for help.',
+    'deactivated': 'User deactivated successfully!',
+    'activated': 'User activated successfully',
+    'updated': 'User updated succesfully!',
+    'created': 'User created successfully!'
   }
   var request = req.query.request
   var alert_msg = null
   if (request) {
     alert_msg = messages[req.query.type]
   }
-    var update = undefined
-    var success = undefined
-    var failed = undefined
-    var deactivate = undefined
-    if (req.query.request === 'success') {
-      success = true
+  User.find({}).then(
+    (users) => {
+      users.sort(function(a, b) {
+        return ('' + a.username).localeCompare(b.username);
+      })
+      res.render('edit_views/user/edit_users', { 'users': users, 'request': request, 'alert_msg': alert_msg, 'user': req.user })
+    },
+    (err) => {
+      console.log('edit_users fetch database_error')
     }
-    if (req.query.request === 'failed') {
-      failed = true
-    }
-    if (req.query.update === 'true') {
-      update = true
-    }
-    if (req.query.deactivate === 'true') {
-      deactivate = true
-    }
-    User.find({}).then(
-      (users) => {
-        users.sort(function(a, b) {
-          return ('' + a.username).localeCompare(b.username);
-        })
-        res.render('edit_views/user/edit_users', { 'users': users, 'request': request, 'alert_msg': alert_msg, 'user': req.user })
-      },
-      (err) => {
-        console.log('edit_users fetch database_error')
-      }
-    )
+  )
 })
 
 router.get('/new_user', function(req, res) {
-  var msg = undefined
-  if (req.query.missing) {
-    msg = 'One or more required parameters are blank'
+  var messages = {
+    'username_taken': "Username is taken. Please choose a different username.",
+    'password_match': 'Passwords did not match',
+    'database': 'The database failed to respond to this request. Please try again or contact IT for support.',
+    'missing_fields': 'One or more fields are missing. Please complete the form before submitting'
   }
-
-  if (req.query.password_failed) {
-    msg = 'Passwords did not match'
+  var request = req.query.request
+  var alert_msg = null
+  if (request) {
+    alert_msg = messages[req.query.type]
   }
-
-  if (req.query.database_error) {
-    msg = 'Something went wrong with the database! Your request cannot be fufilled at this time.'
-  }
-
-  if (req.query.username_taken) {
-    msg = "Username is taken. Please choose a different username"
-  }
-  res.render('edit_views/user/new_user', {'user': req.user, 'msg': msg})
+  res.render('edit_views/user/new_user', {'user': req.user, 'request': request, 'alert_msg': alert_msg})
 })
 
 router.post('/new_user', function(req, res) {
@@ -89,16 +69,16 @@ router.post('/new_user', function(req, res) {
     approver = true
   }
   if (!username || !email || !password || !confirm_password) {
-    res.redirect('/new_user?missing=true')
+    res.redirect('/new_user?request=failure&type=missing_fields')
   } else if (password !== confirm_password) {
-    res.redirect('/new_user?password_failed=true')
+    res.redirect('/new_user?request=failure&type=password_match')
   } else {
     User.findOne({'username': username}, function(err, user) {
       if (err) {
         console.log('new_user username_lookup database_error')
-        res.redirect('/new_user?database_error=true')
+        res.redirect('/new_user?request=failure&type=database')
       } else if (user) {
-        res.redirect('/new_user?username_taken=true')
+        res.redirect('/new_user?request=failure&type=username_taken')
       } else {
         var new_user = new User({
           'username': username,
@@ -110,11 +90,11 @@ router.post('/new_user', function(req, res) {
         new_user.save(function(err, user) {
           if (err) {
             console.log('new_user save database_error')
-            res.redirect('/new_user?database_error=true')
+            res.redirect('/new_user?request=failure&type=database')
           } else {
             // make a log
             Log.log('Created', req.user._id, 'New User Created', 'User', 'post new_user database_error', null, user._id)
-            res.redirect('/edit_users?request=success')
+            res.redirect('/edit_users?request=success&type=created')
           }
         })
       }
@@ -123,15 +103,23 @@ router.post('/new_user', function(req, res) {
 })
 
 router.get('/edit_user', function(req, res) {
-  User.findOne({'username': req.query.user}, function(err, user) {
+  var messages = {
+    'missing_fields': 'One or more fields are missing. Please complete the form before submitting.'
+  }
+  var request = req.query.request
+  var alert_msg = null
+  if (request) {
+    alert_msg = messages[req.query.type]
+  }
+  User.findById(req.query.user, function(err, user) {
     if (err) {
       console.log('edit_user user_lookup database_error')
-      res.redirect('/edit_users', 'request=failed')
+      res.redirect('/edit_users', 'request=failure&type=database')
     } else {
       if (!user) {
-        res.redirect('/edit_users?request=failed')
+        res.redirect('/edit_users?request=failure&type=not_found')
       } else {
-          res.render('edit_views/user/edit_user', {'user': req.user, 'profile': user})
+          res.render('edit_views/user/edit_user', {'user': req.user, 'profile': user, 'request': request, 'alert_msg': alert_msg})
       }
     }
   })
@@ -146,14 +134,18 @@ router.post('/edit_user', function(req, res) {
     approver = true
   }
 
-  User.findOneAndUpdate({ 'username': username }, {
+  if (!email || !password) {
+    return res.redirect('/edit_user?user=' + req.query.user + '&request=failure&type=missing_fields')
+  }
+
+  User.findByIdAndUpdate(req.query.user, {
     'email': email,
     'password': password,
     'approver': approver
   }, function(err, user) {
     if (err) {
       console.log('edit_user post_edit database_error')
-      res.redirect('/edit_users?request=failed')
+      res.redirect('/edit_users?request=failure&type=database')
     } else {
       // make a log
       var title = ''
@@ -175,12 +167,11 @@ router.post('/edit_user', function(req, res) {
 
       if (title === '') {
         // nothing was edited, so don't make a log
-        res.redirect('/edit_users?update=true')
+        res.redirect('/edit_users?request=success&type=updated')
       } else {
         Log.log('Edited', req.user._id, title, 'User', 'post edit_user database_error', null, user._id)
-        res.redirect('/edit_users?update=true')
+        res.redirect('/edit_users?request=success&type=updated')
       }
-
     }
   })
 })
@@ -250,7 +241,7 @@ router.get('/edit_templates', function(req, res) {
 
 router.get('/new_template', function(req, res) {
   var messages = {
-    'missing_fields': 'One or more fields are missing. Please complete the form before submitting'
+    'missing_fields': 'One or more fields are missing. Please complete the form before submitting.'
   }
   var request = req.query.request
   var alert_msg = null

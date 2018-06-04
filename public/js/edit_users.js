@@ -22,7 +22,7 @@ $(document).ready(function() {
         console.log('error communicating with server', err);
       },
       success: function(res) {
-        window.location.href = "/edit_users?activate=true"
+        window.location.href = "/edit_users?request=success&type=activated"
       }
     })
   })

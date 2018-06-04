@@ -1,3 +1,15 @@
+{{#if request}}
+    {{#compare request "success"}}
+        <div class="alert alert-success" role="alert">
+            {{alert_msg}}
+        </div>
+    {{/compare}}
+    {{#compare request "failure"}}
+        <div class="alert alert-warning" role="alert">
+            {{alert_msg}}
+        </div>
+    {{/compare}}
+{{/if}}
 <div class="content">
     <button id="deactivate_user" type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#deactivate_modal">Deactivate User</button>
     <h2> Edit User </h2>
@@ -5,16 +17,16 @@
       <div class="form-group">
         <label for="inputUsername" class="col-2 col-form-label">Username</label>
         <input class="form-control" value={{profile.username}} type=inputUsername disabled>
-        <input name="username" value={{profile.username}} type="hidden" id="inputUsername" placeholder="Username">
+        <input name="username" type="hidden" id="inputUsername" placeholder="Username" value={{profile.username}}>
       </div>
       <div class="form-group">
         <label for="inputEmail" class="col-2 col-form-label">Email Address</label>
-        <input class="form-control" name="email" value={{profile.email}} type="inputEmail" id="inputEmail" placeholder="Email Address">
+        <input class="form-control" name="email" type="inputEmail" id="inputEmail" placeholder="Email Address" value={{profile.email}}>
       </div>
       <div class="form-group">
         <label for="inputPassword" class="col-2 col-form-label">Password</label>
         <div class="input-group" id="show_hide_password">
-            <input class="form-control" name="password" value={{profile.password}} type="password" id="inputPassword" placeholder="Password">
+            <input class="form-control" name="password" type="password" id="inputPassword" placeholder="Password" value={{profile.password}}>
             <div class="input-group-addon">
             <a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
         </div>

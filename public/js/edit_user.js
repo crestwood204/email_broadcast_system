@@ -30,7 +30,7 @@ $(document).ready(function() {
           console.log('error communicating with server', err);
         },
         success: function(res) {
-          window.location.href = "/edit_users?deactivate=true"
+          window.location.href = "/edit_users?request=success&type=deactivated"
         }
       })
     })

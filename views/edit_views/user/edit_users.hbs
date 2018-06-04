@@ -1,19 +1,14 @@
-{{#if success}}
-<div class="alert alert-success" role="alert">
-    New User Created
-</div>
-{{/if}}
-
-{{#if failed}}
-<div class="alert alert-success" role="alert">
-    The Database Failed to Find this User!
-</div>
-{{/if}}
-
-{{#if update}}
-<div class="alert alert-success" role="alert">
-    User Successfuly Updated
-</div>
+{{#if request}}
+    {{#compare request "success"}}
+        <div class="alert alert-success" role="alert">
+            {{alert_msg}}
+        </div>
+    {{/compare}}
+    {{#compare request "failure"}}
+        <div class="alert alert-warning" role="alert">
+            {{alert_msg}}
+        </div>
+    {{/compare}}
 {{/if}}
 
 <div class="content">
@@ -40,7 +35,7 @@
                         <th scope="row">{{this.username}}</th>
                         <td>{{this.approver}}</td>
                         <td>{{this.email}}</td>
-                        <td><a href="edit_user?user={{this.username}}"><button type="button" class="btn btn-primary">Edit</button></a></td>
+                        <td><a href="edit_user?user={{this._id}}"><button type="button" class="btn btn-primary">Edit</button></a></td>
                     </tr>
                 {{/if}}
             {{/each}}
