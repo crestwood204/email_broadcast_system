@@ -1,9 +1,16 @@
+{{#if request}}
+    {{#compare request "success"}}
+        <div class="alert alert-success" role="alert">
+            {{alert_msg}}
+        </div>
+    {{/compare}}
+    {{#compare request "failure"}}
+        <div class="alert alert-warning" role="alert">
+            {{alert_msg}}
+        </div>
+    {{/compare}}
+{{/if}}
 <div class="content">
-    {{#if msg}}
-    <div class="alert alert-danger" role="alert">
-        {{msg}}
-    </div>
-    {{/if}}
     <button id="delete_template" type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#delete_template_modal">Delete Template</button>
     <h2> Edit Template </h2>
     <form method="POST">

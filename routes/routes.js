@@ -147,14 +147,16 @@ router.get('/log', function(req, res) {
         console.log("log error_fetching_logs database_error")
         res.redirect('/?request=failure')
       } else {
-        logs = logs.sort(function(a, b) {
+        logs.sort(function(a, b) {
           return b.date - a.date
         })
         var new_logs = logs.map(
           (x) => {
             var date_str = x.date.toLocaleString().split(', ')
             x.date_string = date_str[0]
-            x.time_string = date_str[1]
+            x.time_string = date_str[1].split(':')
+            var ampm = x.date.getHours() >= 12 ? 'PM' : 'AM'
+            x.time_string = x.time_string[0] + ':' + x.time_string[1] + ' ' + ampm
             return x
           }
         )

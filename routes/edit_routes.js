@@ -18,6 +18,18 @@ router.use('/', function(req, res, next) {
 })
 
 router.get('/edit_users', function(req, res) {
+  var messages = {
+    'database': 'The database failed to respond to this request. Please try again or contact IT for support.',
+    'not_found': 'Template could not be found in the database! Please try again or create a new template.',
+    'deleted': 'Template deleted successfully!',
+    'updated': 'Template updated succesfully!',
+    'created': 'Template created successfully!'
+  }
+  var request = req.query.request
+  var alert_msg = null
+  if (request) {
+    alert_msg = messages[req.query.type]
+  }
     var update = undefined
     var success = undefined
     var failed = undefined
@@ -36,7 +48,10 @@ router.get('/edit_users', function(req, res) {
     }
     User.find({}).then(
       (users) => {
-        res.render('edit_views/user/edit_users', { 'users': users, 'success': success, 'failed': failed, 'update': update, 'deactivate': deactivate, 'user': req.user })
+        users.sort(function(a, b) {
+          return ('' + a.username).localeCompare(b.username);
+        })
+        res.render('edit_views/user/edit_users', { 'users': users, 'request': request, 'alert_msg': alert_msg, 'user': req.user })
       },
       (err) => {
         console.log('edit_users fetch database_error')
@@ -206,7 +221,18 @@ router.get('/edit_groups', function(req, res) {
 })
 
 router.get('/edit_templates', function(req, res) {
-  // [queries request=failed for db fail query, request=no_template for template not found, request=delete for delete template successful, request=updated for successful edit save]
+  var messages = {
+    'database': 'The database failed to respond to this request. Please try again or contact IT for support.',
+    'not_found': 'Template could not be found in the database! Please try again or create a new template.',
+    'deleted': 'Template deleted successfully!',
+    'updated': 'Template updated succesfully!',
+    'created': 'Template created successfully!'
+  }
+  var request = req.query.request
+  var alert_msg = null
+  if (request) {
+    alert_msg = messages[req.query.type]
+  }
   Template.find({})
     .populate({
       path: 'createdBy',
@@ -215,24 +241,34 @@ router.get('/edit_templates', function(req, res) {
     .exec(function(err, templates) {
       if (err) {
         console.log("pending_requests error_fetching requests database_error")
-        // TODO: handle this error, coppied from routes.js....
+        res.send('Error Fetching Templates From the Database!! Refresh the Page or Contact IT for help.')
       } else {
-          res.render('edit_views/template/edit_templates', {'user': req.user, 'templates': templates})
+        res.render('edit_views/template/edit_templates', {'user': req.user, 'request': request, 'alert_msg': alert_msg, 'templates': templates})
       }
     })
 })
 
 router.get('/new_template', function(req, res) {
-  res.render('edit_views/template/new_template', {'user': req.user})
+  var messages = {
+    'missing_fields': 'One or more fields are missing. Please complete the form before submitting'
+  }
+  var request = req.query.request
+  var alert_msg = null
+  if (request) {
+    alert_msg = messages[req.query.type]
+  }
+  res.render('edit_views/template/new_template', {'user': req.user, 'request': request, 'alert_msg': alert_msg})
 })
 
 router.post('/new_template', function(req, res) {
-  // queries : request=database_error, request=success
   var title = req.body.title
   var subject = req.body.subject
   var body = req.body.body
   var createdBy = req.user._id
-
+  if (!title || !subject || !body) {
+    res.redirect('/new_template?request=failure&type=missing_fields&title=' + title + '&subject=' + subject + '&body=' + body)
+    return
+  }
   var new_template = new Template({
     'title': title,
     'subject': subject,
@@ -243,26 +279,34 @@ router.post('/new_template', function(req, res) {
   new_template.save(function(err, template) {
     if (err) {
       console.log('new_template save datbase_error')
-      res.redirect('/new_template?request=database_error')
+      res.redirect('/edit_templates?request=failure&type=database')
     } else {
       // make a log
       Log.log('Created', req.user._id, 'New Template Created', 'Template', 'post new_template database_error', null, null, template._id, null, title)
-      res.redirect('/edit_templates?request=success')
+      res.redirect('/edit_templates?request=success&type=created')
     }
   })
 })
 
 router.get('/edit_template', function(req, res) {
+  var messages = {
+    'missing_fields': 'One or more fields are missing. Please complete the form before submitting',
+  }
+  var request = req.query.request
+  var alert_msg = null
+  if (request) {
+    alert_msg = messages[req.query.type]
+  }
   var template_id = req.query.template
   Template.findById(template_id, function(err, template) {
     if (err) {
       console.log('edit_template template_lookup database_error')
-      res.redirect('/edit_templates', 'request=failed')
+      res.redirect('/edit_templates', 'request=failure&type=database')
     } else {
       if (!template) {
-        res.redirect('/edit_templates?request=no_template')
+        res.redirect('/edit_templates?request=failure&type=not_found')
       } else {
-        res.render('edit_views/template/edit_template', {'user': req.user, 'template': template})
+        res.render('edit_views/template/edit_template', {'user': req.user, 'template': template, 'request': request, 'alert_msg': alert_msg})
       }
     }
   })
@@ -273,6 +317,10 @@ router.post('/edit_template', function(req, res) {
   var subject = req.body.subject
   var body = req.body.body
   var id = req.query.template
+
+  if (!title || ! subject || !body) {
+    return res.redirect('/edit_template?template=' + id + '&request=failure&type=missing_fields')
+  }
 
   Template.findByIdAndUpdate(id, {
     'title': title,
@@ -299,10 +347,10 @@ router.post('/edit_template', function(req, res) {
 
       if (log_title === '') {
         // nothing was edited, so don't make a log
-        res.redirect('/edit_templates?request=updated')
+        res.redirect('/edit_templates?request=success&type=updated')
       } else {
         Log.log('Edited', req.user._id, log_title, 'Template', 'post edit_template database_error', null, null, template._id, null, title)
-        res.redirect('/edit_templates?request=updated')
+        res.redirect('/edit_templates?request=success&type=updated')
       }
     }
   })

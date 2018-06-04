@@ -14,7 +14,7 @@ $(document).ready(function() {
           console.log('error communicating with server', err);
         },
         success: function(res) {
-          window.location.href = "/edit_templates?request=delete"
+          window.location.href = "/edit_templates?request=success&type=deleted"
         }
       })
     })
