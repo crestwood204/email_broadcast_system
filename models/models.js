@@ -57,10 +57,6 @@ var UserSchema = new Schema ({
 })
 
 var LogSchema = new Schema ({
-  request_id: {
-    type: Schema.ObjectId,
-    ref: 'Request'
-  },
   change: {
     type: String,
     required: true
@@ -81,13 +77,22 @@ var LogSchema = new Schema ({
     type: Date,
     required: true
   },
+  request_id: {
+    type: Schema.ObjectId,
+    ref: 'Request'
+  },
   edit_user_id: {
     type: Schema.ObjectId,
     ref: 'User'
+  },
+  templated_id: {
+    type: Schema.ObjectId,
+    ref: 'Template'
   }
+
 })
 
-LogSchema.statics.log = function(change, user_id, description, type, err_msg, request_id, edit_user_id) {
+LogSchema.statics.log = function(change, user_id, description, type, err_msg, request_id, edit_user_id, template_id) {
   var new_log = undefined
 
   if (request_id) {
@@ -99,13 +104,22 @@ LogSchema.statics.log = function(change, user_id, description, type, err_msg, re
       request_id: request_id,
       date: new Date()
     })
-  } else {
+  } else if (edit_user_id) {
     new_log = new Log({
       change: change,
       user_id: user_id,
       description: description,
       type: type,
       edit_user_id: edit_user_id,
+      date: new Date()
+    })
+  } else if (template_id) {
+    new_log = new Log({
+      change: change,
+      user_id: user_id,
+      description: description,
+      type: type,
+      template_id: template_id,
       date: new Date()
     })
   }
@@ -126,6 +140,29 @@ var GroupSchema = new Schema ({
   emails: {
     type: [String],
     required: true
+  },
+  location: {
+    type: String,
+    required: true
+  }
+})
+
+var TemplateSchema = new Schema ({
+  title: {
+    type: String,
+    required: true
+  },
+  subject: {
+    type: String,
+    required: true
+  },
+  body: {
+    type: String,
+    required: true
+  },
+  createdBy: {
+    type: Schema.ObjectId,
+    required: true
   }
 })
 
@@ -133,10 +170,12 @@ var Request = mongoose.model('Request', RequestSchema)
 var User = mongoose.model('User', UserSchema)
 var Log = mongoose.model('Log', LogSchema)
 var Group = mongoose.model('Group', GroupSchema)
+var Template = mongoose.model('Template', TemplateSchema)
 
 module.exports = {
   Request: Request,
   User: User,
   Log: Log,
-  Group: Group
+  Group: Group,
+  Template: Template
 };

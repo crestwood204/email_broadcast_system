@@ -35,7 +35,7 @@ router.get('/edit_users', function(req, res) {
     }
     User.find({}).then(
       (users) => {
-        res.render('edit_views/edit_users', { 'users': users, 'success': success, 'failed': failed, 'update': update, 'deactivate': deactivate, 'user': req.user })
+        res.render('edit_views/user/edit_users', { 'users': users, 'success': success, 'failed': failed, 'update': update, 'deactivate': deactivate, 'user': req.user })
       },
       (err) => {
         console.log('edit_users fetch database_error')
@@ -60,7 +60,7 @@ router.get('/new_user', function(req, res) {
   if (req.query.username_taken) {
     msg = "Username is taken. Please choose a different username"
   }
-  res.render('edit_views/new_user', {'user': req.user, 'msg': msg})
+  res.render('edit_views/user/new_user', {'user': req.user, 'msg': msg})
 })
 
 router.post('/new_user', function(req, res) {
@@ -115,7 +115,7 @@ router.get('/edit_user', function(req, res) {
       if (!user) {
         res.redirect('/edit_users?request=failed')
       } else {
-          res.render('edit_views/edit_user', {'user': req.user, 'profile': user})
+          res.render('edit_views/user/edit_user', {'user': req.user, 'profile': user})
       }
     }
   })
@@ -201,7 +201,49 @@ router.put('/activate_user', function(req, res) {
 })
 
 router.get('/edit_groups', function(req, res) {
-    res.render('edit_views/edit_groups', {'user': req.user})
+  res.render('edit_views/group/edit_groups', {'user': req.user})
+})
+
+router.get('/edit_templates', function(req, res) {
+  res.render('edit_views/template/edit_templates', {'user': req.user})
+})
+
+router.get('/new_template', function(req, res) {
+  res.render('edit_views/template/new_template', {'user': req.user})
+})
+
+router.post('/new_template', function(req, res) {
+  // queries : request=database_error, request=success
+  var title = req.body.title
+  var subject = req.body.subject
+  var body = req.body.body
+  var createdBy = req.user._id
+
+  var new_template = new Template({
+    'title': title,
+    'subject': subject,
+    'body': body,
+    'createdBy': createdBy
+  })
+
+  new_template.save(function(err, template) {
+    if (err) {
+      console.log('new_template save datbase_error')
+      res.redirect('/new_template?request=database_error')
+    } else {
+      // make a log
+      Log.log('Created', req.user._id, 'New Template Created', 'Template', 'post new_template database_error', null, user._id)
+      res.redirect('/edit_users?request=success')
+    }
+  })
+})
+
+router.get('/edit_template', function(req, res) {
+
+})
+
+router.post('/edit_template', function(req, res) {
+
 })
 
 module.exports = router

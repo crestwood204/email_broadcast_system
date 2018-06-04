@@ -9,6 +9,7 @@ var User = Models.User
 var Request = Models.Request
 var Log = Models.Log
 var Group = Models.Group
+var Template = Models.Template
 
 // redirect to login if not signed in
 router.use(function(req, res, next) {
@@ -179,6 +180,19 @@ router.post('/decide_request', function(req, res) {
       })
     }
   })
+})
+
+router.get('/template', function(req, res) {
+  var template = req.body.template
+
+  Template.findOne({ name: template }).then(
+    (template) => {
+
+    },
+    (err) => {
+
+    }
+  )
 })
 
 var sendEmail = function(to, subject, text) {
