@@ -118,7 +118,7 @@ LogSchema.statics.log = function(change, user_id, description, type, err_msg, re
   if (template_title) {
     new_log['template_title'] = template_title
   }
-  
+
   new_log.save(function(err, log) {
     if (err) {
       console.log(err_msg)
@@ -131,11 +131,7 @@ var GroupSchema = new Schema ({
     type: String,
     required: true
   },
-  emails: {
-    type: [String],
-    required: true
-  },
-  location: {
+  email: {
     type: String,
     required: true
   }

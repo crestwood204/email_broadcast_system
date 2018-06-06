@@ -1,0 +1,20 @@
+<div class="content">
+    {{#if msg}}
+    <div class="alert alert-danger" role="alert">
+        {{msg}}
+    </div>
+    {{/if}}
+    <h2> Create New Group </h2>
+    <form method="POST">
+      <div class="form-group">
+        <label for="inputName" class="col-2 col-form-label">Name</label>
+        <input class="form-control" name="name" type="inputName" id="inputName" placeholder="Name" value={{name}}>
+      </div>
+      <div class="form-group">
+        <label for="inputEmail" class="col-2 col-form-label">Email Address</label>
+        <input class="form-control" name="email" type="inputEmail" id="inputEmail" placeholder="Email Address" value={{email}}>
+      </div>
+      <a href="/edit_groups"><button type="button" class="btn btn-danger">Cancel</button></a>
+      <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+</div>

@@ -12,6 +12,9 @@
 {{/if}}
 
 <div class="content">
+    <div>
+        <a href="/new_group"><button type="button" class="btn btn-primary">Add New Group</button></a>
+    </div>
     <h1> Groups </h1>
     <table class="table">
         <thead>
@@ -26,9 +29,10 @@
                     <tr>
                         <th scope="row">{{this.name}}</th>
                         <td>{{this.email}}</td>
-                        <td><button type="button" class="btn btn-primary">Edit</button></a></td>
+                        <td><a href="/edit_group?group={{this._id}}"><button type="button" class="btn btn-primary"><i class="fa fa-edit"></i></button></a><span class="space"></span><button type="button" class="btn btn-danger"><i class="fa fa-trash"></i></button></a></td>
                     </tr>
             {{/each}}
         </tbody>
     </table>
 </div>
+<script src="/js/edit_groups.js"></script>

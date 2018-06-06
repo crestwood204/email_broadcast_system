@@ -210,10 +210,9 @@ router.put('/activate_user', function(req, res) {
 router.get('/edit_groups', function(req, res) {
   var messages = {
     'database': 'The database failed to respond to this request. Please try again or contact IT for support.',
-    'not_found': 'Template could not be found in the database! Please try again or create a new template.',
-    'deleted': 'Template deleted successfully!',
-    'updated': 'Template updated succesfully!',
-    'created': 'Template created successfully!'
+    'created': 'Group created successfully!',
+    'updated': 'Group updated succesfully!',
+    'fail_find': 'The database failed to find this group. Please try again or contact IT for support.'
   }
   var request = req.query.request
   var alert_msg = null
@@ -229,6 +228,112 @@ router.get('/edit_groups', function(req, res) {
     }
   )
 
+})
+
+router.get('/new_group', function(req, res) {
+  var messages = {
+    'emailFormat': 'Email Format is Incorrect.',
+    'missing_fields': 'One or more fields are missing. Please complete the form before submitting.',
+    'name_exists': 'There is already a group with this name. Please choose a different name.'
+  }
+  var msg = undefined
+  if (req.query.msg) {
+    msg = messages[req.query.msg]
+  }
+  var name = req.query.name
+  var email = req.query.email
+
+  res.render('edit_views/group/new_group', {'user': req.user, 'msg': msg, 'name': name, 'email': email})
+})
+
+router.post('/new_group', function(req, res) {
+  var name = req.body.name
+  var email = req.body.email
+
+  function validateEmail(email) {
+    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+  }
+
+  if (!name || ! email) {
+    return res.redirect('/new_group?msg=missing_fields&name=' + name + '&email=' + email)
+  }
+
+  // validate email
+  if (!validateEmail(email)) {
+    return res.redirect('/new_group?msg=emailFormat&name=' + name + '&email=' + email)
+  }
+
+  var new_group = new Group({
+    'name': name,
+    'email': email
+  })
+
+  new_group.save(function(err, group) {
+    if (err) {
+      console.log('new_group save database_error')
+      res.redirect('/edit_groups?request=failure&type=database')
+    } else {
+      // make a log;
+      Log.log('Created', req.user._id, 'New Group Created', 'Group', 'post new_group database_error', null, null, null, group._id)
+      res.redirect('/edit_groups?request=success&type=created')
+    }
+  })
+})
+
+router.get('/edit_group', function(req, res) {
+  var id = req.query.group
+  Group.findById(id).then(
+    (group) => {
+      res.render('edit_views/group/edit_group', { user: req.user, 'name': group.name, 'email': group.email })
+    },
+    (err) => {
+      console.log('get edit_group database_error')
+      res.redirect('/edit_groups?request=failure&type=fail_find')
+    }
+  )
+})
+
+router.post('/edit_group', function(req, res) {
+  var name = req.body.name
+  var email = req.body.email
+  var id = req.query.group
+
+  function validateEmail(email) {
+    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+  }
+
+  if (!name || ! email) {
+    return res.redirect('/new_group?group=' + id + '&msg=missing_fields&name=' + name + '&email=' + email)
+  }
+
+  // validate email
+  if (!validateEmail(email)) {
+    return res.redirect('/new_group?group=' + id + '&msg=emailFormat&name=' + name + '&email=' + email)
+  }
+
+  // make sure no duplicate template name
+  Group.find({'name': name}, function(err, groups) {
+    if (err) {
+      console.log('edit_group find database_error')
+      return res.redirect('/edit_groups?request=failure&type=database')
+    } else {
+      if (groups) {
+        if (groups.includes(x => x._id === id)) {
+          return res.redirect('/new_group?group=' + id + '&msg=name_exists&name=' + name + '&email=' + email)
+        }
+      }
+      Group.findByIdAndUpdate(id, { $set: { 'name': name, 'email': email }}, function(err, group) {
+        if (err) {
+          console.log('edit_group update database_error')
+          res.redirect('/edit_groups?request=failure&type=database')
+        } else {
+          res.redirect('/edit_groups?request=success&type=updated')
+        }
+      })
+    }
+  })
 })
 
 router.get('/edit_templates', function(req, res) {
