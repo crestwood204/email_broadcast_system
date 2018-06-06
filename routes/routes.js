@@ -98,16 +98,15 @@ router.post('/new_request', function(req, res) {
   res.redirect('/pending_requests?request=success')
 })
 
-router.get('/get_template', function(req,res) {
-  var template_id = req.body.template_id
-  Template.findById(template_id, function(err, template) {
-    if (err) {
+router.get('/get_templates', function(req,res) {
+  Template.find({}).then(
+    (templates) => {
+        res.status(200).send(JSON.stringify(templates))
+    },
+    (err) => {
+      console.log('get_templates fetch_templates database_error')
       res.status(500).send('Database Error While Retrieving Template')
-    } else {
-      console.log(template)
-      res.status(200).send(JSON.stringify(template))
-    }
-  })
+    })
 })
 
 router.get('/pending_requests', function(req, res) {

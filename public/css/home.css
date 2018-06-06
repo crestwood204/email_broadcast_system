@@ -83,3 +83,13 @@
 .display-none {
     display: none;
 }
+
+nav {
+    position: fixed !important;
+    top: 0;
+    width: 100%;
+}
+
+body {
+    padding-top: 60px;
+}

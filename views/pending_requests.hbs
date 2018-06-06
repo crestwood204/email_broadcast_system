@@ -50,6 +50,10 @@
             {{/each}}
         </tbody>
     </table>
+    {{#unless pendingRequests}}
+        <h3>No Pending Requests</h3>
+    {{/unless}}
+    <div>Create a new broadcast <a href="/new_request">here</a>.</div>
 </div>
 <script src="/js/log.js"></script>
 <script src="/js/pending_requests.js"></script>

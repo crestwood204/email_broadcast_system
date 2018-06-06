@@ -208,7 +208,27 @@ router.put('/activate_user', function(req, res) {
 })
 
 router.get('/edit_groups', function(req, res) {
-  res.render('edit_views/group/edit_groups', {'user': req.user})
+  var messages = {
+    'database': 'The database failed to respond to this request. Please try again or contact IT for support.',
+    'not_found': 'Template could not be found in the database! Please try again or create a new template.',
+    'deleted': 'Template deleted successfully!',
+    'updated': 'Template updated succesfully!',
+    'created': 'Template created successfully!'
+  }
+  var request = req.query.request
+  var alert_msg = null
+  if (request) {
+    alert_msg = messages[req.query.type]
+  }
+  Group.find({}).then(
+    (groups) => {
+      res.render('edit_views/group/edit_groups', {'user': req.user, 'request': request, 'alert_msg': alert_msg, 'groups': groups})
+    },
+    (err) => {
+      res.render('edit_views/group/edit_groups', {'user': req.user, 'request': 'failure', 'alert_msg': 'Error Fetching Groups From the Database!! Refresh the Page or Contact IT for help.'})
+    }
+  )
+
 })
 
 router.get('/edit_templates', function(req, res) {

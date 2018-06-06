@@ -1,41 +1,29 @@
 $(document).ready(function() {
-  var templates = []
-
-  var setTemplate = function(template) {
-
-  }
+  (function() {
+    $.ajax({
+      url: '/get_templates',
+      method: 'get',
+      error: function(err) {
+        // Error Retrieving Template
+        console.log('Error: ' + err)
+        $('#error_msg').removeClass('display-none')
+      },
+      success: function(res) {
+        // on success, save templates to session storage
+        res = JSON.parse(res)
+        for (var i = 0; i < res.length; i++) {
+          sessionStorage.setItem(res[i].title, JSON.stringify(res[i]))
+        }
+      }
+    })
+  })()
 
   $('#templateField').on('change', function(event) {
     var template = $(this).val()
     if (template !== 'Choose...') {
-      var found = false
-      for (t in templates) {
-        if (t.title === 'template') {
-          found = true
-          setTemplate(t)
-          break;
-        }
-      }
-      if (!found) {
-        // ajax request server for template
-        var id = $(this).children(":selected").attr("id");
-        $.ajax({
-          url: '/get_template',
-          method: 'get',
-          data: {
-            'template_id': id
-          },
-          error: function(err) {
-            // Error Retrieving Template
-            console.log('Error: ' + err)
-            $('#error_msg').removeClass('display-none')
-          },
-          success: function(res) {
-            // on success, populate subject and body
-            console.log(res)
-          }
-        })
-      }
+      template = JSON.parse(sessionStorage.getItem(template))
+      $('#subject').val(template.subject)
+      $('#body').val(template.body)
     }
   })
 })
