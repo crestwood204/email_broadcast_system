@@ -1,6 +1,7 @@
 //REQUIRE IN EXPRESS AND EXPRESS ROUTER TO CREATE ROUTES TO REQUIRE IN APP.JS
 var express = require('express')
 var nodemailer = require('nodemailer')
+var datejs = require('datejs')
 var router = express.Router()
 
 //REQUIRE IN MODELS
@@ -173,11 +174,13 @@ router.get('/log', function(req, res) {
         })
         var new_logs = logs.map(
           (x) => {
-            var date_str = x.date.toLocaleString().split(', ')
-            x.date_string = date_str[0]
-            x.time_string = date_str[1].split(':')
+            x.date_string = x.date.format("d/m/Y").split('/0').join('/')
+            x.time_string = x.date.format("h:m")
+            if (x.time_string.charAt(0) === '0') {
+              x.time_string = x.time_string.substring(1)
+            }
             var ampm = x.date.getHours() >= 12 ? 'PM' : 'AM'
-            x.time_string = x.time_string[0] + ':' + x.time_string[1] + ' ' + ampm
+            x.time_string = x.time_string + ' ' + ampm
             return x
           }
         )
