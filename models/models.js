@@ -129,7 +129,9 @@ LogSchema.statics.log = function(change, user_id, description, type, err_msg, re
 var GroupSchema = new Schema ({
   name: {
     type: String,
-    required: true
+    required: true,
+    unique: true,
+    dropDups: true
   },
   email: {
     type: String,

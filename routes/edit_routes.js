@@ -212,7 +212,8 @@ router.get('/edit_groups', function(req, res) {
     'database': 'The database failed to respond to this request. Please try again or contact IT for support.',
     'created': 'Group created successfully!',
     'updated': 'Group updated succesfully!',
-    'fail_find': 'The database failed to find this group. Please try again or contact IT for support.'
+    'fail_find': 'The database failed to find this group. Please try again or contact IT for support.',
+    'deleted': 'Group deleted successfully!'
   }
   var request = req.query.request
   var alert_msg = null
@@ -234,7 +235,7 @@ router.get('/new_group', function(req, res) {
   var messages = {
     'emailFormat': 'Email Format is Incorrect.',
     'missing_fields': 'One or more fields are missing. Please complete the form before submitting.',
-    'name_exists': 'There is already a group with this name. Please choose a different name.'
+    'dupKey': 'There is already a group with this name. Please choose a different name.',
   }
   var msg = undefined
   if (req.query.msg) {
@@ -271,8 +272,12 @@ router.post('/new_group', function(req, res) {
 
   new_group.save(function(err, group) {
     if (err) {
-      console.log('new_group save database_error')
-      res.redirect('/edit_groups?request=failure&type=database')
+      if (err.code === 11000) {
+        return res.redirect('/new_group?msg=dupKey&name=' + name + '&email=' + email)
+      } else {
+        console.log('new_group create database_error', err)
+        return res.redirect('/edit_groups?request=failure&type=database')
+      }
     } else {
       // make a log;
       Log.log('Created', req.user._id, 'New Group Created', 'Group', 'post new_group database_error', null, null, null, group._id)
@@ -282,7 +287,14 @@ router.post('/new_group', function(req, res) {
 })
 
 router.get('/edit_group', function(req, res) {
+  var messages = {
+    'dupKey': 'There is already another group with this name. Please choose another name and try again.'
+  }
   var id = req.query.group
+  if (req.query.msg) {
+    msg = messages[req.query.msg]
+    return res.render('edit_views/group/edit_group', { user: req.user, 'name': req.query.name, 'email': req.query.email, 'msg': msg })
+  }
   Group.findById(id).then(
     (group) => {
       res.render('edit_views/group/edit_group', { user: req.user, 'name': group.name, 'email': group.email })
@@ -314,24 +326,30 @@ router.post('/edit_group', function(req, res) {
   }
 
   // make sure no duplicate template name
-  Group.find({'name': name}, function(err, groups) {
+  Group.findByIdAndUpdate(id, { $set: { 'name': name, 'email': email }}, function(err, group) {
     if (err) {
-      console.log('edit_group find database_error')
-      return res.redirect('/edit_groups?request=failure&type=database')
-    } else {
-      if (groups) {
-        if (groups.includes(x => x._id === id)) {
-          return res.redirect('/new_group?group=' + id + '&msg=name_exists&name=' + name + '&email=' + email)
-        }
+      if (err.codeName === 'DuplicateKey') {
+        return res.redirect('/edit_group?group=' + id + '&msg=dupKey&name=' + name + '&email=' + email)
+      } else {
+        console.log('edit_group update database_error', err.errmsg)
+        return res.redirect('/edit_groups?request=failure&type=database')
       }
-      Group.findByIdAndUpdate(id, { $set: { 'name': name, 'email': email }}, function(err, group) {
-        if (err) {
-          console.log('edit_group update database_error')
-          res.redirect('/edit_groups?request=failure&type=database')
-        } else {
-          res.redirect('/edit_groups?request=success&type=updated')
-        }
-      })
+    } else {
+      res.redirect('/edit_groups?request=success&type=updated')
+    }
+  })
+})
+
+router.put('/delete_group', function(req, res) {
+  var group_name = req.body.group_name
+  Group.deleteOne({'_id': req.body.id}, function(err) {
+    if (err) {
+      res.status(500).send('Database Error, could not delete document.')
+    } else {
+      // make a log
+      Log.log('Deleted', req.user._id, 'Group Deleted', 'Group', 'put delete_group database_error', null, null, null, null, group_name)
+
+      res.status(200).send('Document deleted')
     }
   })
 })
