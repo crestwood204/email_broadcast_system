@@ -223,33 +223,43 @@ router.post('/decide_request', function(req, res) {
   })
 })
 
-var sendEmail = function(to, subject, text) {
-  // create reusable transporter object using the default SMTP transport
-    let transporter = nodemailer.createTransport({
-        host: process.env.HOST_IP,
-        port: 25,
-        tls: {
-          rejectUnauthorized: false
-        }
-    });
+var sendEmail = function(bcc, subject, text) {
+  Group.find({}).then(
+    (groups) => {
+      groups = groups.map(x => x.email)
+      groups = groups.filter(x => bcc.includes(x))
 
-    // setup email data with unicode symbols
-    let mailOptions = {
-        from: 'RIBroadcast.Message@rothmaninstitute.com', // sender address
-        to: 'andrew.ong@rothmaninstitute.com', // list of receivers
-        bcc: to,
-        subject: subject, // Subject line
-        text: text, // plain text body
-        html: '<b>' + text + '<b>' // html body
-    };
+      // create reusable transporter object using the default SMTP transport
+      let transporter = nodemailer.createTransport({
+          host: process.env.HOST_IP,
+          port: 25,
+          tls: {
+            rejectUnauthorized: false
+          }
+      });
 
-    // send mail with defined transport object
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            return console.log('err', error);
-        }
-        console.log(info)
-    });
+      // setup email data with unicode symbols
+      let mailOptions = {
+          from: 'RIBroadcast.Message@rothmaninstitute.com', // sender address
+          to: 'andrew.ong@rothmaninstitute.com', // list of receivers
+          bcc: bcc,
+          subject: subject, // Subject line
+          text: text, // plain text body
+          html: '<b>' + text + '<b>' // html body
+      };
+
+      // send mail with defined transport object
+      transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+              return console.log('err', error);
+          }
+          console.log(info)
+      });
+    },
+    (err) => {
+      console.log('sendEmail error_fetching_groups database_error')
+    }
+  )
 }
 
 module.exports = router
