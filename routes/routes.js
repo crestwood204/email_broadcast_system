@@ -213,6 +213,9 @@ router.post('/decide_request', function(req, res) {
           res.redirect('/?request=failed')
         } else {
           // TODO:?? sendEmail(request.to, request.subject, request.body)
+          if (approved) {
+              sendEmail(req.to, req.subject, req.body)
+          }
           // make log
           Log.log(change, req.user._id, 'Broadcast Request ' + change, 'Broadcast', 'post decide_request database_error', request._id)
         }
@@ -223,15 +226,13 @@ router.post('/decide_request', function(req, res) {
 
 var sendEmail = function(to, subject, text) {
   // change to from an array to a string
-  to = to.join(', ')
   // create reusable transporter object using the default SMTP transport
     let transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
+        host: 'smtp.ethereal.email',
+        port: 587,
         auth: {
-            user: process.env.EMAIL,
-            pass: process.env.EMAIL_PASS
+            user: process.env.ETHEREAL_USERNAME,
+            pass: process.env.ETHEREAL_PASSWORD
         }
     });
 
@@ -247,7 +248,7 @@ var sendEmail = function(to, subject, text) {
     // send mail with defined transport object
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            return console.log(error);
+            return console.log('err', error);
         }
         console.log('Message sent: %s', info.messageId);
         // Preview only available when sending through an Ethereal account
