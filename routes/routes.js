@@ -230,11 +230,10 @@ var sendEmail = function(to, subject, text) {
   // create reusable transporter object using the default SMTP transport
     let transporter = nodemailer.createTransport({
         host: process.env.HOST_IP,
-        port: 587//,
-        // auth: {
-        //     user: process.env.ETHEREAL_USERNAME,
-        //     pass: process.env.ETHEREAL_PASSWORD
-        // }
+        port: 25,
+        tls: {
+          rejectUnauthorized: false
+        }
     });
 
     // setup email data with unicode symbols
@@ -253,12 +252,6 @@ var sendEmail = function(to, subject, text) {
             return console.log('err', error);
         }
         console.log(info)
-        console.log('Message sent: %s', info.messageId);
-        // Preview only available when sending through an Ethereal account
-      //  console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-
-        // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-        // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
     });
 }
 
