@@ -259,35 +259,35 @@ var sendEmail = function(bcc, subject, text, email_inputs) {
       }
     )
   }
+}
 
-  // send emails
-  var email = function(groups, subject, text, html) {
-    // create reusable transporter object using the default SMTP transport
-    let transporter = nodemailer.createTransport({
-        host: process.env.HOST_IP,
-        port: 25,
-        tls: {
-          rejectUnauthorized: false
-        }
-    });
+// send emails
+var email = function(groups, subject, text, html) {
+  // create reusable transporter object using the default SMTP transport
+  let transporter = nodemailer.createTransport({
+      host: process.env.HOST_IP,
+      port: 25,
+      tls: {
+        rejectUnauthorized: false
+      }
+  });
 
-    // setup email data with unicode symbols
-    let mailOptions = {
-        from: process.env.BROADCAST_ADDRESS, // sender address
-        to: '', // list of receivers
-        bcc: groups,
-        subject: subject, // Subject line
-        text: text, // plain text body
-        html: html // html body
-    };
+  // setup email data with unicode symbols
+  let mailOptions = {
+      from: process.env.BROADCAST_ADDRESS, // sender address
+      to: '', // list of receivers
+      bcc: groups,
+      subject: subject, // Subject line
+      text: text, // plain text body
+      html: html // html body
+  };
 
-    // send mail with defined transport object
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            return console.log('err', error);
-        }
-        console.log(info)
-    });
-  }
+  // send mail with defined transport object
+  transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+          return console.log('err', error);
+      }
+      console.log(info)
+  });
 }
 module.exports = router
