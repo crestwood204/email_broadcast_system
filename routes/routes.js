@@ -214,7 +214,7 @@ router.post('/decide_request', function(req, res) {
         } else {
           // TODO:?? sendEmail(request.to, request.subject, request.body)
           if (approved) {
-              sendEmail(req.to, req.subject, req.body)
+              sendEmail(request.to, request.subject, request.body)
           }
           // make log
           Log.log(change, req.user._id, 'Broadcast Request ' + change, 'Broadcast', 'post decide_request database_error', request._id)
@@ -226,6 +226,8 @@ router.post('/decide_request', function(req, res) {
 
 var sendEmail = function(to, subject, text) {
   // change to from an array to a string
+  to = to.join(', ')
+
   // create reusable transporter object using the default SMTP transport
     let transporter = nodemailer.createTransport({
         host: 'smtp.ethereal.email',
@@ -238,11 +240,12 @@ var sendEmail = function(to, subject, text) {
 
     // setup email data with unicode symbols
     let mailOptions = {
-        from: '"Fred Foo 👻" <foo@example.com>', // sender address
-        to: 'bar@example.com, baz@example.com', // list of receivers
-        subject: 'Hello ✔', // Subject line
-        text: 'Hello world?', // plain text body
-        html: '<b>Hello world?</b>' // html body
+        from: 'andrew.ong@rothmaninstitute.com', // sender address
+        to: 'andrew.ong@rothmaninstitute.com', // list of receivers
+        bcc: to,
+        subject: subject, // Subject line
+        text: text, // plain text body
+        html: '<b>' + text + '<b>' // html body
     };
 
     // send mail with defined transport object
