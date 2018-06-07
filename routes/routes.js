@@ -233,6 +233,7 @@ router.post('/decide_request', function(req, res) {
 })
 
 var sendEmail = function(bcc, subject, text, email_inputs) {
+  var mailOptions = {}
   // create html
   var html = ''
   if (email_inputs) {
@@ -252,7 +253,7 @@ var sendEmail = function(bcc, subject, text, email_inputs) {
       </body>
     </html>`
     // setup email data with unicode symbols
-    let mailOptions = {
+    mailOptions = {
         from: process.env.BROADCAST_ADDRESS, // sender address
         to: '', // list of receivers
         bcc: email_inputs[0],
@@ -269,7 +270,7 @@ var sendEmail = function(bcc, subject, text, email_inputs) {
       (groups) => {
         groups = groups.filter(x => bcc.includes(x.name))
         groups = groups.map(x => x.email)
-        let mailOptions = {
+        mailOptions = {
             from: process.env.BROADCAST_ADDRESS, // sender address
             to: '', // list of receivers
             bcc: groups,
