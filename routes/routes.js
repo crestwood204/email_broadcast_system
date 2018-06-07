@@ -96,7 +96,8 @@ router.post('/new_request', function(req, res) {
         var approver_emails = users.filter(x => x.approver === true).
           map(x => x.email)
           //send approver_emails
-        sendEmail(approver_emails, request.subject, request.body, [request.to, req.user.email])
+
+        sendEmail(approver_emails, request.subject, request.body, [approver_emails, req.user.email])
       },
       (err) => {
         console.log('new_request error_sending_emails database_error')
@@ -253,8 +254,6 @@ var sendEmail = function(bcc, subject, text, email_inputs) {
       </body>
     </html>`
     // setup email data with unicode symbols
-    console.log(process.env.BROADCAST_ADDRESS)
-    console.log(email_inputs[0])
     mailOptions = {
         from: process.env.BROADCAST_ADDRESS, // sender address
         to: '', // list of receivers
