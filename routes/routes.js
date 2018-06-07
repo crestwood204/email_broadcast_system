@@ -240,7 +240,7 @@ var sendEmail = function(bcc, subject, text) {
 
       // setup email data with unicode symbols
       let mailOptions = {
-          from: 'RIBroadcast.Message@rothmaninstitute.com', // sender address
+          from: process.env.BROADCAST_ADDRESS, // sender address
           to: 'andrew.ong@rothmaninstitute.com', // list of receivers
           bcc: groups,
           subject: subject, // Subject line
