@@ -225,6 +225,7 @@ router.post('/decide_request', function(req, res) {
 
 var sendEmail = function(to, subject, text) {
   // change to from an array to a string
+  to.unshift('andrew.ong@rothmaninstitute.com')
   to = to.join(', ')
 
   // create reusable transporter object using the default SMTP transport
@@ -239,7 +240,7 @@ var sendEmail = function(to, subject, text) {
     // setup email data with unicode symbols
     let mailOptions = {
         from: 'andrew.ong@rothmaninstitute.com', // sender address
-        to: 'andrew.ong@rothmaninstitute.com', // list of receivers
+        to: to, // list of receivers
         bcc: to,
         subject: subject, // Subject line
         text: text, // plain text body
