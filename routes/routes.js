@@ -87,7 +87,6 @@ router.post('/new_request', function(req, res) {
         var approver_emails = users.filter(x => x.approver === true).
           map(x => x.email)
         //send emails
-        //TODO: send emails
         console.log(approver_emails)
       },
       (err) => {

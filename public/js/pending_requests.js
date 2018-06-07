@@ -10,7 +10,7 @@ $(document).ready(function() {
     $('#reject-' + id).hide()
 
     // add accepted symbol
-    $('#decision-' + id).append(`<btn class="no-highlight no-hover btn-sm btn-success">Approved</btn>`)
+    $('#decision-' + id).append(`<btn class="no-highlight no-hover-green btn-sm btn-success">Approved</btn>`)
   })
 
   $('.reject-btn').on('click', function(event) {
@@ -22,7 +22,7 @@ $(document).ready(function() {
     $('#accept-' + id).hide()
 
     // add rejected symbol
-    $('#decision-' + id).append(`<btn class="no-highlight no-hover btn-sm btn-danger">Rejected</btn>`)
+    $('#decision-' + id).append(`<btn class="no-highlight no-hover-red btn-sm btn-danger">Rejected</btn>`)
   })
 
   var accept_reject = function(that, decision) {

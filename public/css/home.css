@@ -50,8 +50,16 @@
     outline: none
 }
 
-.no-hover:hover {
+.no-hover-green:hover {
     background-color: #5cb85c !important;
+}
+
+.no-hover-red {
+    background-color: #c9302c !important;
+}
+
+.no-hover-red:hover {
+    background-color: #c9302c !important;
 }
 
 .name {
