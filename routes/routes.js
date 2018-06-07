@@ -221,19 +221,6 @@ router.post('/decide_request', function(req, res) {
   })
 })
 
-router.get('/template', function(req, res) {
-  var template = req.body.template
-
-  Template.findOne({ name: template }).then(
-    (template) => {
-
-    },
-    (err) => {
-
-    }
-  )
-})
-
 var sendEmail = function(to, subject, text) {
   // change to from an array to a string
   to = to.join(', ')

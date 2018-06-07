@@ -280,7 +280,7 @@ router.post('/new_group', function(req, res) {
       }
     } else {
       // make a log;
-      Log.log('Created', req.user._id, 'New Group Created', 'Group', 'post new_group database_error', null, null, null, group._id)
+      Log.log('Created', req.user._id, 'New Group Created', 'Group', 'post new_group database_error', null, null, null, group._id, name)
       res.redirect('/edit_groups?request=success&type=created')
     }
   })
@@ -335,6 +335,8 @@ router.post('/edit_group', function(req, res) {
         return res.redirect('/edit_groups?request=failure&type=database')
       }
     } else {
+      // make a log
+      Log.log('Edited', req.user._id, 'Group Edited', 'Group', 'post edit_group database_error', null, null, null, group._id, name)
       res.redirect('/edit_groups?request=success&type=updated')
     }
   })

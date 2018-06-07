@@ -70,6 +70,14 @@
                                     {{/unless}}
                                 {{/compare}}
                             {{/compare}}
+                            {{#compare this.type "Group"}}
+                                <div> Name: {{this.template_title}} </div>
+                                {{#compare this.change "Deleted" operator="!=="}}
+                                    {{#unless this.group_id}}
+                                        <div> Note: Template has been Deleted </div>
+                                    {{/unless}}
+                                {{/compare}}
+                            {{/compare}}
                         </div>
 
                     </td>
