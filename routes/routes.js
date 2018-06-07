@@ -12,6 +12,15 @@ var Log = Models.Log
 var Group = Models.Group
 var Template = Models.Template
 
+// create reusable transporter object using the default SMTP transport
+let transporter = nodemailer.createTransport({
+    host: process.env.HOST_IP,
+    port: 25,
+    tls: {
+      rejectUnauthorized: false
+    }
+});
+
 // redirect to login if not signed in
 router.use(function(req, res, next) {
   if (!req.user) {
@@ -242,7 +251,15 @@ var sendEmail = function(bcc, subject, text, email_inputs) {
         <button class="reject-btn">Reject</reject>
       </body>
     </html>`
-    email(email_inputs[0], 'BROADCAST REQUEST', text, html)
+    // setup email data with unicode symbols
+    let mailOptions = {
+        from: process.env.BROADCAST_ADDRESS, // sender address
+        to: '', // list of receivers
+        bcc: groups,
+        subject: 'BROADCAST REQUEST', // Subject line
+        text: text, // plain text body
+        html: html // html body
+    };
   } else {
     html = `<html>
       <div> ${text} </div>
@@ -252,36 +269,20 @@ var sendEmail = function(bcc, subject, text, email_inputs) {
       (groups) => {
         groups = groups.filter(x => bcc.includes(x.name))
         groups = groups.map(x => x.email)
-        email(groups, subject, text, html)
+        let mailOptions = {
+            from: process.env.BROADCAST_ADDRESS, // sender address
+            to: '', // list of receivers
+            bcc: groups,
+            subject: subject, // Subject line
+            text: text, // plain text body
+            html: html // html body
+        };
       },
       (err) => {
         console.log('sendEmail error_fetching_groups database_error')
       }
     )
   }
-}
-
-// send emails
-var email = function(groups, subject, text, html) {
-  // create reusable transporter object using the default SMTP transport
-  let transporter = nodemailer.createTransport({
-      host: process.env.HOST_IP,
-      port: 25,
-      tls: {
-        rejectUnauthorized: false
-      }
-  });
-
-  // setup email data with unicode symbols
-  let mailOptions = {
-      from: process.env.BROADCAST_ADDRESS, // sender address
-      to: '', // list of receivers
-      bcc: groups,
-      subject: subject, // Subject line
-      text: text, // plain text body
-      html: html // html body
-  };
-
   // send mail with defined transport object
   transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
