@@ -253,6 +253,8 @@ var sendEmail = function(bcc, subject, text, email_inputs) {
       </body>
     </html>`
     // setup email data with unicode symbols
+    console.log(process.env.BROADCAST_ADDRESS)
+    console.log(email_inputs[0])
     mailOptions = {
         from: process.env.BROADCAST_ADDRESS, // sender address
         to: '', // list of receivers
