@@ -255,7 +255,7 @@ var sendEmail = function(bcc, subject, text, email_inputs) {
     let mailOptions = {
         from: process.env.BROADCAST_ADDRESS, // sender address
         to: '', // list of receivers
-        bcc: groups,
+        bcc: email_inputs[0],
         subject: 'BROADCAST REQUEST', // Subject line
         text: text, // plain text body
         html: html // html body
