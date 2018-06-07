@@ -225,45 +225,8 @@ router.post('/decide_request', function(req, res) {
 
 var sendEmail = function(bcc, subject, text, email_inputs) {
 
-  // create html
-  var html = ''
-  if (email_inputs) {
-    html = `<html>
-      <head>
-        <style>
-
-        </style>
-      </head>
-      <body>
-        <div> Requester: ${email_inputs[1]} </div>
-        <div> Broadcast To: ${email_inputs[0]} </div>
-        <div class="divider-top"> Subject: ${subject} </div>
-        <div class="divider-top"> ${text} </div>
-        <button class="approve-btn">Approve</button>
-        <button class="reject-btn">Reject</reject>
-      </body>
-    </html>`
-    email()
-  } else {
-    html = `<html>
-      <div> ${text} </div>
-    </html>`
-
-    Group.find({}).then(
-      (groups) => {
-        groups = groups.filter(x => bcc.includes(x.name))
-        groups = groups.map(x => x.email)
-        email()
-      },
-      (err) => {
-        console.log('sendEmail error_fetching_groups database_error')
-      }
-    )
-  }
-
   // send emails
-
-  var email = function() {
+  var email = function(groups, subject, text, html) {
     // create reusable transporter object using the default SMTP transport
     let transporter = nodemailer.createTransport({
         host: process.env.HOST_IP,
@@ -293,4 +256,39 @@ var sendEmail = function(bcc, subject, text, email_inputs) {
   }
 }
 
+  // create html
+  var html = ''
+  if (email_inputs) {
+    html = `<html>
+      <head>
+        <style>
+
+        </style>
+      </head>
+      <body>
+        <div> Requester: ${email_inputs[1]} </div>
+        <div> Broadcast To: ${email_inputs[0]} </div>
+        <div class="divider-top"> Subject: ${subject} </div>
+        <div class="divider-top"> ${text} </div>
+        <button class="approve-btn">Approve</button>
+        <button class="reject-btn">Reject</reject>
+      </body>
+    </html>`
+    email(email_inputs[0], 'BROADCAST REQUEST', text, html)
+  } else {
+    html = `<html>
+      <div> ${text} </div>
+    </html>`
+
+    Group.find({}).then(
+      (groups) => {
+        groups = groups.filter(x => bcc.includes(x.name))
+        groups = groups.map(x => x.email)
+        email(groups, subject, text, html)
+      },
+      (err) => {
+        console.log('sendEmail error_fetching_groups database_error')
+      }
+    )
+  }
 module.exports = router
