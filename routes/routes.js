@@ -97,7 +97,7 @@ router.post('/new_request', function(req, res) {
           map(x => x.email)
           //send approver_emails
 
-        sendEmail(approver_emails, request.subject, request.body, [approver_emails, req.user.email])
+        sendEmail(approver_emails, request.subject, request.body, [request.to, req.user.email])
       },
       (err) => {
         console.log('new_request error_sending_emails database_error')
@@ -238,30 +238,39 @@ var sendEmail = function(bcc, subject, text, email_inputs) {
   // create html
   var html = ''
   if (email_inputs) {
-    html = `<html>
-      <head>
-        <style>
-
-        </style>
-      </head>
-      <body>
-        <div> Requester: ${email_inputs[1]} </div>
-        <div> Broadcast To: ${email_inputs[0]} </div>
-        <div class="divider-top"> Subject: ${subject} </div>
-        <div class="divider-top"> ${text} </div>
-        <button class="approve-btn">Approve</button>
-        <button class="reject-btn">Reject</reject>
-      </body>
-    </html>`
     // setup email data with unicode symbols
-    mailOptions = {
-        from: process.env.BROADCAST_ADDRESS, // sender address
-        to: '', // list of receivers
-        bcc: email_inputs[0],
-        subject: 'BROADCAST REQUEST', // Subject line
-        text: text, // plain text body
-        html: html // html body
-    };
+    Group.find({}).then(
+      (groups) => {
+        groups = groups.filter(x => email_inputs[0].includes(x.name))
+        groups = groups.map(x => x.email)
+        html = `<html>
+          <head>
+            <style>
+
+            </style>
+          </head>
+          <body>
+            <div> Requester: ${email_inputs[1]} </div>
+            <div> Broadcast To: ${email_inputs[0]} </div>
+            <div class="divider-top"> Subject: ${subject} </div>
+            <div class="divider-top"> ${text} </div>
+            <button class="approve-btn">Approve</button>
+            <button class="reject-btn">Reject</reject>
+          </body>
+        </html>`
+        mailOptions = {
+            from: process.env.BROADCAST_ADDRESS, // sender address
+            to: '', // list of receivers
+            bcc: bcc,
+            subject: 'BROADCAST REQUEST', // Subject line
+            text: text, // plain text body
+            html: html // html body
+        };
+      },
+      (err) => {
+        console.log('sendEmail error_fetching_groups database_error')
+      }
+    )
   } else {
     html = `<html>
       <div> ${text} </div>
