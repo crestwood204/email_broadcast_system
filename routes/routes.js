@@ -86,8 +86,8 @@ router.post('/new_request', function(req, res) {
       (users) => {
         var approver_emails = users.filter(x => x.approver === true).
           map(x => x.email)
-        //send emails
-        console.log(approver_emails)
+          //send approver_emails
+        sendEmail(approver_emails, request.subject, request.body, [request.to, request.from])
       },
       (err) => {
         console.log('new_request error_sending_emails database_error')
@@ -211,7 +211,7 @@ router.post('/decide_request', function(req, res) {
           console.log("decide_request update database_error")
           res.redirect('/?request=failed')
         } else {
-          // TODO:?? sendEmail(request.to, request.subject, request.body)
+          // broadcast email
           if (approved) {
               sendEmail(request.to, request.subject, request.body)
           }
@@ -223,7 +223,33 @@ router.post('/decide_request', function(req, res) {
   })
 })
 
-var sendEmail = function(bcc, subject, text) {
+var sendEmail = function(bcc, subject, text, email_inputs) {
+
+  // create html
+  var html = ''
+  if (email_inputs) {
+    html = `<html>
+      <head>
+        <style>
+
+        </style>
+      </head>
+      <body>
+        <div> Requester: ${email_inputs[1]} </div>
+        <div> Broadcast To: ${email_inputs[0]} </div>
+        <div class="divider-top"> Subject: ${subject} </div>
+        <div class="divider-top"> ${text} </div>
+        <button class="approve-btn">Approve</button>
+        <button class="reject-btn">Reject</reject>
+      </body>
+    </html>`
+  } else {
+    html = `<html>
+      <div> ${text} </div>
+    </html>`
+  }
+
+  // send emails
   Group.find({}).then(
     (groups) => {
       groups = groups.filter(x => bcc.includes(x.name))
@@ -245,7 +271,7 @@ var sendEmail = function(bcc, subject, text) {
           bcc: groups,
           subject: subject, // Subject line
           text: text, // plain text body
-          html: '<b>' + text + '<b>' // html body
+          html: html // html body
       };
 
       // send mail with defined transport object
