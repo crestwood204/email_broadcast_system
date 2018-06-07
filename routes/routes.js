@@ -226,8 +226,8 @@ router.post('/decide_request', function(req, res) {
 var sendEmail = function(bcc, subject, text) {
   Group.find({}).then(
     (groups) => {
+      groups = groups.filter(x => bcc.includes(x.name))
       groups = groups.map(x => x.email)
-      groups = groups.filter(x => bcc.includes(x))
 
       // create reusable transporter object using the default SMTP transport
       let transporter = nodemailer.createTransport({
