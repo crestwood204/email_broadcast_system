@@ -266,6 +266,13 @@ var sendEmail = function(bcc, subject, text, email_inputs) {
             text: text, // plain text body
             html: html // html body
         };
+        // send mail with defined transport object
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return console.log('err', error);
+            }
+            console.log(info)
+        });
       },
       (err) => {
         console.log('sendEmail error_fetching_groups database_error')
@@ -288,18 +295,18 @@ var sendEmail = function(bcc, subject, text, email_inputs) {
             text: text, // plain text body
             html: html // html body
         };
+        // send mail with defined transport object
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return console.log('err', error);
+            }
+            console.log(info)
+        });
       },
       (err) => {
         console.log('sendEmail error_fetching_groups database_error')
       }
     )
   }
-  // send mail with defined transport object
-  transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-          return console.log('err', error);
-      }
-      console.log(info)
-  });
 }
 module.exports = router
