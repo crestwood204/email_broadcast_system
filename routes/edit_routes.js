@@ -119,7 +119,7 @@ router.get('/edit_user', function(req, res) {
       if (!user) {
         res.redirect('/edit_users?request=failure&type=not_found')
       } else {
-          res.render('edit_views/user/edit_user', {'user': req.user, 'profile': user, 'request': request, 'alert_msg': alert_msg})
+        res.render('edit_views/user/edit_user', {'user': req.user, 'profile': user, 'request': request, 'alert_msg': alert_msg})
       }
     }
   })
@@ -178,17 +178,22 @@ router.post('/edit_user', function(req, res) {
 
 router.put('/deactivate_user', function(req, res) {
   var username = req.body.username
+  console.log(username)
 
   User.findOneAndUpdate({ 'username': username }, { $set: {
     'active': false
   }}, function(err, user) {
     if (err) {
-      res.status(500).send('database error when deactiving user')
+      res.status(500).send('database error when deactivating user')
     }
-    // make a log
-    Log.log('Deactivated', req.user._id, 'User Deactivated', 'User', 'put deactivate_user database_error', null, user._id)
+    if (user) {
+      // make a log
+      Log.log('Deactivated', req.user._id, 'User Deactivated', 'User', 'put deactivate_user database_error', null, user._id)
 
-    res.status(200).send('user deactivated')
+      res.status(200).send('user deactivated')
+    } else {
+      res.status(500).send('database error when deactivating user')
+    }
   })
 })
 
