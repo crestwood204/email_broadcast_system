@@ -93,7 +93,7 @@ router.post('/new_request', function(req, res) {
     // send emails to approvers
     User.find({}).then(
       (users) => {
-        var approver_emails = users.filter(x => (x.approver && x.active).
+        var approver_emails = users.filter(x => (x.approver && x.active)).
           map(x => x.email)
           //send approver_emails
 
