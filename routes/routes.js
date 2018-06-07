@@ -231,7 +231,7 @@ var sendEmail = function(to, subject, text) {
   // create reusable transporter object using the default SMTP transport
     let transporter = nodemailer.createTransport({
         host: process.env.HOST_IP,
-        port: 465//,
+        port: 587//,
         // auth: {
         //     user: process.env.ETHEREAL_USERNAME,
         //     pass: process.env.ETHEREAL_PASSWORD
