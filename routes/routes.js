@@ -216,7 +216,7 @@ router.post('/decide_request', function(req, res) {
   decideRequest(request_id, req.user, approved, transporter)
 })
 
-router.post('/decide_request_email', function(req, res) {
+router.get('/decide_request_email', function(req, res) {
   var user_id = req.body.id
   var approved = req.body.decision === 'approve'
 
@@ -225,6 +225,7 @@ router.post('/decide_request_email', function(req, res) {
       console.log('decide_request mobile_user_lookup database_error')
     } else {
       decideRequest(request_id, user, approved, transporter)
+      router.redirect('/')
     }
   })
 })
