@@ -17,7 +17,7 @@ var Template = Models.Template
 
 //REQUIRE IN HELPERS
 var Helpers = require('../helpers')
-var sendEmail = Helpers.SendEmail
+var sendApproverEmail = Helpers.SendApproverEmail
 var decideRequest = Helpers.DecideRequest
 
 // create reusable transporter object using the default SMTP transport
@@ -98,7 +98,8 @@ router.post('/new_request', upload.any(), function(req, res) {
     to: to,
     from: from,
     subject: subject,
-    body: body
+    body: body,
+    attachments: req.files
   })
   new_request.save(function(err, request) {
     if (err) {
@@ -122,7 +123,7 @@ router.post('/new_request', upload.any(), function(req, res) {
           })
           //send approver_emails
 
-        sendEmail(transporter, approvers, request.subject, request.body, [request.to, req.user.email], request._id, req.files)
+        sendApproverEmail(transporter, approvers, request, req.user.email)
       },
       (err) => {
         console.log('new_request error_sending_emails database_error')

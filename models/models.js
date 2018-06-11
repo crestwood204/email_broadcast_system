@@ -29,6 +29,9 @@ var RequestSchema = new Schema ({
   approver: {
     type: String,
     default: undefined
+  },
+  attachments: {
+    type: []
   }
 })
 

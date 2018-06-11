@@ -5,9 +5,11 @@ var Group = Models.Group
 var Request = Models.Request
 var Log = Models.Log
 
-var sendEmail = function(transporter, bcc, subject, text, email_inputs, request_id, files) {
+var sendApproverEmail = function(transporter, approvers, request, user_email) {
+  var html, mailOptions, files = request.attachments
+
   if (files) {
-    files = files.map(x => {
+     files = files.map(x => {
       var rObj = {
         filename: x.originalname,
         encoding: x.encoding,
@@ -16,50 +18,72 @@ var sendEmail = function(transporter, bcc, subject, text, email_inputs, request_
       return rObj
     })
   }
-  var mailOptions = {}
-  // create html
-  var html = ''
 
   // send email to approvers
-  if (email_inputs) {
-    // setup email data with unicode symbols
+  approvers.forEach(function(user) {
+    html = `<html>
+      <head>
+        <style>
 
-    bcc.forEach(function(user) {
-      html = `<html>
-        <head>
-          <style>
+        </style>
+      </head>
+      <body>
+        <div> Requester: ${user_email} </div>
+        <div> Broadcast To: ${request.to} </div>
+        <div class="divider-top"> Subject: ${request.subject} </div>
+        <div class="divider-top"> ${request.body} </div>
+          <table cellspacing="0" cellpadding="0">
+            <tr>
+              <td align="center" bgcolor="#d9534f" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
+                <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&decision=reject" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Reject</span></a>
+              </td>
+              <td align="center" display="inline-block" width="10px"> </td>
+              <td align="center" bgcolor="#449d44" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
+                <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&decision=approve" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline; padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Approve</span></a>
+              </td>
+            </tr>
+          </table>
+      </body>
+    </html>`
 
-          </style>
-        </head>
-        <body>
-          <div> Requester: ${email_inputs[1]} </div>
-          <div> Broadcast To: ${email_inputs[0]} </div>
-          <div class="divider-top"> Subject: ${subject} </div>
-          <div class="divider-top"> ${text} </div>
-            <table cellspacing="0" cellpadding="0">
-              <tr>
-                <td align="center" bgcolor="#d9534f" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
-                  <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request_id}&decision=reject" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Reject</span></a>
-                </td>
-                <td align="center" display="inline-block" width="10px"> </td>
-                <td align="center" bgcolor="#449d44" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
-                  <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request_id}&decision=approve" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline; padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Approve</span></a>
-                </td>
-              </tr>
-            </table>
-        </body>
-      </html>`
+    mailOptions = {
+        from: process.env.BROADCAST_ADDRESS, // sender address
+        to: '', // list of receivers
+        bcc: user.email,
+        subject: 'BROADCAST REQUEST', // Subject line
+        text: request.body, // plain text body
+        html: html, // html body
+        attachments: files // file attachments
+    };
 
+    // send mail with defined transport object
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.log('err', error);
+        }
+        console.log(info)
+    });
+  })
+}
+
+var sendBroadcastEmail = function(transporter, request) {
+  html = `<html>
+    <div> ${request.body} </div>
+  </html>`
+
+  Group.find({}).then(
+    (groups) => {
+      groups = groups.filter(x => request.to.includes(x.name))
+      groups = groups.map(x => x.email)
       mailOptions = {
           from: process.env.BROADCAST_ADDRESS, // sender address
           to: '', // list of receivers
-          bcc: user.email,
-          subject: 'BROADCAST REQUEST', // Subject line
-          text: text, // plain text body
+          bcc: groups,
+          subject: request.subject, // Subject line
+          text: request.body, // plain text body
           html: html, // html body
-          attachments: files // file attachments
+          attachments: request.attachments
       };
-
       // send mail with defined transport object
       transporter.sendMail(mailOptions, (error, info) => {
           if (error) {
@@ -67,37 +91,11 @@ var sendEmail = function(transporter, bcc, subject, text, email_inputs, request_
           }
           console.log(info)
       });
-    })
-  } else {
-    html = `<html>
-      <div> ${text} </div>
-    </html>`
-
-    Group.find({}).then(
-      (groups) => {
-        groups = groups.filter(x => bcc.includes(x.name))
-        groups = groups.map(x => x.email)
-        mailOptions = {
-            from: process.env.BROADCAST_ADDRESS, // sender address
-            to: '', // list of receivers
-            bcc: groups,
-            subject: subject, // Subject line
-            text: text, // plain text body
-            html: html // html body
-        };
-        // send mail with defined transport object
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                return console.log('err', error);
-            }
-            console.log(info)
-        });
-      },
-      (err) => {
-        console.log('sendEmail error_fetching_groups database_error')
-      }
-    )
-  }
+    },
+    (err) => {
+      console.log('sendEmail error_fetching_groups database_error')
+    }
+  )
 }
 
 
@@ -124,7 +122,7 @@ var decideRequest = function(request_id, user, approved, transporter) {
         } else {
           // broadcast email
           if (approved) {
-              sendEmail(transporter, request.to, request.subject, request.body)
+              sendBroadcastEmail(transporter, request)
           }
           // make log
           Log.log(change, user._id, 'Broadcast Request ' + change, 'Broadcast', 'post decide_request database_error', request._id)
@@ -134,6 +132,6 @@ var decideRequest = function(request_id, user, approved, transporter) {
   })
 }
 module.exports = {
-  SendEmail: sendEmail,
+  SendApproverEmail: sendApproverEmail,
   DecideRequest: decideRequest
 }
