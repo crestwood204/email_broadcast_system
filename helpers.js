@@ -26,16 +26,13 @@ var sendEmail = function(transporter, bcc, subject, text, email_inputs, request_
           <div> Broadcast To: ${email_inputs[0]} </div>
           <div class="divider-top"> Subject: ${subject} </div>
           <div class="divider-top"> ${text} </div>
-            <a href="/10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request_id}&decision=reject">
-              <button name="decision" value="reject">Reject</button>
-            </a>
-            <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request_id}&decision=approve">
-              <button name="decision" value="approve">Approve</button>
-            </a>
             <table cellspacing="0" cellpadding="0">
               <tr>
-                <td align="center" width="300" height="40" bgcolor="#000091" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
-                  <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request_id}&decision=approve" style="font-size:16px; font-weight: bold; font-family: Helvetica, Arial, sans-serif; text-decoration: none; line-height:40px; width:100%; display:inline-block"><span style="color: #FFFFFF">Awesome Email Button</span></a>
+                <td align="center" width="100" height="30" bgcolor="#d9534f" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
+                  <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request_id}&decision=reject" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline-block"><span style="color: #FFFFFF">Reject</span></a>
+                </td>
+                <td align="center" width="100" height="30" bgcolor="#449d44" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
+                  <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request_id}&decision=approve" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline-block"><span style="color: #FFFFFF">Approve</span></a>
                 </td>
               </tr>
             </table>
