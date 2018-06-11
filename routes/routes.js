@@ -222,5 +222,4 @@ router.post('/decide_request_email', function(req, res) {
     }
   })
 })
-
 module.exports = router
