@@ -29,11 +29,11 @@ var sendEmail = function(transporter, bcc, subject, text, email_inputs, request_
             <table cellspacing="0" cellpadding="0">
               <tr>
                 <td align="center" bgcolor="#d9534f" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
-                  <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request_id}&decision=reject" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline"><span style="color: #FFFFFF">Reject</span></a>
+                  <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request_id}&decision=reject" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Reject</span></a>
                 </td>
                 <td align="center" display="inline-block" width="10px"> </td>
                 <td align="center" bgcolor="#449d44" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
-                  <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request_id}&decision=approve" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline"><span style="color: #FFFFFF">Approve</span></a>
+                  <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request_id}&decision=approve" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline; padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Approve</span></a>
                 </td>
               </tr>
             </table>
