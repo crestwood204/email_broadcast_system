@@ -3,6 +3,7 @@ var Models = require('./models/models')
 var User = Models.User
 var Group = Models.Group
 var Request = Models.Request
+var Log = Models.Log
 
 var sendEmail = function(transporter, bcc, subject, text, email_inputs, request_id) {
   var mailOptions = {}
