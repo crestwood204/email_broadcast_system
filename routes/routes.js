@@ -104,11 +104,11 @@ router.post('/new_request', function(req, res) {
               'email': x.email,
               'id': x._id
             }
-            return rObj 
+            return rObj
           })
           //send approver_emails
 
-        sendEmail(approvers, request.subject, request.body, [request.to, req.user.email], request._id)
+        sendEmail(transporter, approvers, request.subject, request.body, [request.to, req.user.email], request._id)
       },
       (err) => {
         console.log('new_request error_sending_emails database_error')
@@ -213,7 +213,7 @@ router.post('/decide_request', function(req, res) {
   // edit the request
   var approved = req.body.decision === 'approve'
   var request_id = req.body.id
-  decideRequest(request_id, req.user, approved)
+  decideRequest(request_id, req.user, approved, transporter)
 })
 
 router.post('/decide_request_email', function(req, res) {
@@ -224,7 +224,7 @@ router.post('/decide_request_email', function(req, res) {
     if (err) {
       console.log('decide_request mobile_user_lookup database_error')
     } else {
-      decideRequest(request_id, user, approved)
+      decideRequest(request_id, user, approved, transporter)
     }
   })
 })

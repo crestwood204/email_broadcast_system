@@ -4,7 +4,7 @@ var User = Models.User
 var Group = Models.Group
 var Request = Models.Request
 
-var sendEmail = function(bcc, subject, text, email_inputs, request_id) {
+var sendEmail = function(transporter, bcc, subject, text, email_inputs, request_id) {
   var mailOptions = {}
   // create html
   var html = ''
@@ -88,7 +88,7 @@ var sendEmail = function(bcc, subject, text, email_inputs, request_id) {
 }
 
 
-var decideRequest = function(request_id, user, approved) {
+var decideRequest = function(request_id, user, approved, transporter) {
   var change = 'Rejected'
   if (approved) {
     change = 'Approved'
@@ -111,7 +111,7 @@ var decideRequest = function(request_id, user, approved) {
         } else {
           // broadcast email
           if (approved) {
-              sendEmail(request.to, request.subject, request.body)
+              sendEmail(transporter, request.to, request.subject, request.body)
           }
           // make log
           Log.log(change, user._id, 'Broadcast Request ' + change, 'Broadcast', 'post decide_request database_error', request._id)
