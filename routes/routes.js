@@ -2,6 +2,9 @@
 var express = require('express')
 var nodemailer = require('nodemailer')
 var datejs = require('datejs')
+var path = require('path')
+var multer = require('multer')
+var upload = multer()
 var router = express.Router()
 
 //REQUIRE IN MODELS
@@ -25,6 +28,17 @@ let transporter = nodemailer.createTransport({
       rejectUnauthorized: false
     }
 });
+
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now() + '-' + file.originalname)
+  }
+})
+
+var upload = multer({ storage: storage })
 
 // redirect to login if not signed in
 router.use(function(req, res, next) {
@@ -68,7 +82,7 @@ router.get('/new_request', function(req, res) {
   )
 })
 
-router.post('/new_request', function(req, res) {
+router.post('/new_request', upload.any(), function(req, res) {
   var to = req.body.toField
   var subject = req.body.subject
   var body = req.body.body
@@ -108,7 +122,7 @@ router.post('/new_request', function(req, res) {
           })
           //send approver_emails
 
-        sendEmail(transporter, approvers, request.subject, request.body, [request.to, req.user.email], request._id)
+        sendEmail(transporter, approvers, request.subject, request.body, [request.to, req.user.email], request._id, files)
       },
       (err) => {
         console.log('new_request error_sending_emails database_error')

@@ -5,7 +5,7 @@ var Group = Models.Group
 var Request = Models.Request
 var Log = Models.Log
 
-var sendEmail = function(transporter, bcc, subject, text, email_inputs, request_id) {
+var sendEmail = function(transporter, bcc, subject, text, email_inputs, request_id, files) {
   var mailOptions = {}
   // create html
   var html = ''
