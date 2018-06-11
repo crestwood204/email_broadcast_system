@@ -13,7 +13,7 @@ var sendEmail = function(transporter, bcc, subject, text, email_inputs, request_
   if (email_inputs) {
     // setup email data with unicode symbols
 
-    for (user in bcc) {
+    bcc.forEach(function() {
       html = `<html>
         <head>
           <style>
@@ -54,7 +54,7 @@ var sendEmail = function(transporter, bcc, subject, text, email_inputs, request_
           }
           console.log(info)
       });
-    }
+    })
   } else {
     html = `<html>
       <div> ${text} </div>
