@@ -226,7 +226,7 @@ router.get('/decide_request_email', function(req, res) {
       console.log('decide_request mobile_user_lookup database_error')
     } else {
       decideRequest(request_id, user, approved, transporter)
-      res.render('/close_window')
+      res.render('close_window')
     }
   })
 })
