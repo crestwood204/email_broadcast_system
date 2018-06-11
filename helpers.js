@@ -34,7 +34,7 @@ var sendEmail = function(transporter, bcc, subject, text, email_inputs, request_
             <table cellspacing="0" cellpadding="0">
               <tr>
                 <td align="center" width="300" height="40" bgcolor="#000091" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
-                  <a href="https://www.google.com/" style="font-size:16px; font-weight: bold; font-family: Helvetica, Arial, sans-serif; text-decoration: none; line-height:40px; width:100%; display:inline-block"><span style="color: #FFFFFF">Awesome Email Button</span></a>
+                  <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request_id}&decision=approve" style="font-size:16px; font-weight: bold; font-family: Helvetica, Arial, sans-serif; text-decoration: none; line-height:40px; width:100%; display:inline-block"><span style="color: #FFFFFF">Awesome Email Button</span></a>
                 </td>
               </tr>
             </table>
