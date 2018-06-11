@@ -217,8 +217,9 @@ router.post('/decide_request', function(req, res) {
 })
 
 router.get('/decide_request_email', function(req, res) {
-  var user_id = req.body.id
-  var approved = req.body.decision === 'approve'
+  var user_id = req.query.user_id
+  var approved = req.query.decision === 'approve'
+  var request_id = req.query.request_id
 
   User.findById(user_id, function(err, user) {
     if (err) {
