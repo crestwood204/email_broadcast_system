@@ -12,6 +12,11 @@ var Log = Models.Log
 var Group = Models.Group
 var Template = Models.Template
 
+//REQUIRE IN HELPERS
+var Helpers = require('../helpers')
+var sendEmail = Helpers.SendEmail
+var decideRequest = Helpers.DecideRequest
+
 // create reusable transporter object using the default SMTP transport
 let transporter = nodemailer.createTransport({
     host: process.env.HOST_IP,
@@ -93,11 +98,11 @@ router.post('/new_request', function(req, res) {
     // send emails to approvers
     User.find({}).then(
       (users) => {
-        var approver_emails = users.filter(x => (x.approver && x.active)).
-          map(x => x.email)
+        var approvers = users.filter(x => (x.approver && x.active)).
+          map(x => {'email': x.email, 'id': x._id)
           //send approver_emails
 
-        sendEmail(approver_emails, request.subject, request.body, [request.to, req.user.email])
+        sendEmail(approvers, request.subject, request.body, [request.to, req.user.email], request._id)
       },
       (err) => {
         console.log('new_request error_sending_emails database_error')
@@ -201,105 +206,21 @@ router.get('/log', function(req, res) {
 router.post('/decide_request', function(req, res) {
   // edit the request
   var approved = req.body.decision === 'approve'
-  var change = 'Rejected'
-  if (approved) {
-    change = 'Approved'
-  }
+  var request_id = req.body.id
+  decideRequest(request_id, req.user, approved)
+})
 
-  Request.findById(req.body.id, function(err, request) {
+router.post('/decide_request_email', function(req, res) {
+  var user_id = req.body.id
+  var approved = req.body.decision === 'approve'
+
+  User.findById(user_id, function(err, user) {
     if (err) {
-      console.log("decide_request update database_error")
-      res.redirect('/?request=failed')
-    }
-    if (request.pending) {
-      Request.update({_id: req.body.id}, {$set: {
-        pending: false,
-        approved: approved,
-        approver: req.user.username
-      }}, function(err) {
-        if (err) {
-          console.log("decide_request update database_error")
-          res.redirect('/?request=failed')
-        } else {
-          // broadcast email
-          if (approved) {
-              sendEmail(request.to, request.subject, request.body)
-          }
-          // make log
-          Log.log(change, req.user._id, 'Broadcast Request ' + change, 'Broadcast', 'post decide_request database_error', request._id)
-        }
-      })
+      console.log('decide_request mobile_user_lookup database_error')
+    } else {
+      decideRequest(request_id, user, approved)
     }
   })
 })
 
-var sendEmail = function(bcc, subject, text, email_inputs) {
-  var mailOptions = {}
-  // create html
-  var html = ''
-  if (email_inputs) {
-    // setup email data with unicode symbols
-    Group.find({}).then(
-      (groups) => {
-        groups = groups.filter(x => email_inputs[0].includes(x.name))
-        groups = groups.map(x => x.email)
-        html = `<html>
-          <head>
-            <style>
-
-            </style>
-          </head>
-          <body>
-            <div> Requester: ${email_inputs[1]} </div>
-            <div> Broadcast To: ${email_inputs[0]} </div>
-            <div class="divider-top"> Subject: ${subject} </div>
-            <div class="divider-top"> ${text} </div>
-            <button class="approve-btn">Approve</button>
-            <button class="reject-btn">Reject</reject>
-          </body>
-        </html>`
-        mailOptions = {
-            from: process.env.BROADCAST_ADDRESS, // sender address
-            to: '', // list of receivers
-            bcc: bcc,
-            subject: 'BROADCAST REQUEST', // Subject line
-            text: text, // plain text body
-            html: html // html body
-        };
-      },
-      (err) => {
-        console.log('sendEmail error_fetching_groups database_error')
-      }
-    )
-  } else {
-    html = `<html>
-      <div> ${text} </div>
-    </html>`
-
-    Group.find({}).then(
-      (groups) => {
-        groups = groups.filter(x => bcc.includes(x.name))
-        groups = groups.map(x => x.email)
-        mailOptions = {
-            from: process.env.BROADCAST_ADDRESS, // sender address
-            to: '', // list of receivers
-            bcc: groups,
-            subject: subject, // Subject line
-            text: text, // plain text body
-            html: html // html body
-        };
-      },
-      (err) => {
-        console.log('sendEmail error_fetching_groups database_error')
-      }
-    )
-  }
-  // send mail with defined transport object
-  transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-          return console.log('err', error);
-      }
-      console.log(info)
-  });
-}
 module.exports = router
