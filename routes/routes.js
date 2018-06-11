@@ -99,7 +99,13 @@ router.post('/new_request', function(req, res) {
     User.find({}).then(
       (users) => {
         var approvers = users.filter(x => (x.approver && x.active)).
-          map(x => {'email': x.email, 'id': x._id)
+          map(x => {
+            var rObj = {
+              'email': x.email,
+              'id': x._id
+            }
+            return rObj 
+          })
           //send approver_emails
 
         sendEmail(approvers, request.subject, request.body, [request.to, req.user.email], request._id)

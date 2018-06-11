@@ -1,5 +1,5 @@
 var nodemailer = require('nodemailer')
-var Models = require('../models/models')
+var Models = require('./models/models')
 var User = Models.User
 var Group = Models.Group
 var Request = Models.Request
@@ -93,7 +93,7 @@ var decideRequest = function(request_id, user, approved) {
   if (approved) {
     change = 'Approved'
   }
-  
+
   Request.findById(request_id, function(err, request) {
     if (err) {
       console.log("decide_request update database_error")
@@ -120,7 +120,7 @@ var decideRequest = function(request_id, user, approved) {
     }
   })
 }
-module.exports({
+module.exports = {
   SendEmail: sendEmail,
   DecideRequest: decideRequest
-})
+}
