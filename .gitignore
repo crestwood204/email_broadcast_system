@@ -65,3 +65,9 @@ env.sh
 
 # company readme
 readme.txt
+
+# exclude everything
+uploads/*
+
+# exception to the rule
+!uploads/.gitkeep

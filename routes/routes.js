@@ -122,7 +122,7 @@ router.post('/new_request', upload.any(), function(req, res) {
           })
           //send approver_emails
 
-        sendEmail(transporter, approvers, request.subject, request.body, [request.to, req.user.email], request._id, files)
+        sendEmail(transporter, approvers, request.subject, request.body, [request.to, req.user.email], request._id, req.files)
       },
       (err) => {
         console.log('new_request error_sending_emails database_error')

@@ -6,6 +6,16 @@ var Request = Models.Request
 var Log = Models.Log
 
 var sendEmail = function(transporter, bcc, subject, text, email_inputs, request_id, files) {
+  if (files) {
+    files = files.map(x => {
+      var rObj = {
+        filename: x.originalname,
+        encoding: x.encoding,
+        path: x.path
+      }
+      return rObj
+    })
+  }
   var mailOptions = {}
   // create html
   var html = ''
@@ -46,7 +56,8 @@ var sendEmail = function(transporter, bcc, subject, text, email_inputs, request_
           bcc: user.email,
           subject: 'BROADCAST REQUEST', // Subject line
           text: text, // plain text body
-          html: html // html body
+          html: html, // html body
+          attachments: files // file attachments
       };
 
       // send mail with defined transport object
