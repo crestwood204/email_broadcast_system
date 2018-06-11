@@ -25,16 +25,12 @@ var sendEmail = function(transporter, bcc, subject, text, email_inputs, request_
           <div> Broadcast To: ${email_inputs[0]} </div>
           <div class="divider-top"> Subject: ${subject} </div>
           <div class="divider-top"> ${text} </div>
-          <form action="/decide_request_email" method="post">
-            <input name="user_id" value="${user.id}" hidden>
-            <input name="request_id" value="${request_id}" hidden>
-            <button name="decision" value="reject">Reject</button>
-          </form>
-          <form action="/decide_request_email" method="post">
-            <input name="user_id" value="${user.id}" hidden>
-            <input name="request_id" value="${request_id}" hidden>
-            <button name="decision" value="approve">Approve</button>
-          </form>
+            <a href="/10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request_id}&decision=${reject}">
+              <button name="decision" value="reject">Reject</button>
+            </a>
+            <a href="/10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request_id}&decision=${approve}">
+              <button name="decision" value="approve">Approve</button>
+            </a>
         </body>
       </html>`
 
