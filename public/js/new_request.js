@@ -1,4 +1,5 @@
 $(document).ready(function() {
+  var submitted = false
   (function() {
     $.ajax({
       url: '/get_templates',
@@ -25,5 +26,12 @@ $(document).ready(function() {
       $('#subject').val(template.subject)
       $('#body').val(template.body)
     }
+  })
+
+  $('#new_request').on('click', function(event) {
+    if (submitted) {
+      event.preventDefault()
+    }
+    submitted = true
   })
 })

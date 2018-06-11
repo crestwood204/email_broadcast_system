@@ -194,8 +194,8 @@ router.get('/log', function(req, res) {
         })
         var new_logs = logs.map(
           (x) => {
-            x.date_string = x.date.format("d/m/Y").split('/0').join('/')
-            x.time_string = x.date.format("h:m")
+            x.date_string = x.date.format("Y-m-d")
+            x.time_string = x.date.format("g:i")
             if (x.time_string.charAt(0) === '0') {
               x.time_string = x.time_string.substring(1)
             }
