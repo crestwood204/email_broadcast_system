@@ -29,7 +29,7 @@ let transporter = nodemailer.createTransport({
     }
 });
 
-var storage = multer.diskStorage({
+var upload_storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './uploads')
   },
@@ -37,8 +37,6 @@ var storage = multer.diskStorage({
     cb(null, file.fieldname + '-' + Date.now() + '-' + file.originalname)
   }
 })
-
-var upload = multer({ storage: storage })
 
 // redirect to login if not signed in
 router.use(function(req, res, next) {
@@ -82,56 +80,72 @@ router.get('/new_request', function(req, res) {
   )
 })
 
-router.post('/new_request', upload.any(), function(req, res) {
-  var to = req.body.toField
-  var subject = req.body.subject
-  var body = req.body.body
-  var from = req.user._id
+router.post('/new_request', function(req, res) {
+  var maxSize = 250 * 1024 // 250 KB
+  var upload = multer({
+    storage: upload_storage,
+    fileFilter: function(req, file, callback) {
+      var ext = path.extname(file.originalname)
+      // if (ext !== '.docx' && ext !== '.pdf') {
+			// 	// return callback(res.end('Only .docx and .pdf files are allowed'), null) //TODO: Not sure where this callback goes...
+			// }
+      callback(null, true)
+    },
+    limits: { fileSize: maxSize }
+  }).array('files', 7) // TODO: change this because want to add a bunch of single file attachments rather than a bunch of attachments from one button
+  upload(req, res, function(err) {
+    var to = req.body.toField
+    var subject = req.body.subject
+    var body = req.body.body
+    var from = req.user._id
 
-  // convert toField into an array if it is a string
-  if (typeof to !== 'object') {
-    to = [to]
-  }
-
-  // save request object
-  var new_request = new Request({
-    to: to,
-    from: from,
-    subject: subject,
-    body: body,
-    attachments: req.files
-  })
-  new_request.save(function(err, request) {
-    if (err) {
-      console.log('new_request save database_error')
-      res.redirect('/pending_requests?request=failed')
+    // convert toField into an array if it is a string
+    if (typeof to !== 'object') {
+      to = [to]
     }
 
-    // add to log
-    Log.log('Create', req.user._id, 'Broadcast Request Created', 'Broadcast', 'post new_request database_error', request._id)
-
-    // send emails to approvers
-    User.find({}).then(
-      (users) => {
-        var approvers = users.filter(x => (x.approver && x.active)).
-          map(x => {
-            var rObj = {
-              'email': x.email,
-              'id': x._id
-            }
-            return rObj
-          })
-          //send approver_emails
-
-        sendApproverEmail(transporter, approvers, request, req.user.email)
-      },
-      (err) => {
-        console.log('new_request error_sending_emails database_error')
+    // save request object
+    var new_request = new Request({
+      to: to,
+      from: from,
+      subject: subject,
+      body: body,
+      attachments: req.files
+    })
+    new_request.save(function(err, request) {
+      if (err) {
+        console.log('new_request save database_error')
+        return res.redirect('/pending_requests?request=failed')
       }
-    )
+
+      // add to log
+      Log.log('Create', req.user._id, 'Broadcast Request Created', 'Broadcast', 'post new_request database_error', request._id)
+
+      // send emails to approvers
+      User.find({}).then(
+        (users) => {
+          var approvers = users.filter(x => (x.approver && x.active)).
+            map(x => {
+              var rObj = {
+                'email': x.email,
+                'id': x._id
+              }
+              return rObj
+            })
+            //send approver_emails
+
+          sendApproverEmail(transporter, approvers, request, req.user.email)
+
+          // redirect
+          res.redirect('/pending_requests?request=success')
+        },
+        (err) => {
+          console.log('new_request error_sending_emails database_error')
+          res.redirect('/pending_requests?request=failed')
+        }
+      )
+    })
   })
-  //redirect
-  res.redirect('/pending_requests?request=success')
 })
 
 router.get('/get_templates', function(req,res) {

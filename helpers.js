@@ -1,5 +1,6 @@
 var nodemailer = require('nodemailer')
 var Models = require('./models/models')
+var fs = require('fs')
 var User = Models.User
 var Group = Models.Group
 var Request = Models.Request
@@ -90,6 +91,9 @@ var sendBroadcastEmail = function(transporter, request) {
               return console.log('err', error);
           }
           console.log(info)
+
+          // delete attachments from server directory
+          rmDir('./uploads', request.attachments)
       });
     },
     (err) => {
@@ -98,6 +102,19 @@ var sendBroadcastEmail = function(transporter, request) {
   )
 }
 
+var rmDir = function(dirPath, attachments) {
+  try {
+    var files = fs.readdirSync(dirPath);
+  } catch(e) {
+    console.log('Error removing uploads from server', e)
+  }
+  attachments = attachments.map(x => './' + x.path)
+  attachments.forEach(filePath => {
+    if (fs.statSync(filePath).isFile()) {
+      fs.unlinkSync(filePath)
+    }
+  })
+};
 
 var decideRequest = function(request_id, user, approved, transporter) {
   var change = 'Rejected'
@@ -131,6 +148,7 @@ var decideRequest = function(request_id, user, approved, transporter) {
     }
   })
 }
+
 module.exports = {
   SendApproverEmail: sendApproverEmail,
   DecideRequest: decideRequest
