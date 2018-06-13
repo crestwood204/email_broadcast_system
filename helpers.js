@@ -62,7 +62,7 @@ var sendApproverEmail = function(transporter, approvers, request, user_email) {
         if (error) {
             return console.log('err', error);
         }
-        console.log(info)
+        console.log('email approval sent to ' + user.email)
     });
   })
 }
@@ -90,7 +90,7 @@ var sendBroadcastEmail = function(transporter, request) {
           if (error) {
               return console.log('err', error);
           }
-          console.log(info)
+          console.log('email broadcast sent')
 
           // delete attachments from server directory
           rmDir('./uploads', request.attachments)

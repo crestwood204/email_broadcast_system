@@ -60,6 +60,18 @@ router.get('/', function(req, res) {
 });
 
 router.get('/new_request', function(req, res) {
+  var messages = {
+    'file_extension': 'One or more files you have attached are unsupported. Only .docx and .pdf files are allowed'
+  }
+  var to, subject, body
+  var request = req.query.request
+  var alert_msg = null
+  if (request) {
+    alert_msg = messages[req.query.type]
+    to = req.query.to
+    subject = req.query.subject
+    body = req.query.body
+  }
   Group.find({}).then(
     (groups) => {
       Template.find({}).then(
@@ -67,7 +79,7 @@ router.get('/new_request', function(req, res) {
           templates = templates.sort(function(a, b) {
             return a.name - b.name
           })
-          res.render('new_request', {"groups": groups.map(x => x.name), 'templates': templates, 'user': req.user})
+          res.render('new_request', {"groups": groups.map(x => x.name), 'templates': templates, 'request': request, 'alert_msg': alert_msg, 'to': to, 'subject': subject, 'body': body, 'user': req.user})
         },
         (err) => {
             res.status(500).send('Database Error: "/new_request templates"')
@@ -84,16 +96,26 @@ router.post('/new_request', function(req, res) {
   var maxSize = 250 * 1024 // 250 KB
   var upload = multer({
     storage: upload_storage,
+    limits: { fileSize: maxSize },
     fileFilter: function(req, file, callback) {
-      var ext = path.extname(file.originalname)
-      // if (ext !== '.docx' && ext !== '.pdf') {
-			// 	// return callback(res.end('Only .docx and .pdf files are allowed'), null) //TODO: Not sure where this callback goes...
-			// }
+      if (file.mimetype !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          && file.memtype !== 'application/pdf') {
+        var query = 'to=' + req.body.toField + '&subject=' + req.body.subject + '&body=' + req.body.body
+        req.fileValidationError = '/new_request?request=failure&type=file_extension&' + query
+        return callback(new Error('extension name not allowed'))
+			}
       callback(null, true)
-    },
-    limits: { fileSize: maxSize }
+    }
   }).array('files', 7) // TODO: change this because want to add a bunch of single file attachments rather than a bunch of attachments from one button
   upload(req, res, function(err) {
+    if (req.fileValidationError) {
+      return res.redirect(req.fileValidationError)
+    }
+    if (err) {
+      //TODO: fromat error message if it isn't a validation error
+      console.log('upload file error', err)
+      return res.status(400).send(err)
+    }
     var to = req.body.toField
     var subject = req.body.subject
     var body = req.body.body
@@ -115,7 +137,7 @@ router.post('/new_request', function(req, res) {
     new_request.save(function(err, request) {
       if (err) {
         console.log('new_request save database_error')
-        return res.redirect('/pending_requests?request=failed')
+        return res.redirect('/pending_requests?request=failure&type=database')
       }
 
       // add to log
@@ -141,7 +163,7 @@ router.post('/new_request', function(req, res) {
         },
         (err) => {
           console.log('new_request error_sending_emails database_error')
-          res.redirect('/pending_requests?request=failed')
+          return res.redirect('/pending_requests?request=failure&type=database')
         }
       )
     })

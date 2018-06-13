@@ -26,11 +26,4 @@ $(document).ready(function() {
       $('#body').val(template.body)
     }
   })
-
-  $('#new_request').on('click', function(event) {
-    if ($(this).attr('clicked') === 'true') {
-      event.preventDefault()
-    }
-    $(this).attr('clicked', 'true')
-  })
 })
