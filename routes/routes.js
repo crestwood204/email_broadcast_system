@@ -65,14 +65,13 @@ router.get('/new_request', function(req, res) {
     'limit_file_size': 'One of more files you have attached is larger than the max file size - 250 KB',
     'missing_fields': 'One or more required fields are not filled out'
   }
-  var to, subject, body
+  var to = req.query.to
+  var subject = req.query.subject
+  var body = req.query.body
   var request = req.query.request
   var alert_msg = null
   if (request) {
     alert_msg = messages[req.query.type]
-    to = req.query.to
-    subject = req.query.subject
-    body = req.query.body
   }
   Group.find({}).then(
     (groups) => {
@@ -113,6 +112,8 @@ router.post('/new_request', function(req, res) {
     if (req.fileValidationError) {
       return res.redirect(req.fileValidationError)
     }
+
+    // TODO: add locationField support
     var to = req.body.toField
     var subject = req.body.subject
     var body = req.body.body

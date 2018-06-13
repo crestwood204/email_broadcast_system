@@ -100,6 +100,7 @@ nav {
     position: fixed !important;
     top: 0;
     width: 100%;
+    z-index: 100;
 }
 
 body {
@@ -115,4 +116,25 @@ body {
 
 .space {
     padding: 2px;
+}
+
+.thumbnail {
+    margin-bottom: 2px;
+    border: none;
+    outline: none;
+    padding-left: 15px;
+    position: relative;
+}
+
+.thumbnail:focus {
+    outline: none;
+}
+
+.files {
+    margin-bottom: 0px;
+    padding-bottom: 5px;
+}
+
+.hidden {
+    margin-bottom: 0px;
 }

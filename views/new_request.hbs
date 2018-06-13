@@ -22,6 +22,7 @@
                     <option>{{this}}</option>
                 {{/each}}
             </select>
+            <div class="display-none" id="toSelect">{{to}}</div>
         </div>
         <div class="form-group col-md-6">
             <label for="locationField">Location:</label><br>
@@ -49,9 +50,27 @@
         <label for="body">Body:</label>
         <textarea name="body" class="form-control" rows="5" id="body">{{body}}</textarea>
     </div>
-    <div class="form-group col-md-6">
-        <label for="locationField">Attach a File:</label><br>
-        <input type="file" name="files" id="thumbnail" style="padding-top: 7px" multiple>
+    <div class="form-group col-md-12 files" style="padding-top: 7px>
+        <label for="locationField">Attach a File (Max 7):</label><br>
+        <input class="thumbnail" type="file" name="files" id="thumbnail-1">
+    </div>
+    <div class="form-group col-md-12 hidden">
+        <input class="thumbnail" type="hidden" name="files" id="thumbnail-2">
+    </div>
+    <div class="form-group col-md-12 hidden">
+        <input class="thumbnail" type="hidden" name="files" id="thumbnail-3">
+    </div>
+    <div class="form-group col-md-12 hidden">
+        <input class="thumbnail" type="hidden" name="files" id="thumbnail-4">
+    </div>
+    <div class="form-group col-md-12 hidden">
+        <input class="thumbnail" type="hidden" name="files" id="thumbnail-5">
+    </div>
+    <div class="form-group col-md-12 hidden">
+        <input class="thumbnail" type="hidden" name="files" id="thumbnail-6">
+    </div>
+    <div class="form-group col-md-12 hidden">
+        <input class="thumbnail" type="hidden" name="files" id="thumbnail-7">
     </div>
     <div class="form-group col-md-12">
         <button id="new_request" clicked="false" type="submit" class="btn btn-primary">Submit</button>

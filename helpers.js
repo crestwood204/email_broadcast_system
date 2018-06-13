@@ -139,7 +139,9 @@ var decideRequest = function(request_id, user, approved, transporter) {
         } else {
           // broadcast email
           if (approved) {
-              sendBroadcastEmail(transporter, request)
+            sendBroadcastEmail(transporter, request)
+          } else {
+            rmDir('./uploads', request.attachments)
           }
           // make log
           Log.log(change, user._id, 'Broadcast Request ' + change, 'Broadcast', 'post decide_request database_error', request._id)
