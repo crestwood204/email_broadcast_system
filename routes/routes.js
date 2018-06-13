@@ -61,7 +61,9 @@ router.get('/', function(req, res) {
 
 router.get('/new_request', function(req, res) {
   var messages = {
-    'file_extension': 'One or more files you have attached are unsupported. Only .docx and .pdf files are allowed'
+    'file_extension': 'One or more files you have attached are unsupported. Only .docx and .pdf files are allowed',
+    'limit_file_size': 'One of more files you have attached is larger than the max file size - 250 KB',
+    'missing_fields': 'One or more required fields are not filled out'
   }
   var to, subject, body
   var request = req.query.request
@@ -99,7 +101,7 @@ router.post('/new_request', function(req, res) {
     limits: { fileSize: maxSize },
     fileFilter: function(req, file, callback) {
       if (file.mimetype !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-          && file.memtype !== 'application/pdf') {
+          && file.mimetype !== 'application/pdf') {
         var query = 'to=' + req.body.toField + '&subject=' + req.body.subject + '&body=' + req.body.body
         req.fileValidationError = '/new_request?request=failure&type=file_extension&' + query
         return callback(new Error('extension name not allowed'))
@@ -111,15 +113,24 @@ router.post('/new_request', function(req, res) {
     if (req.fileValidationError) {
       return res.redirect(req.fileValidationError)
     }
-    if (err) {
-      //TODO: fromat error message if it isn't a validation error
-      console.log('upload file error', err)
-      return res.status(400).send(err)
-    }
     var to = req.body.toField
     var subject = req.body.subject
     var body = req.body.body
     var from = req.user._id
+    var query = 'to=' + to + '&subject=' + subject + '&body=' + body
+
+    if (err) {
+      //TODO: fromat error message if it isn't a validation error
+      console.log(err.code)
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.redirect('/new_request?request=failure&type=limit_file_size&' + query)
+      }
+      return res.status(400).send(err)
+    }
+
+    if (!to || !subject || !body) {
+      return res.redirect('/new_request?request=failure&type=missing_fields&' + query)
+    }
 
     // convert toField into an array if it is a string
     if (typeof to !== 'object') {
