@@ -150,6 +150,7 @@ var decideRequest = function(request_id, user, approved, transporter, res) {
           }
           // make log
           Log.log(change, user._id, 'Broadcast Request ' + change, 'Broadcast', 'post decide_request database_error', request._id)
+          res.render('close window', {'user': req.user})
         }
       })
     }
