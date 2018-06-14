@@ -49,14 +49,18 @@ router.use(function(req, res, next) {
 
 // load screen
 router.get('/', function(req, res) {
-  User.findById(req.user._id).then(
-    (user) => {
-      res.render('home', {'request': req.query.request, 'user': req.user})
-    },
-    (err) => {
-      res.status(500).send('Database Error: "/"')
-    }
-  )
+  Request.find({})
+    .populate({
+      path: 'from',
+      model: 'User'
+    })
+    .exec(function(err, requests) {
+      if (err) {
+        res.status(500).send('Database Error: "/"')
+      }
+      broadcasts = requests.filter(x => x.approved === true)
+      res.render('home', {'broadcasts': broadcasts, 'user': req.user})
+    })
 });
 
 router.get('/new_request', function(req, res) {
