@@ -117,7 +117,7 @@ var rmDir = function(dirPath, attachments) {
   })
 };
 
-var decideRequest = function(request_id, user, approved, transporter) {
+var decideRequest = function(request_id, user, approved, transporter, res) {
   var change = 'Rejected'
   if (approved) {
     change = 'Approved'
@@ -129,6 +129,7 @@ var decideRequest = function(request_id, user, approved, transporter) {
       return res.redirect('/?request=failed')
     }
     if (!request) {
+      console.log(request_id)
       return res.redirect('/?request=failed')
     }
     if (request.pending) {
