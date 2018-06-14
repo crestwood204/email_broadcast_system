@@ -9,11 +9,11 @@ var Log = Models.Log
 var Group = Models.Group
 var Template = Models.Template
 
-router.use('/', function(req, res, next) {
+router.use(function(req, res, next) {
   if (req.user.approver) {
     return next();
   } else {
-    res.send('no_access') //TODO: FIX THIS!!!
+    res.render('error_views/unauthorized')
   }
 })
 

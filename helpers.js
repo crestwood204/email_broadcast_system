@@ -123,6 +123,10 @@ var decideRequest = function(request_id, user, approved, transporter, req, res) 
     change = 'Approved'
   }
 
+  if (!req.user.approver) {
+    return res.render('error_views/unauthorized')
+  }
+
   Request.findById(request_id, function(err, request) {
     if (err) {
       console.log("decide_request update database_error")
@@ -152,6 +156,15 @@ var decideRequest = function(request_id, user, approved, transporter, req, res) 
           res.render('close_window', {'user': req.user})
         }
       })
+    } else {
+      Request.findById(request_id).then(
+        (request) => {
+          res.render('request_decision', {'request': request, 'user': req.user})
+        },
+        (err) => {
+          res.redirect('/?request=failed')
+        }
+      )
     }
   })
 }
