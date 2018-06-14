@@ -11,7 +11,6 @@ var Template = Models.Template
 
 // route that rejects all non-approvers
 router.use(function(req, res, next) {
-  console.log('hit a wall')
   if (req.user.approver) {
     return next();
   } else {

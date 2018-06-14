@@ -13,7 +13,9 @@ var models = require('./models/models');
 var auth = require('./routes/auth');
 var routes = require('./routes/routes');
 var approver_routes = require('./routes/approver_routes')
-var edit_routes = require('./routes/edit_routes');
+var user_routes = require('./routes/edit_routes/user_routes');
+var group_routes = require('./routes/edit_routes/group_routes');
+var template_routes = require('./routes/edit_routes/template_routes');
 
 // check if MONGODB_URI environmental variable is present
 if (!process.env.MONGODB_URI) {
@@ -146,10 +148,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // include routes to use
-app.use('/', auth(passport));
-app.use('/', routes);
-app.use('/', approver_routes);
-app.use('/', edit_routes);
+app.use('/', auth(passport));   // authentication routes
+app.use('/', routes);           // normal routes
+app.use('/', approver_routes);  // routes that are approver-only after this point
+
+// routes that edit users, groups, or templates
+app.use('/', user_routes);
+app.use('/', group_routes);
+app.use('/', template_routes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
