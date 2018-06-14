@@ -126,7 +126,10 @@ var decideRequest = function(request_id, user, approved, transporter) {
   Request.findById(request_id, function(err, request) {
     if (err) {
       console.log("decide_request update database_error")
-      res.redirect('/?request=failed')
+      return res.redirect('/?request=failed')
+    }
+    if (!request) {
+      return res.redirect('/?request=failed')
     }
     if (request.pending) {
       Request.update({_id: request_id}, {$set: {
