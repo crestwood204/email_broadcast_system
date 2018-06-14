@@ -42,8 +42,12 @@ var upload_storage = multer.diskStorage({
 router.use(function(req, res, next) {
   console.log('returnTo: ' + req.session.returnTo)
   if (!req.user) {
-    var i = req.url.indexOf('?');
-    var query = req.url.substr(i);
+    var query, i = req.url.indexOf('?');
+    if (i !== -1) {
+      query = req.url.substr(i);
+    } else {
+      query = ''
+    }
     req.session.returnTo = req.path + query
     res.redirect('/login');
   } else {
