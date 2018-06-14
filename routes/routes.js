@@ -1,6 +1,5 @@
 //REQUIRE IN EXPRESS AND EXPRESS ROUTER TO CREATE ROUTES TO REQUIRE IN APP.JS
 var express = require('express')
-var nodemailer = require('nodemailer')
 var datejs = require('datejs')
 var path = require('path')
 var multer = require('multer')
@@ -19,15 +18,6 @@ var Template = Models.Template
 var Helpers = require('../helpers')
 var sendApproverEmail = Helpers.SendApproverEmail
 var decideRequest = Helpers.DecideRequest
-
-// create reusable transporter object using the default SMTP transport
-let transporter = nodemailer.createTransport({
-    host: process.env.HOST_IP,
-    port: 25,
-    tls: {
-      rejectUnauthorized: false
-    }
-});
 
 var upload_storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -178,7 +168,7 @@ router.post('/new_request', function(req, res) {
             })
             //send approver_emails
 
-          sendApproverEmail(transporter, approvers, request, req.user.email)
+          sendApproverEmail(approvers, request, req.user.email)
 
           // redirect
           res.redirect('/pending_requests?request=success')

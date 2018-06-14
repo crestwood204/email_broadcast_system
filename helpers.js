@@ -6,7 +6,16 @@ var Group = Models.Group
 var Request = Models.Request
 var Log = Models.Log
 
-var sendApproverEmail = function(transporter, approvers, request, user_email) {
+// create reusable transporter object using the default SMTP transport
+let transporter = nodemailer.createTransport({
+    host: process.env.HOST_IP,
+    port: 25,
+    tls: {
+      rejectUnauthorized: false
+    }
+});
+
+var sendApproverEmail = function(approvers, request, user_email) {
   var html, mailOptions, files = request.attachments
 
   if (files) {
@@ -117,7 +126,7 @@ var rmDir = function(dirPath, attachments) {
   })
 };
 
-var decideRequest = function(request_id, user, approved, transporter, req, res) {
+var decideRequest = function(request_id, user, approved, req, res) {
   var change = 'Rejected'
   if (approved) {
     change = 'Approved'

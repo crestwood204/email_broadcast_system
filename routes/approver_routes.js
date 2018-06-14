@@ -1,6 +1,5 @@
 var express = require('express')
 var router = express.Router()
-var nodemailer = require('nodemailer')
 
 //REQUIRE IN MODELS
 var Models = require('../models/models')
@@ -9,15 +8,6 @@ var Request = Models.Request
 var Log = Models.Log
 var Group = Models.Group
 var Template = Models.Template
-
-// create reusable transporter object using the default SMTP transport
-let transporter = nodemailer.createTransport({
-    host: process.env.HOST_IP,
-    port: 25,
-    tls: {
-      rejectUnauthorized: false
-    }
-});
 
 // route that rejects all non-approvers
 router.use(function(req, res, next) {
@@ -80,7 +70,7 @@ router.post('/decide_request', function(req, res) {
   // edit the request
   var approved = req.body.decision === 'approve'
   var request_id = req.body.id
-  decideRequest(request_id, req.user, approved, transporter)
+  decideRequest(request_id, req.user, approved)
 })
 
 router.get('/decide_request_email', function(req, res) {
@@ -92,7 +82,7 @@ router.get('/decide_request_email', function(req, res) {
     if (err) {
       console.log('decide_request mobile_user_lookup database_error')
     } else {
-      decideRequest(request_id, user, approved, transporter, req, res)
+      decideRequest(request_id, user, approved, req, res)
     }
   })
 })
