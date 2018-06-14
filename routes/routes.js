@@ -40,7 +40,6 @@ var upload_storage = multer.diskStorage({
 
 // redirect to login if not signed in
 router.use(function(req, res, next) {
-  console.log('returnTo: ' + req.session.returnTo)
   if (!req.user) {
     var i = req.url.indexOf('?')
     if (i !== -1) {

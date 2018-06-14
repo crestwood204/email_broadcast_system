@@ -129,7 +129,6 @@ var decideRequest = function(request_id, user, approved, transporter, req, res) 
       return res.redirect('/?request=failed')
     }
     if (!request) {
-      console.log(request_id)
       return res.redirect('/?request=failed')
     }
     if (request.pending) {
