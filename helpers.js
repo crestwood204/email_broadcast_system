@@ -117,7 +117,7 @@ var rmDir = function(dirPath, attachments) {
   })
 };
 
-var decideRequest = function(request_id, user, approved, transporter, res) {
+var decideRequest = function(request_id, user, approved, transporter, req, res) {
   var change = 'Rejected'
   if (approved) {
     change = 'Approved'
