@@ -12,6 +12,7 @@ var MongoStore = require('connect-mongo')(session);
 var models = require('./models/models');
 var auth = require('./routes/auth');
 var routes = require('./routes/routes');
+var approver_routes = require('./routes/approver_routes')
 var edit_routes = require('./routes/edit_routes');
 
 // check if MONGODB_URI environmental variable is present
@@ -147,6 +148,7 @@ app.use(passport.session());
 // include routes to use
 app.use('/', auth(passport));
 app.use('/', routes);
+app.use('/', approver_routes);
 app.use('/', edit_routes);
 
 // catch 404 and forward to error handler

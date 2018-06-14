@@ -9,14 +9,6 @@ var Log = Models.Log
 var Group = Models.Group
 var Template = Models.Template
 
-router.use(function(req, res, next) {
-  if (req.user.approver) {
-    return next();
-  } else {
-    res.render('error_views/unauthorized')
-  }
-})
-
 router.get('/edit_users', function(req, res) {
   var messages = {
     'database': 'The database failed to respond to this request. Please try again or contact IT for support.',
