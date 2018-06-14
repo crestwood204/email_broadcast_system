@@ -1,21 +1,31 @@
-var express = require('express');
-var exphbs  = require('express-handlebars');
-var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
-var path = require('path');
-var logger = require('morgan');
-var session = require('express-session')
-var cookieParser = require('cookie-parser');
-var passport = require('passport');
-var LocalStrategy = require('passport-local');
-var MongoStore = require('connect-mongo')(session);
-var models = require('./models/models');
-var auth = require('./routes/auth');
-var routes = require('./routes/routes');
-var approver_routes = require('./routes/approver_routes')
-var user_routes = require('./routes/edit_routes/user_routes');
-var group_routes = require('./routes/edit_routes/group_routes');
-var template_routes = require('./routes/edit_routes/template_routes');
+// include modules for endpoint processing
+const express = require('express');
+const bodyParser = require('body-parser');
+
+// include modules for view engine
+const exphbs = require('express-handlebars');
+const helpers = require('./helpers/handlebars_helpers');
+
+// include system modules
+const path = require('path');
+
+// include debug modules
+const logger = require('morgan');
+
+// include session, cookies, authentication modules
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+
+// include modules for database
+const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo')(session);
+
+// include routes and models
+const models = require('./models/models');
+const routes = require('./routes/routes');
+
 
 // check if MONGODB_URI environmental variable is present
 if (!process.env.MONGODB_URI) {
@@ -24,64 +34,30 @@ if (!process.env.MONGODB_URI) {
 
 // start connection to MONGODB
 mongoose.connect(process.env.MONGODB_URI).then(
- ()=>{
-   console.log("connected to mongoDB")},
- (err)=>{
-     console.log("err", err);
- })
-mongoose.connection.on('error', function(err) {
-    console.log('MONGODB_ERROR: ' + err);
+  () => {
+    console.log('connected to mongoDB');
+  },
+  (err) => {
+    console.log('err', err);
+  }
+);
+
+mongoose.connection.on('error', (err) => {
+  console.log('MONGODB_ERROR:', err);
 });
 
 // create server with express: port defaults to 3000
-var app = express();
-var port = process.env.PORT || 3000;
+const app = express();
+const port = process.env.PORT || 3000;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.engine('.hbs', exphbs({
   defaultLayout: 'main',
   extname: '.hbs',
-  helpers:{
-    // Function to do basic mathematical operation in handlebar
-    math: function(lvalue, operator, rvalue) {
-      lvalue = parseFloat(lvalue);
-      rvalue = parseFloat(rvalue);
-      return {
-          "+": lvalue + rvalue,
-          "-": lvalue - rvalue,
-          "*": lvalue * rvalue,
-          "/": lvalue / rvalue,
-          "%": lvalue % rvalue
-    }[operator];
-    },
-    // Function to check equality
-    compare: function(lvalue, rvalue, options) {
-      var operator = options.hash.operator || "==";
-
-      var operators = {
-          '==':       function(l,r) { return l == r; },
-          '===':      function(l,r) { return l === r; },
-          '!=':       function(l,r) { return l != r; },
-          '!==':      function(l,r) { return l !== r; },
-          '<':        function(l,r) { return l < r; },
-          '>':        function(l,r) { return l > r; },
-          '<=':       function(l,r) { return l <= r; },
-          '>=':       function(l,r) { return l >= r; },
-          'typeof':   function(l,r) { return typeof l == r; }
-      }
-
-      if (!operators[operator])
-          throw new Error("Handlerbars Helper 'compare' doesn't know the operator "+operator);
-
-      var result = operators[operator](lvalue,rvalue);
-
-      if (result) {
-          return options.fn(this);
-      } else {
-          return options.inverse(this);
-      }
-    }
+  helpers: {
+    math: helpers.MATH,
+    compare: helpers.COMPARE
   }
 }));
 app.set('view engine', 'hbs');
@@ -91,34 +67,34 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(logger('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cookieParser(process.env.SECRET))
+app.use(cookieParser(process.env.SECRET));
 
 // Passport - Session Middleware for Authentication
 app.use(session({
-    secret: process.env.SECRET,
-    name: 'session',
-    store: new MongoStore({ mongooseConnection: mongoose.connection }),
-    proxy: true,
-    resave: true,
-    saveUninitialized: true
+  secret: process.env.SECRET,
+  name: 'session',
+  store: new MongoStore({ mongooseConnection: mongoose.connection }),
+  proxy: true,
+  resave: true,
+  saveUninitialized: true
 }));
 
-passport.serializeUser(function(user, done) {
+passport.serializeUser((user, done) => {
   done(null, user._id);
 });
 
-passport.deserializeUser(function(id, done) {
-  models.User.findById(id, function(err, user) {
+passport.deserializeUser((id, done) => {
+  models.User.findById(id, (err, user) => {
     done(err, user);
   });
 });
 
 // passport strategy
 passport.use(new LocalStrategy({
-  passReqToCallback : true
-}, function(req, username, password, done) {
+  passReqToCallback: true
+}, ((req, username, password, done) => {
     // Find the user with the given username
-    models.User.findOne({ "username": username }, function (err, user) {
+    models.User.findOne({ username }, (err, user) => {
       // if there's an error, finish trying to authenticate (auth failed)
       if (err) {
         console.error(err);
@@ -126,7 +102,7 @@ passport.use(new LocalStrategy({
       }
       // if no user present, auth failed
       if (!user) {
-        console.log('user: ' + username + ' does not exist')
+        console.log(`user: ${username} does not exist`);
         return done(null, false, { message: 'Incorrect username or password' });
       }
       // if passwords do not match, auth failed
@@ -141,37 +117,36 @@ passport.use(new LocalStrategy({
       // auth has succeeded
       return done(null, user);
     });
-  }
-));
+  })));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
 // include routes to use
-app.use('/', auth(passport));   // authentication routes
-app.use('/', routes);           // normal routes
-app.use('/', approver_routes);  // routes that are approver-only after this point
+app.use('/', routes.AUTH_ROUTES(passport)); // authentication routes
+app.use('/', routes.BROADCAST_ROUTES); // broadcast routes
+app.use('/', routes.APPROVER_ROUTES); // routes that are approver-only after this point
 
 // routes that edit users, groups, or templates
-app.use('/', user_routes);
-app.use('/', group_routes);
-app.use('/', template_routes);
+app.use('/', routes.USER_ROUTES);
+app.use('/', routes.GROUP_ROUTES);
+app.use('/', routes.TEMPLATE_ROUTES);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+app.use((req, res, next) => {
+  const err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
 
 // error handler
-app.use(function(err, req, res, next) {
-  console.log('error handler', err)
+app.use((err, req, res) => {
+  console.log('error handler', err);
   // render the error page
   res.status(err.status || 500);
-  res.render('error', { 'user': req.user });
+  res.render('error', { user: req.user });
 });
 
-app.listen(port, function () {
-  console.log('Listening on port ' + port);
+app.listen(port, () => {
+  console.log(`Listening on port ${port}`);
 });

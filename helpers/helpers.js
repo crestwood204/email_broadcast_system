@@ -1,5 +1,5 @@
 var nodemailer = require('nodemailer')
-var Models = require('./models/models')
+var Models = require('../models/models')
 var fs = require('fs')
 var User = Models.User
 var Group = Models.Group
