@@ -44,6 +44,7 @@ var sendApproverEmail = function(transporter, approvers, request, user_email) {
               </td>
             </tr>
           </table>
+          <div> Note that you may need to login in order to approve or reject the request - In this case, you must login before you can approve or reject a broadcast request.</div>
       </body>
     </html>`
 

@@ -41,6 +41,8 @@ var upload_storage = multer.diskStorage({
 // redirect to login if not signed in
 router.use(function(req, res, next) {
   if (!req.user) {
+    console.log('hit the wall')
+    req.session.returnTo = req.path
     res.redirect('/login');
   } else {
     return next();
