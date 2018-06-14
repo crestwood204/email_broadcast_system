@@ -15,9 +15,9 @@ module.exports = function(passport) {
   router.post('/login', passport.authenticate('local', {
       failureRedirect: '/login?error=true'
     }), function(req, res) {
-      console.log(req.session.returnTo)
-      res.redirect(req.session.returnTo || '/')
+      var returnTo = req.session.returnTo
       delete req.session.returnTo
+      res.redirect(returnTo || '/')
     }
   );
 
