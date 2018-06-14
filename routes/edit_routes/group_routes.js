@@ -1,161 +1,136 @@
-var express = require('express')
-var router = express.Router()
+const express = require('express');
+const Models = require('../../models/models');
+const Helpers = require('../../helpers/helpers');
 
-//REQUIRE IN MODELS
-var Models = require('../../models/models')
-var User = Models.User
-var Request = Models.Request
-var Log = Models.Log
-var Group = Models.Group
-var Template = Models.Template
+const { Log, Group } = Models;
+const validateEmail = Helpers.ValidateEmail;
+const router = express.Router();
 
-router.get('/edit_groups', function(req, res) {
-  var messages = {
-    'database': 'The database failed to respond to this request. Please try again or contact IT for support.',
-    'created': 'Group created successfully!',
-    'updated': 'Group updated succesfully!',
-    'fail_find': 'The database failed to find this group. Please try again or contact IT for support.',
-    'deleted': 'Group deleted successfully!'
-  }
-  var request = req.query.request
-  var alert_msg = null
+router.get('/edit_groups', (req, res) => {
+  const messages = {
+    database: 'The database failed to respond to this request. Please try again or contact IT for support.',
+    created: 'Group created successfully!',
+    updated: 'Group updated succesfully!',
+    fail_find: 'The database failed to find this group. Please try again or contact IT for support.',
+    deleted: 'Group deleted successfully!'
+  };
+  const { request } = req.query;
+  let alertMsg;
   if (request) {
-    alert_msg = messages[req.query.type]
+    alertMsg = messages[req.query.type];
   }
   Group.find({}).then(
     (groups) => {
-      res.render('edit_views/group/edit_groups', {'user': req.user, 'request': request, 'alert_msg': alert_msg, 'groups': groups})
+      res.render('edit_views/group/edit_groups', { user: req.user, request, alert_msg: alertMsg, groups });
     },
     (err) => {
-      res.render('edit_views/group/edit_groups', {'user': req.user, 'request': 'failure', 'alert_msg': 'Error Fetching Groups From the Database!! Refresh the Page or Contact IT for help.'})
+      console.log('edit_groups group_lookup database_error', err);
+      res.render('edit_views/group/edit_groups', { user: req.user, request: 'failure', alert_msg: 'Error Fetching Groups From the Database!! Refresh the Page or Contact IT for help.' });
     }
-  )
+  );
+});
 
-})
-
-router.get('/new_group', function(req, res) {
-  var messages = {
-    'emailFormat': 'Email Format is Incorrect.',
-    'missing_fields': 'One or more fields are missing. Please complete the form before submitting.',
-    'dupKey': 'There is already a group with this name. Please choose a different name.',
-  }
-  var msg = undefined
+router.get('/new_group', (req, res) => {
+  const messages = {
+    emailFormat: 'Email Format is Incorrect.',
+    missing_fields: 'One or more fields are missing. Please complete the form before submitting.',
+    dupKey: 'There is already a group with this name. Please choose a different name.'
+  };
+  let msg;
   if (req.query.msg) {
-    msg = messages[req.query.msg]
+    msg = messages[req.query.msg];
   }
-  var name = req.query.name
-  var email = req.query.email
+  const { name, email } = req.query;
 
-  res.render('edit_views/group/new_group', {'user': req.user, 'msg': msg, 'name': name, 'email': email})
-})
+  return res.render('edit_views/group/new_group', { user: req.user, msg, name, email });
+});
 
-router.post('/new_group', function(req, res) {
-  var name = req.body.name
-  var email = req.body.email
+router.post('/new_group', (req, res) => {
+  const { name, email } = req.body;
 
-  function validateEmail(email) {
-    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
+  // validate name and email
+  if (!name || !email) {
+    return res.redirect(`/new_group?msg=missing_fields&name=${name}&email=${email}`);
   }
-
-  if (!name || ! email) {
-    return res.redirect('/new_group?msg=missing_fields&name=' + name + '&email=' + email)
-  }
-
-  // validate email
   if (!validateEmail(email)) {
-    return res.redirect('/new_group?msg=emailFormat&name=' + name + '&email=' + email)
+    return res.redirect(`/new_group?msg=emailFormat&name=${name}&email=${email}`);
   }
 
-  var new_group = new Group({
-    'name': name,
-    'email': email
-  })
+  const newGroup = new Group({
+    name,
+    email
+  });
 
-  new_group.save(function(err, group) {
+  return newGroup.save((err, group) => {
     if (err) {
       if (err.code === 11000) {
-        return res.redirect('/new_group?msg=dupKey&name=' + name + '&email=' + email)
-      } else {
-        console.log('new_group create database_error', err)
-        return res.redirect('/edit_groups?request=failure&type=database')
+        return res.redirect(`/new_group?msg=dupKey&name=${name}&email=${email}`);
       }
-    } else {
-      // make a log;
-      Log.log('Created', req.user._id, 'New Group Created', 'Group', 'post new_group database_error', null, null, null, group._id, name)
-      res.redirect('/edit_groups?request=success&type=created')
+      console.log('new_group create database_error', err);
+      return res.redirect('/edit_groups?request=failure&type=database');
     }
-  })
-})
+    // make a log;
+    Log.log('Created', req.user._id, 'New Group Created', 'Group', 'post new_group database_error', null, null, null, group._id, name);
+    return res.redirect('/edit_groups?request=success&type=created');
+  });
+});
 
-router.get('/edit_group', function(req, res) {
-  var messages = {
-    'dupKey': 'There is already another group with this name. Please choose another name and try again.'
-  }
-  var id = req.query.group
+router.get('/edit_group', (req, res) => {
+  const messages = { dupKey: 'There is already another group with this name. Please choose another name and try again.' };
+  const id = req.query.group;
+  const { name, email } = req.query;
+  let msg;
   if (req.query.msg) {
-    msg = messages[req.query.msg]
-    return res.render('edit_views/group/edit_group', { user: req.user, 'name': req.query.name, 'email': req.query.email, 'msg': msg })
+    msg = messages[req.query.msg];
+    return res.render('edit_views/group/edit_group', { user: req.user, name, email, msg });
   }
-  Group.findById(id).then(
-    (group) => {
-      res.render('edit_views/group/edit_group', { user: req.user, 'name': group.name, 'email': group.email })
-    },
+  return Group.findById(id).then(
+    group => res.render('edit_views/group/edit_group', { user: req.user, name: group.name, email: group.email }),
     (err) => {
-      console.log('get edit_group database_error')
-      res.redirect('/edit_groups?request=failure&type=fail_find')
+      console.log('get edit_group database_error', err);
+      return res.redirect('/edit_groups?request=failure&type=fail_find');
     }
-  )
-})
+  );
+});
 
-router.post('/edit_group', function(req, res) {
-  var name = req.body.name
-  var email = req.body.email
-  var id = req.query.group
+router.post('/edit_group', (req, res) => {
+  const { name, email } = req.body;
+  const id = req.query.group;
 
-  function validateEmail(email) {
-    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
-  }
-
-  if (!name || ! email) {
-    return res.redirect('/new_group?group=' + id + '&msg=missing_fields&name=' + name + '&email=' + email)
+  if (!name || !email) {
+    return res.redirect(`/new_group?group=${id}&msg=missing_fields&name=${name}&email=${email}`);
   }
 
   // validate email
   if (!validateEmail(email)) {
-    return res.redirect('/new_group?group=' + id + '&msg=emailFormat&name=' + name + '&email=' + email)
+    return res.redirect(`/new_group?group=${id}&msg=emailFormat&name=${name}&email=${email}`);
   }
 
   // make sure no duplicate template name
-  Group.findByIdAndUpdate(id, { $set: { 'name': name, 'email': email }}, function(err, group) {
+  return Group.findByIdAndUpdate(id, { $set: { name, email } }, (err, group) => {
     if (err) {
       if (err.codeName === 'DuplicateKey') {
-        return res.redirect('/edit_group?group=' + id + '&msg=dupKey&name=' + name + '&email=' + email)
-      } else {
-        console.log('edit_group update database_error', err.errmsg)
-        return res.redirect('/edit_groups?request=failure&type=database')
+        return res.redirect(`/edit_group?group=${id}&msg=dupKey&name=${name}&email=${email}`);
       }
-    } else {
-      // make a log
-      Log.log('Edited', req.user._id, 'Group Edited', 'Group', 'post edit_group database_error', null, null, null, group._id, name)
-      res.redirect('/edit_groups?request=success&type=updated')
+      console.log('edit_group update database_error', err.errmsg);
+      return res.redirect('/edit_groups?request=failure&type=database');
     }
-  })
-})
+    // make a log
+    Log.log('Edited', req.user._id, 'Group Edited', 'Group', 'post edit_group database_error', null, null, null, group._id, name);
+    return res.redirect('/edit_groups?request=success&type=updated');
+  });
+});
 
-router.put('/delete_group', function(req, res) {
-  var group_name = req.body.group_name
-  Group.deleteOne({'_id': req.body.id}, function(err) {
+router.put('/delete_group', (req, res) => {
+  const { groupName } = req.body;
+  Group.deleteOne({ _id: req.body.id }, (err) => {
     if (err) {
-      res.status(500).send('Database Error, could not delete document.')
-    } else {
-      // make a log
-      Log.log('Deleted', req.user._id, 'Group Deleted', 'Group', 'put delete_group database_error', null, null, null, null, group_name)
-
-      res.status(200).send('Document deleted')
+      return res.status(500).send('Database Error, could not delete document.');
     }
-  })
-})
+    // make a log
+    Log.log('Deleted', req.user._id, 'Group Deleted', 'Group', 'put delete_group database_error', null, null, null, null, groupName);
+    return res.status(200).send('Document deleted');
+  });
+});
 
-module.exports = router
+module.exports = router;
