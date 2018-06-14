@@ -21,11 +21,11 @@ router.get('/edit_groups', (req, res) => {
   }
   Group.find({}).then(
     (groups) => {
-      res.render('edit_views/group/edit_groups', { user: req.user, request, alert_msg: alertMsg, groups });
+      res.render('edit_views/group/edit_groups', { user: req.user, request, alertMsg, groups });
     },
     (err) => {
       console.log('edit_groups group_lookup database_error', err);
-      res.render('edit_views/group/edit_groups', { user: req.user, request: 'failure', alert_msg: 'Error Fetching Groups From the Database!! Refresh the Page or Contact IT for help.' });
+      res.render('edit_views/group/edit_groups', { user: req.user, request: 'failure', alertMsg: 'Error Fetching Groups From the Database!! Refresh the Page or Contact IT for help.' });
     }
   );
 });
