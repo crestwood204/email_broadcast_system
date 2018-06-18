@@ -1,7 +1,9 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+/* eslint no-use-before-define: ["error", { "variables": false }] */
+const mongoose = require('mongoose');
 
-var RequestSchema = new Schema ({
+const { Schema } = mongoose;
+
+const RequestSchema = new Schema({
   to: {
     type: [String],
     required: true
@@ -30,12 +32,10 @@ var RequestSchema = new Schema ({
     type: String,
     default: undefined
   },
-  attachments: {
-    type: []
-  }
-})
+  attachments: { type: [] }
+});
 
-var UserSchema = new Schema ({
+const UserSchema = new Schema({
   username: {
     type: String,
     required: true
@@ -57,9 +57,9 @@ var UserSchema = new Schema ({
     default: true,
     required: true
   }
-})
+});
 
-var LogSchema = new Schema ({
+const LogSchema = new Schema({
   change: {
     type: String,
     required: true
@@ -97,39 +97,50 @@ var LogSchema = new Schema ({
     ref: 'Group'
   },
   template_title: String
-})
+});
 
-LogSchema.statics.log = function(change, user_id, description, type, err_msg, request_id, edit_user_id, template_id, group_id, template_title) {
-  var new_log = new Log({
-    change: change,
-    user_id: user_id,
-    description: description,
-    type: type,
+LogSchema.statics.log = (
+  change,
+  userId,
+  description,
+  type,
+  errMsg,
+  requestId,
+  editUserId,
+  templateId,
+  groupId,
+  templateTitle
+) => {
+  const newLog = new Log({
+    change,
+    user_id: userId,
+    description,
+    type,
     date: new Date()
-  })
+  });
 
-  if (request_id) {
-    new_log['request_id'] = request_id
-  } else if (edit_user_id) {
-    new_log['edit_user_id'] = edit_user_id
-  } else if (template_id) {
-    new_log['template_id'] = template_id
-  } else if (group_id) {
-    new_log['group_id'] = group_id
+  if (requestId) {
+    newLog.request_id = requestId;
+  } else if (editUserId) {
+    newLog.edit_user_id = editUserId;
+  } else if (templateId) {
+    newLog.template_id = templateId;
+  } else if (groupId) {
+    newLog.group_id = groupId;
   }
 
-  if (template_title) {
-    new_log['template_title'] = template_title
+  if (templateTitle) {
+    newLog.template_title = templateTitle;
   }
 
-  new_log.save(function(err, log) {
+  newLog.save((err) => {
     if (err) {
-      console.log(err_msg)
+      console.log(errMsg);
     }
-  })
-}
+  });
+};
 
-var GroupSchema = new Schema ({
+const GroupSchema = new Schema({
   name: {
     type: String,
     required: true,
@@ -140,9 +151,9 @@ var GroupSchema = new Schema ({
     type: String,
     required: true
   }
-})
+});
 
-var TemplateSchema = new Schema ({
+const TemplateSchema = new Schema({
   title: {
     type: String,
     required: true
@@ -159,18 +170,12 @@ var TemplateSchema = new Schema ({
     type: Schema.ObjectId,
     required: true
   }
-})
+});
 
-var Request = mongoose.model('Request', RequestSchema)
-var User = mongoose.model('User', UserSchema)
-var Log = mongoose.model('Log', LogSchema)
-var Group = mongoose.model('Group', GroupSchema)
-var Template = mongoose.model('Template', TemplateSchema)
+const Request = mongoose.model('Request', RequestSchema);
+const User = mongoose.model('User', UserSchema);
+const Log = mongoose.model('Log', LogSchema);
+const Group = mongoose.model('Group', GroupSchema);
+const Template = mongoose.model('Template', TemplateSchema);
 
-module.exports = {
-  Request: Request,
-  User: User,
-  Log: Log,
-  Group: Group,
-  Template: Template
-};
+module.exports = { Request, User, Log, Group, Template };

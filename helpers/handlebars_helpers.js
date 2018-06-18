@@ -3,52 +3,57 @@
  */
 
 /**
- * Function to handle basic mathemtical operations
- */
-var math = function(lvalue, operator, rvalue) {
-  lvalue = parseFloat(lvalue);
-  rvalue = parseFloat(rvalue);
+  * functino to handle basic mathematical operations
+  * @param {number} lvalue The first number.
+  * @param {string} operator The operator.
+  * @param {number} rvalue The second number.
+  * @returns {number} The result of operations on the two numbers.
+  */
+const math = (lvalue, operator, rvalue) => {
+  const levalue = parseFloat(lvalue);
+  const revalue = parseFloat(rvalue);
   return {
-      "+": lvalue + rvalue,
-      "-": lvalue - rvalue,
-      "*": lvalue * rvalue,
-      "/": lvalue / rvalue,
-      "%": lvalue % rvalue
+    '+': levalue + revalue,
+    '-': levalue - revalue,
+    '*': levalue * revalue,
+    '/': levalue / revalue,
+    '%': levalue % revalue
   }[operator];
-}
+};
 
 
 /**
- * Function to handle basic logical operations
- */
-var compare = function(lvalue, rvalue, options) {
-  var operator = options.hash.operator || "==";
+  * function to handle basic logical operations
+  * @param {number} lvalue The first number.
+  * @param {number} rvalue The second number.
+  * @param {string} options You can set custom operator from options.hash.operator, '==' by default
+  * @returns {number} The result of operations on the two numbers.
+  */
+const compare = (lvalue, rvalue, options) => {
+  const operator = options.hash.operator || '==';
 
-  var operators = {
-      '==':       function(l,r) { return l == r; },
-      '===':      function(l,r) { return l === r; },
-      '!=':       function(l,r) { return l != r; },
-      '!==':      function(l,r) { return l !== r; },
-      '<':        function(l,r) { return l < r; },
-      '>':        function(l,r) { return l > r; },
-      '<=':       function(l,r) { return l <= r; },
-      '>=':       function(l,r) { return l >= r; },
-      'typeof':   function(l,r) { return typeof l == r; }
+  const operators = {
+    '===': (l, r) => l === r,
+    '!==': (l, r) => l !== r,
+    '<': (l, r) => l < r,
+    '>': (l, r) => l > r,
+    '<=': (l, r) => l <= r,
+    '>=': (l, r) => l >= r
+  };
+
+  if (!operators[operator]) {
+    throw new Error(`Handlerbars Helper 'compare' doesn't know the operator ${operator}`);
   }
 
-  if (!operators[operator])
-      throw new Error("Handlerbars Helper 'compare' doesn't know the operator " + operator);
-
-  var result = operators[operator](lvalue,rvalue);
+  const result = operators[operator](lvalue, rvalue);
 
   if (result) {
-      return options.fn(this);
-  } else {
-      return options.inverse(this);
+    return options.fn(this);
   }
-}
+  return options.inverse(this);
+};
 
 module.exports = {
   MATH: math,
   COMPARE: compare
-}
+};

@@ -1,36 +1,34 @@
-var nodemailer = require('nodemailer')
-var Models = require('../models/models')
-var fs = require('fs')
-var User = Models.User
-var Group = Models.Group
-var Request = Models.Request
-var Log = Models.Log
+const nodemailer = require('nodemailer');
+const Models = require('../models/models');
+const fs = require('fs');
+
+const { Group, Request, Log } = Models;
 
 // create reusable transporter object using the default SMTP transport
-let transporter = nodemailer.createTransport({
-    host: process.env.HOST_IP,
-    port: 25,
-    tls: {
-      rejectUnauthorized: false
-    }
+const transporter = nodemailer.createTransport({
+  host: process.env.HOST_IP,
+  port: 25,
+  tls: { rejectUnauthorized: false }
 });
 
-var sendApproverEmail = function(approvers, request, user_email) {
-  var html, mailOptions, files = request.attachments
+const sendApproverEmail = (approvers, request, userEmail) => {
+  let html;
+  let mailOptions;
+  let files = request.attachments;
 
   if (files) {
-     files = files.map(x => {
-      var rObj = {
+    files = files.map((x) => {
+      const rObj = {
         filename: x.originalname,
         encoding: x.encoding,
         path: x.path
-      }
-      return rObj
-    })
+      };
+      return rObj;
+    });
   }
 
   // send email to approvers
-  approvers.forEach(function(user) {
+  approvers.forEach((user) => {
     html = `<html>
       <head>
         <style>
@@ -38,7 +36,7 @@ var sendApproverEmail = function(approvers, request, user_email) {
         </style>
       </head>
       <body>
-        <div> Requester: ${user_email} </div>
+        <div> Requester: ${userEmail} </div>
         <div> Broadcast To: ${request.to} </div>
         <div class="divider-top"> Subject: ${request.subject} </div>
         <div class="divider-top"> ${request.body} </div>
@@ -55,128 +53,125 @@ var sendApproverEmail = function(approvers, request, user_email) {
           </table>
           <div> Note that you may need to login in order to approve or reject the request - In this case, you must login before you can approve or reject a broadcast request.</div>
       </body>
-    </html>`
+    </html>`;
 
     mailOptions = {
-        from: process.env.BROADCAST_ADDRESS, // sender address
-        to: '', // list of receivers
-        bcc: user.email,
-        subject: 'BROADCAST REQUEST', // Subject line
-        text: request.body, // plain text body
-        html: html, // html body
-        attachments: files // file attachments
+      from: process.env.BROADCAST_ADDRESS, // sender address
+      to: '', // list of receivers
+      bcc: user.email,
+      subject: 'BROADCAST REQUEST', // Subject line
+      text: request.body, // plain text body
+      html, // html body
+      attachments: files // file attachments
     };
 
     // send mail with defined transport object
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            return console.log('err', error);
-        }
-        console.log('email approval sent to ' + user.email)
+    transporter.sendMail(mailOptions, (error) => { // callback contains (error, info)
+      if (error) {
+        return console.log('err', error);
+      }
+      return console.log(`email approval sent to ${user.email}`);
     });
-  })
-}
+  });
+};
 
-var sendBroadcastEmail = function(transporter, request) {
-  html = `<html>
+const rmDir = (dirPath, attachments) => {
+  try {
+    fs.readdirSync(dirPath);
+  } catch (e) {
+    console.log('Error removing uploads from server', e);
+  }
+  const mappedAttachments = attachments.map(x => `./${x.path}`);
+  mappedAttachments.forEach((filePath) => {
+    if (fs.statSync(filePath).isFile()) {
+      fs.unlinkSync(filePath);
+    }
+  });
+};
+
+const sendBroadcastEmail = (request) => {
+  const html = `<html>
     <div> ${request.body} </div>
-  </html>`
+  </html>`;
 
   Group.find({}).then(
     (groups) => {
-      groups = groups.filter(x => request.to.includes(x.name))
-      groups = groups.map(x => x.email)
-      mailOptions = {
-          from: process.env.BROADCAST_ADDRESS, // sender address
-          to: '', // list of receivers
-          bcc: groups,
-          subject: request.subject, // Subject line
-          text: request.body, // plain text body
-          html: html, // html body
-          attachments: request.attachments
+      let filteredGroups = groups.filter(x => request.to.includes(x.name));
+      filteredGroups = filteredGroups.map(x => x.email);
+      const mailOptions = {
+        from: process.env.BROADCAST_ADDRESS, // sender address
+        to: '', // list of receivers
+        bcc: filteredGroups,
+        subject: request.subject, // Subject line
+        text: request.body, // plain text body
+        html, // html body
+        attachments: request.attachments
       };
       // send mail with defined transport object
-      transporter.sendMail(mailOptions, (error, info) => {
-          if (error) {
-              return console.log('err', error);
-          }
-          console.log('email broadcast sent')
+      transporter.sendMail(mailOptions, (error) => { // callback contains (error, info)
+        if (error) {
+          return console.log('err', error);
+        }
+        console.log('email broadcast sent');
 
-          // delete attachments from server directory
-          rmDir('./uploads', request.attachments)
+        // delete attachments from server directory
+        return rmDir('./uploads', request.attachments);
       });
     },
     (err) => {
-      console.log('sendEmail error_fetching_groups database_error')
+      console.log('sendEmail error_fetching_groups database_error', err);
     }
-  )
-}
-
-var rmDir = function(dirPath, attachments) {
-  try {
-    var files = fs.readdirSync(dirPath);
-  } catch(e) {
-    console.log('Error removing uploads from server', e)
-  }
-  attachments = attachments.map(x => './' + x.path)
-  attachments.forEach(filePath => {
-    if (fs.statSync(filePath).isFile()) {
-      fs.unlinkSync(filePath)
-    }
-  })
+  );
 };
 
-var decideRequest = function(request_id, user, approved, req, res) {
-  var change = 'Rejected'
+const decideRequest = (requestId, user, approved, req, res) => {
+  let change = 'Rejected';
   if (approved) {
-    change = 'Approved'
+    change = 'Approved';
   }
 
   if (!req.user.approver) {
-    return res.render('error_views/unauthorized')
+    return res.render('error_views/unauthorized');
   }
 
-  Request.findById(request_id, function(err, request) {
+  return Request.findById(requestId, (err, request) => {
     if (err) {
-      console.log("decide_request update database_error")
-      return res.redirect('/?request=failed')
+      console.log('decide_request update database_error');
+      return res.redirect('/?request=failed');
     }
     if (!request) {
-      return res.redirect('/?request=failed')
+      return res.redirect('/?request=failed');
     }
     if (request.pending) {
-      Request.update({_id: request_id}, {$set: {
-        pending: false,
-        approved: approved,
-        approver: user.username
-      }}, function(err) {
-        if (err) {
-          console.log("decide_request update database_error")
-          res.redirect('/?request=failed')
-        } else {
-          // broadcast email
-          if (approved) {
-            sendBroadcastEmail(transporter, request)
-          } else {
-            rmDir('./uploads', request.attachments)
+      return Request.update(
+        { _id: requestId }, {
+          $set: {
+            pending: false,
+            approved,
+            approver: user.username
           }
-          // make log
-          Log.log(change, user._id, 'Broadcast Request ' + change, 'Broadcast', 'post decide_request database_error', request._id)
-          res.render('close_window', {'user': req.user})
-        }
-      })
-    } else {
-      Request.findById(request_id).then(
-        (request) => {
-          res.render('request_decision', {'request': request, 'user': req.user})
         },
-        (err) => {
-          res.redirect('/?request=failed')
+        (requestErr) => {
+          if (requestErr) {
+            console.log('decide_request update database_error', requestErr);
+            res.redirect('/?request=failed');
+          } else {
+            // broadcast email
+            if (approved) {
+              sendBroadcastEmail(request);
+            } else {
+              rmDir('./uploads', request.attachments);
+            }
+            // make log
+            Log.log(change, user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', request._id);
+            res.render('close_window', { user: req.user });
+          }
         }
-      )
+      );
     }
-  })
-}
+    return res.render('request_decision', { request, user: req.user });
+  });
+};
 
 /**
  * Validates email using regex.
