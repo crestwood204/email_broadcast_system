@@ -28,7 +28,7 @@ const routes = require('./routes/routes');
 
 
 // check if MONGODB_URI environmental variable is present
-if (!process.env.MONGODB_URI) {
+if (!process.env.MONGODB_URI || !process.env.SECRET) {
   console.log('ERROR: environmental variables missing, remember to source your env.sh file!');
 }
 
@@ -90,34 +90,32 @@ passport.deserializeUser((id, done) => {
 });
 
 // passport strategy
-passport.use(new LocalStrategy({
-  passReqToCallback: true
-}, ((req, username, password, done) => {
-    // Find the user with the given username
-    models.User.findOne({ username }, (err, user) => {
-      // if there's an error, finish trying to authenticate (auth failed)
-      if (err) {
-        console.error(err);
-        return done(err);
-      }
-      // if no user present, auth failed
-      if (!user) {
-        console.log(`user: ${username} does not exist`);
-        return done(null, false, { message: 'Incorrect username or password' });
-      }
-      // if passwords do not match, auth failed
-      if (user.password !== password) {
-        return done(null, false, { message: 'Incorrect username or password' });
-      }
+passport.use(new LocalStrategy({ passReqToCallback: true }, ((req, username, password, done) => {
+  // Find the user with the given username
+  models.User.findOne({ username }, (err, user) => {
+    // if there's an error, finish trying to authenticate (auth failed)
+    if (err) {
+      console.error(err);
+      return done(err);
+    }
+    // if no user present, auth failed
+    if (!user) {
+      console.log(`user: ${username} does not exist`);
+      return done(null, false, { message: 'Incorrect username or password' });
+    }
+    // if passwords do not match, auth failed
+    if (user.password !== password) {
+      return done(null, false, { message: 'Incorrect username or password' });
+    }
 
-      // if user is deactivated, auth failed
-      if (!user.active) {
-        return done(null, false, { message: 'User is not active' });
-      }
-      // auth has succeeded
-      return done(null, user);
-    });
-  })));
+    // if user is deactivated, auth failed
+    if (!user.active) {
+      return done(null, false, { message: 'User is not active' });
+    }
+    // auth has succeeded
+    return done(null, user);
+  });
+})));
 
 app.use(passport.initialize());
 app.use(passport.session());
