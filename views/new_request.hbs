@@ -4,12 +4,12 @@
 {{#if request}}
     {{#compare request "success"}}
         <div class="alert alert-success" role="alert">
-            {{alert_msg}}
+            {{../alert_msg}}
         </div>
     {{/compare}}
     {{#compare request "failure"}}
         <div class="alert alert-warning" role="alert">
-            {{alert_msg}}
+            {{../alert_msg}}
         </div>
     {{/compare}}
 {{/if}}
