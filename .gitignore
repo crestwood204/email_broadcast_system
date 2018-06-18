@@ -71,3 +71,6 @@ uploads/*
 
 # exception to the rule
 !uploads/.gitkeep
+
+# create local db
+createDB.js

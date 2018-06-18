@@ -36,6 +36,24 @@ if (!process.env.MONGODB_URI || !process.env.SECRET) {
 mongoose.connect(process.env.MONGODB_URI).then(
   () => {
     console.log('connected to mongoDB');
+    models.User.find({}).then((users) => {
+      if (!users[0]) {
+        const newUser = new models.User({
+          username: 'anong',
+          password: 'test',
+          approver: 'true',
+          email: 'andrew.ong@rothmaninstitute.com',
+          active: true
+        });
+        newUser.save((err, user) => {
+          if (err) {
+            console.log('error creating first user');
+          } else {
+            console.log('created user', user);
+          }
+        });
+      }
+    });
   },
   (err) => {
     console.log('err', err);
