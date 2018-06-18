@@ -27,54 +27,54 @@
                         <div id="{{this._id}}" class="collapse out">
                             <div> Description: {{this.description}} </div>
                             {{#compare this.change "Approved"}}
-                                <div> Approved By: {{this.request_id.approver}} </div>
+                                <div> Approved By: {{../this.request_id.approver}} </div>
                             {{/compare}}
                             {{#compare this.change "Rejected"}}
-                                <div> Rejected By: {{this.request_id.approver}} </div>
+                                <div> Rejected By: {{../this.request_id.approver}} </div>
                             {{/compare}}
                             {{#compare this.change "Created"}}
-                                <div> Created By: {{this.user_id.username}} </div>
+                                <div> Created By: {{../this.user_id.username}} </div>
                             {{/compare}}
                             {{#compare this.change "Edited"}}
-                                <div> Edited By: {{this.user_id.username}} </div>
+                                <div> Edited By: {{../this.user_id.username}} </div>
                             {{/compare}}
                             {{#compare this.change "Activated"}}
-                                <div> Activated By: {{this.user_id.username}} </div>
+                                <div> Activated By: {{../this.user_id.username}} </div>
                             {{/compare}}
                             {{#compare this.change "Deactivated"}}
-                                <div> Deactivated By: {{this.user_id.username}} </div>
+                                <div> Deactivated By: {{../this.user_id.username}} </div>
                             {{/compare}}
                             {{#compare this.change "Deleted"}}
-                                <div> Deleted By: {{this.user_id.username}} </div>
+                                <div> Deleted By: {{../this.user_id.username}} </div>
                             {{/compare}}
                             <div class="description"> </div>
                             {{#compare this.type "Broadcast"}}
-                                <div> From: {{this.request_id.from.email}} </div>
-                                <div> To: {{this.request_id.to}} </div>
-                                <div class="description"> Subject: {{this.request_id.subject}}</div>
-                                <div> Body: {{this.request_id.body}}</div>
+                                <div> From: {{../this.request_id.from.email}} </div>
+                                <div> To: {{../this.request_id.to}} </div>
+                                <div class="description"> Subject: {{../this.request_id.subject}}</div>
+                                <div> Body: {{../this.request_id.body}}</div>
                             {{/compare}}
                             {{#compare this.type "User"}}
-                                <div> User Edited: {{this.edit_user_id.username}}</div>
+                                <div> User Edited: {{../this.edit_user_id.username}}</div>
                             {{/compare}}
                             {{#if this.template_id.username}}
                                 {{#compare this.type "Template"}}
-                                    <div> Template Edited: {{this.template_id.title}}</div>
+                                    <div> Template Edited: {{../this.template_id.title}}</div>
                                 {{/compare}}
                             {{/if}}
                             {{#compare this.type "Template"}}
-                                <div> Title: {{this.template_title}} </div>
-                                {{#compare this.change "Deleted" operator="!=="}}
-                                    {{#unless this.template_id}}
+                                <div> Title: {{../this.template_title}} </div>
+                                {{#compare ../this.change "Deleted" operator="!=="}}
+                                    {{#unless ../../this.template_id}}
                                         <div> Note: Template has been Deleted </div>
                                     {{/unless}}
                                 {{/compare}}
                             {{/compare}}
                             {{#compare this.type "Group"}}
                                 <div> Name: {{this.template_title}} </div>
-                                {{#compare this.change "Deleted" operator="!=="}}
-                                    {{#unless this.group_id}}
-                                        <div> Note: Template has been Deleted </div>
+                                {{#compare ../this.change "Deleted" operator="!=="}}
+                                    {{#unless ../../this.group_id}}
+                                        <div> Note: Group has been Deleted </div>
                                     {{/unless}}
                                 {{/compare}}
                             {{/compare}}

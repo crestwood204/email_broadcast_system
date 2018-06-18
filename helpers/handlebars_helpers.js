@@ -30,7 +30,7 @@ const math = (lvalue, operator, rvalue) => {
   * @returns {number} The result of operations on the two numbers.
   */
 const compare = (lvalue, rvalue, options) => {
-  const operator = options.hash.operator || '==';
+  const operator = options.hash.operator || '===';
 
   const operators = {
     '===': (l, r) => l === r,
