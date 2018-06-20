@@ -67,10 +67,10 @@ env.sh
 readme.txt
 
 # exclude everything
-uploads/*
+public/uploads/*
 
 # exception to the rule
-!uploads/.gitkeep
+!public/uploads/.gitkeep
 
 # create local db
 createDB.js
