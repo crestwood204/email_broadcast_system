@@ -12,7 +12,7 @@ let upload = multer();
 // configure settings for file upload
 const uploadStorage = multer.diskStorage({
   destination(req, file, cb) {
-    cb(null, './uploads');
+    cb(null, './public/uploads');
   },
   filename(req, file, cb) {
     cb(null, `${file.fieldname}-${Date.now()}-${file.originalname}`);

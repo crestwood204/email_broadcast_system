@@ -35,6 +35,20 @@
                             <div> To: {{this.to}} </div>
                             <div class="description"> Subject: {{this.subject}}</div>
                             <div> Body: {{this.body}}</div>
+                            <div> Attachments:
+                                {{#if this.attachments}}
+                                    {{#each this.attachments}}
+                                        <a href="/uploads/{{this.filename}}" download>
+                                            <!-- "../{{this.path}}" -->
+                                            <button>
+                                                <i class="fa fa-file"></i>
+                                            </button>
+                                        </a>
+                                    {{/each}}
+                                {{else}}
+                                    None
+                                {{/if}}
+                            </div>
                             <div class="right">
                                 <div class="description"> </div>
                                 {{#if @root.user.approver}}
@@ -43,7 +57,7 @@
                                         <button id=reject-{{this._id}} type="button" class="no-highlight reject-btn btn-xs btn-danger">Reject</button>
                                     </span>
                                 {{/if}}
-                            <div>
+                            </div>
                         </div>
                     </td>
                 </tr>
