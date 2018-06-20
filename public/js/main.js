@@ -1,9 +1,6 @@
-$(document).ready(function() {
-  (function() {
-    var url = window.location.href.trim()
-    if (url[url.length - 1] === '/') {
-      url.substring(url.length - 1)
-    }
+$(document).ready(() => {
+  (function setActiveTab() {
+    let url = window.location.href.trim();
     url = url.split('/')
     var endpoint = url[url.length - 1]
     if (endpoint === '') {
@@ -27,5 +24,5 @@ $(document).ready(function() {
       $('#log_page').removeClass('active')
       $('#dropdown_page').addClass('active')
     }
-  })()
+  }())
 })

@@ -24,6 +24,7 @@ const uploadStorage = multer.diskStorage({
  * After signing in, redirects to the page the user attempted to access
  */
 router.use((req, res, next) => {
+  // redirect to login if not signed in
   if (!req.user) {
     const index = req.url.indexOf('?');
     if (index !== -1) {
@@ -32,6 +33,11 @@ router.use((req, res, next) => {
       req.session.returnTo = req.path;
     }
     return res.redirect('/login');
+  }
+
+  // redirect to nonSlashRoute if trying to hit slashRoute
+  if (req.url.split('/').length > 2) {
+    return res.redirect(req.url.substring(0, req.url.length - 1));
   }
   return next();
 });
