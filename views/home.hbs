@@ -1,40 +1,40 @@
-<div class="content">
-    <a href="/new_request"> <button type="button" class="btn btn-light nrbtn">Create New Broadcast</button> </a>
-    <h1> Broadcasts </h1>
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Username</th>
-                <th scope="col">To</th>
-                <th scope="col">Date</th>
-                <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#each broadcasts}}
-                <tr>
-                    <th scope="row">{{math @index "+" 1}}</th>
-                    <td>{{this.from.username}}</td>
-                    <td>{{this.to}}</td>
-                    <td><button type="button" class="btn btn-primary toggle-row" data-toggle="collapse" data-target="#{{this._id}}"> Details </button></td>
-                </tr>
-                <tr>
-                    <td class="blank-row"> </td>
-                    <td class="blank-row details" colspan="3">
-                        <div id="{{this._id}}" class="collapse out">
-                            <div> From: {{this.from.email}} </div>
-                            <div> To: {{this.to}} </div>
-                            <div class="description"> Subject: {{this.subject}}</div>
-                            <div> Body: {{this.body}}</div>
-                        </div>
-                    </td>
-                </tr>
-            {{/each}}
-        </tbody>
-    </table>
-    {{#unless broadcasts}}
-        <h3> No Broadcasts Have Been Sent </h3>
-    {{/unless}}
+<div>
+  <a href="/new_request"> <button type="button" class="btn btn-light nrbtn">Create New Broadcast</button> </a>
+  <h1> Broadcasts </h1>
+  <table class="table">
+      <thead>
+          <tr>
+              <th scope="col">#</th>
+              <th scope="col">Username</th>
+              <th scope="col">To</th>
+              <th scope="col">Date</th>
+              <th scope="col"></th>
+          </tr>
+      </thead>
+      <tbody>
+          {{#each broadcasts}}
+              <tr>
+                  <th scope="row">{{math @index "+" 1}}</th>
+                  <td>{{this.from.username}}</td>
+                  <td>{{this.to}}</td>
+                  <td><button type="button" class="btn btn-primary toggle-row" data-toggle="collapse" data-target="#{{this._id}}"> Details </button></td>
+              </tr>
+              <tr>
+                  <td class="blank-row"> </td>
+                  <td class="blank-row details" colspan="4">
+                      <div id="{{this._id}}" class="collapse out">
+                          <div> From: {{this.from.email}} </div>
+                          <div> To: {{this.to}} </div>
+                          <div class="description"> Subject: {{this.subject}}</div>
+                          <div> Body: {{this.body}}</div>
+                      </div>
+                  </td>
+              </tr>
+          {{/each}}
+      </tbody>
+  </table>
+  {{#unless broadcasts}}
+      <h3> No Broadcasts Have Been Sent </h3>
+  {{/unless}}
+  <script src="/js/collapsible_table.js"></script>
 </div>
-<script src="/js/log.js"></script>

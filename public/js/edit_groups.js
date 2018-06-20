@@ -1,19 +1,20 @@
-$(document).ready(function() {
-  $('.trash').on('click', function(event) {
-    var id = $(this).attr('id').split('-')[2]
+/* eslint-env jquery */
+$(document).ready(() => {
+  $('.trash').on('click', () => {
+    const id = $(this).attr('id').split('-')[2];
     $.ajax({
       url: '/delete_group',
       method: 'PUT',
       data: {
-        'id': id,
-        'group_name': $(this).attr('name')
+        id,
+        group_name: $(this).attr('name')
       },
-      error: function(err) {
+      error(err) {
         console.log('error communicating with server', err);
       },
-      success: function(res) {
-        window.location.href = "/edit_groups?request=success&type=deleted"
+      success() {
+        window.location.href = '/edit_groups?request=success&type=deleted';
       }
-    })
-  })
-})
+    });
+  });
+});

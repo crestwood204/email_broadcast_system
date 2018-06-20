@@ -1,4 +1,14 @@
 .content {
-  margin-left: 10%;
-  margin-right: 10%;
+  margin-left: 15%;
+  margin-right: 15%;
+}
+
+#navbarDropdown {
+  cursor: pointer;
+}
+
+.blank-row {
+    padding: 0px !important;
+    line-height: 0px !important;
+    border-top: none !important;
 }

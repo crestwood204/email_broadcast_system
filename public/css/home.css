@@ -76,12 +76,6 @@
     cursor: default;
 }
 
-.blank-row {
-    padding: 0px !important;
-    line-height: 0px !important;
-    border-top: none !important;
-}
-
 .details {
     font-size: 10pt;
 }
