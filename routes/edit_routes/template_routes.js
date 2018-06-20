@@ -124,8 +124,7 @@ router.post('/edit_template', (req, res) => {
 });
 
 router.put('/delete_template', (req, res) => {
-  const templateId = req.body.template_id;
-  const templateTitle = req.body.template_title;
+  const { templateId, templateTitle } = req.body;
   Template.deleteOne({ _id: templateId }, (err) => {
     if (err) {
       console.log('put delete_template database_error');

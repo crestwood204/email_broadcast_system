@@ -1,4 +1,3 @@
-/* eslint-env jquery */
 $(document).ready(() => {
   const buttonDict = {};
   $('.toggle-row').on('click', function toggleCollapse() {

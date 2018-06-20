@@ -4,7 +4,7 @@ const multer = require('multer'); // npm package for file uploads
 const Models = require('../models/models');
 const Helpers = require('../helpers/helpers');
 
-const sendApproverEmail = Helpers.SendApproverEmail;
+const { sendApproverEmail } = Helpers;
 const { User, Request, Log, Group, Template } = Models;
 const router = express.Router();
 let upload = multer();

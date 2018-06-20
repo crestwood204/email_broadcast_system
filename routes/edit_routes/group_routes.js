@@ -3,7 +3,7 @@ const Models = require('../../models/models');
 const Helpers = require('../../helpers/helpers');
 
 const { Log, Group } = Models;
-const validateEmail = Helpers.ValidateEmail;
+const { validateEmail } = Helpers;
 const router = express.Router();
 
 router.get('/edit_groups', (req, res) => {

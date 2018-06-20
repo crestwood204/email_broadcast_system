@@ -11,8 +11,7 @@ const Helpers = require('../helpers/helpers');
 
 const router = express.Router();
 const { User, Request, Log } = Models;
-const decideRequest = Helpers.DecideRequest;
-const decideEmailRequest = Helpers.DecideEmailRequest;
+const { decideRequest, decideEmailRequest } = Helpers;
 
 // route that rejects all non-approvers
 router.use((req, res, next) => {

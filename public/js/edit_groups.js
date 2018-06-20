@@ -1,4 +1,3 @@
-/* eslint-env jquery */
 $(document).ready(() => {
   $('.trash').on('click', () => {
     const id = $(this).attr('id').split('-')[2];

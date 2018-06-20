@@ -270,9 +270,20 @@ const validateEmail = (email) => {
   return re.test(email);
 };
 
+const getParamterByName = (name, url) => {
+  const newUrl = url || window.location.href;
+  const newName = name.replace(/[[]]/g, '\\$&');
+  const regex = new RegExp(`[?&]${newName}(=([^&#]*)|&|#|$)`);
+  const results = regex.exec(newUrl);
+  if (!results) return null;
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+};
+
 module.exports = {
-  SendApproverEmail: sendApproverEmail,
-  DecideEmailRequest: decideEmailRequest,
-  DecideRequest: decideRequest,
-  ValidateEmail: validateEmail
+  sendApproverEmail,
+  decideEmailRequest,
+  decideRequest,
+  validateEmail,
+  getParamterByName
 };
