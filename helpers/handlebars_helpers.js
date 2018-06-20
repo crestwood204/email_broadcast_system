@@ -54,6 +54,6 @@ const compare = (lvalue, rvalue, options) => {
 };
 
 module.exports = {
-  MATH: math,
-  COMPARE: compare
+  math,
+  compare
 };

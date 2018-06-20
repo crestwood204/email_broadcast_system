@@ -74,8 +74,8 @@ app.engine('.hbs', exphbs({
   defaultLayout: 'main',
   extname: '.hbs',
   helpers: {
-    math: helpers.MATH,
-    compare: helpers.COMPARE
+    math: helpers.math,
+    compare: helpers.compare
   }
 }));
 app.set('view engine', 'hbs');
