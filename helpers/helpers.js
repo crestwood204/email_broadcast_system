@@ -200,7 +200,7 @@ const decideRequest = (requestId, approved, req) => {
             sendBroadcastEmail(request);
           } else {
             // remove uploads
-            rmDir('./uploads', request.attachments);
+            rmDir('./public/uploads', request.attachments);
           }
           // make log
           return Log.log(change, req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', request._id);
@@ -247,7 +247,7 @@ const decideEmailRequest = (requestId, user, approved, req, res) => {
             if (approved) {
               sendBroadcastEmail(request);
             } else {
-              rmDir('./uploads', request.attachments);
+              rmDir('./public/uploads', request.attachments);
             }
             // make log
             Log.log(change, user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', request._id);
