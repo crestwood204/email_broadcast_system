@@ -147,6 +147,7 @@ app.use('/', routes.APPROVER_ROUTES); // routes that are approver-only after thi
 app.use('/', routes.USER_ROUTES);
 app.use('/', routes.GROUP_ROUTES);
 app.use('/', routes.TEMPLATE_ROUTES);
+app.use('/', routes.SETTINGS);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

@@ -37,7 +37,7 @@
                 <li id="dropdown_page" class="dropdown">
                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
                   <ul class="dropdown-menu">
-                    <li><span class="name">User: {{user.username}}</span></li>
+                    <li><a href="/user_settings?user={{user._id}}">User: {{user.username}}</a></li>
                     <li role="separator" class="divider"></li>
                     {{#if user.approver}}
                         <li><a href="/edit_users">Edit Users</a></li>

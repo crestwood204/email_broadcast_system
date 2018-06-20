@@ -1,34 +1,67 @@
 <html lang="en">
     <head>
-      <meta charset="utf-8">
-
-      <title>RI Broadcast System</title>
-      <meta name="Email Broadcast " content="Broadcast System">
-      <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-      <link rel="stylesheet" type="text/css" href="css/style.css">
-      <link rel="shortcut icon" type="image/x-icon" href="favicon.ico"/>
+        <meta charset="utf-8">
+        <title>RI Broadcast System</title>
+        <meta name="Email Broadcast " content="Broadcast System">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico"/>
     </head>
     <body>
         {{#if error}}
-        <div class="alert alert-danger" role="alert">
-            Incorrect Username or Password
-        </div>
+            <div class="alert alert-danger" role="alert">
+                Incorrect Username or Password
+            </div>
         {{/if}}
-        <div class="container col-xs-5">
-        	<div class="wrapper">
-        		<form action="" method="post" name="Login_Form" class="form-signin">
-        		    <h3 class="form-signin-heading">RI Broadcast System. Please Sign In</h3>
-        			  <hr class="colorgraph"><br>
+        <div class="container">
+            <h3 class="form-signin-heading heading-underline">RI Broadcast System. Please Sign In</h3>
+            <br>
+            <div class="small-margin">
+        	    <form method="post" id="login-form" class="needs-validation" novalidate>
 
-        			  <input id="username" type="text" class="form-control" name="username" placeholder="Username" required="" autofocus="" />
-        			  <input id="password" type="password" class="form-control" name="password" placeholder="Password" required=""/>
 
-        			  <button id="login" class="btn btn-lg btn-primary btn-block"  name="Submit" value="Login" type="Submit">Login</button>
-                      <span> Don't have an account? Contact IT for access </a>
+                    <div class="col-md-6">
+                      <input type="text" class="form-control" name="username" id="username" placeholder="Username" autofocus="" required>
+                      <div class="invalid-feedback">
+                        Please Enter a Username
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <input type="text" class="form-control" name="password" id="password" placeholder="Password" required>
+                      <div class="invalid-feedback">
+                        Please Enter a Password
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <button id="login" class="btn btn-lg btn-primary btn-block"  name="Submit" value="Login" type="Submit">Login</button>
+                        <div> Don't have an account? Contact IT for access </div>
+                    </div>
         		</form>
-        	</div>
+            </div>
         </div>
     </body>
-    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script>
+    //JavaScript for disabling form submissions if there are invalid fields
+    (function() {
+      'use strict';
+      window.addEventListener('load', function() {
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.getElementsByClassName('needs-validation');
+        // Loop over them and prevent submission
+        var validation = Array.prototype.filter.call(forms, function(form) {
+          form.addEventListener('submit', function(event) {
+            if (form.checkValidity() === false) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+          }, false);
+        });
+      }, false);
+    })();
+    </script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="/js/login.js"></script>
 </html>
