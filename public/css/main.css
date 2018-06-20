@@ -1,11 +1,27 @@
-.content {
-  margin-left: 15%;
-  margin-right: 15%;
+/* navbar styling */
+nav {
+    position: fixed !important;
+    top: 0;
+    width: 100%;
+    z-index: 100;
 }
 
 #navbarDropdown {
   cursor: pointer;
 }
+
+/* body styles */
+
+body {
+    padding-top: 60px;
+}
+
+.content {
+  margin-left: 15%;
+  margin-right: 15%;
+}
+
+/* collapsible_table styles */
 
 .blank-row {
     padding: 0px !important;
