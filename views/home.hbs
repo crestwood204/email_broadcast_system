@@ -1,5 +1,6 @@
+<link rel="stylesheet" type="text/css" href="css/home.css">
 <div>
-  <a href="/new_request"> <button type="button" class="btn btn-light nrbtn">Create New Broadcast</button> </a>
+  <a href="/new_request"> <button type="button" class="btn btn-light nrbtn float-right">Create New Broadcast</button> </a>
   <h1> Broadcasts </h1>
   <table class="table">
       <thead>
@@ -8,7 +9,6 @@
               <th scope="col">Username</th>
               <th scope="col">To</th>
               <th scope="col">Date</th>
-              <th scope="col"></th>
           </tr>
       </thead>
       <tbody>
@@ -21,7 +21,7 @@
               </tr>
               <tr>
                   <td class="blank-row"> </td>
-                  <td class="blank-row details" colspan="4">
+                  <td class="blank-row details" colspan="3">
                       <div id="{{this._id}}" class="collapse out">
                           <div> From: {{this.from.email}} </div>
                           <div> To: {{this.to}} </div>
