@@ -12,6 +12,7 @@ const Helpers = require('../helpers/helpers');
 const router = express.Router();
 const { User, Request, Log } = Models;
 const decideRequest = Helpers.DecideRequest;
+const decideEmailRequest = Helpers.DecideEmailRequest;
 
 // route that rejects all non-approvers
 router.use((req, res, next) => {
@@ -63,11 +64,11 @@ router.get('/log', (req, res) => {
     });
 });
 
-router.post('/decide_request', (req) => {
+router.post('/decide_request', (req, res) => {
   // edit the request
   const approved = req.body.decision === 'approve';
   const requestId = req.body.id;
-  decideRequest(requestId, req.user, approved);
+  decideRequest(requestId, approved, req);
 });
 
 router.get('/decide_request_email', (req, res) => {
@@ -80,7 +81,7 @@ router.get('/decide_request_email', (req, res) => {
     if (err) {
       console.log('decide_request mobile_user_lookup database_error', err);
     } else {
-      decideRequest(requestId, user, approved, req, res);
+      decideEmailRequest(requestId, user, approved, req, res);
     }
   });
 });

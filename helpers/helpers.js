@@ -90,8 +90,55 @@ const rmDir = (dirPath, attachments) => {
 };
 
 const sendBroadcastEmail = (request) => {
+  const date = new Date();
   const html = `<html>
-    <div> ${request.body} </div>
+    <p>
+      <strong>
+        <b style="font-size:36.0pt; font-family:Arial,sans-serif">MEMO</b>
+      </strong>
+    </p>
+    <table class="MsoNormalTable" border="0" cellspacing="0" cellpadding="0" width="75%" style="width:75.0%; border-collapse:collapse font-size: 8px">
+      <tbody>
+        <tr>
+          <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
+            <p class="MsoNormal"><b style="font-size:10.0pt; font-family:Arial,sans-serif">TO: </b></p>
+          </td>
+          <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
+            <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${request.to}</span></p>
+          </td>
+        </tr>
+        <tr>
+          <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
+            <p class="MsoNormal"><b><span style="font-size:10.0pt; font-family:Arial,sans-serif">FROM: </span></b></p>
+          </td>
+          <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
+            <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${request.from}</span></p>
+          </td>
+        </tr>
+        <tr>
+          <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
+            <p class="MsoNormal"><b><span style="font-size:10.0pt; font-family:Arial,sans-serif">DATE: </span></b></p>
+          </td>
+          <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
+            <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${date.format('l, F')} ${date.format('j')}<sup>${date.format('S')}</sup>, ${date.format('Y')}</span></p>
+          </td>
+        </tr>
+        <tr>
+        </tr>
+        <tr>
+          <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
+            <p class="MsoNormal"><b><span style="font-size:10.0pt; font-family:Arial,sans-serif">SUBJECT: </span></b></p>
+          </td>
+          <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
+            <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${request.subject}</span></p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="border:none; border-bottom:double windowtext 2.25pt; padding:0in 0in 1.0pt 0in">
+      <p class="MsoNormal" style="border:none; padding:0in">&nbsp;</p>
+    </div>
+    <div> ${request.body} </div> hi
   </html>`;
 
   Group.find({}).then(
@@ -112,10 +159,9 @@ const sendBroadcastEmail = (request) => {
         if (error) {
           return console.log('err', error);
         }
-        console.log('email broadcast sent');
+        return console.log('email broadcast sent');
 
-        // delete attachments from server directory
-        return rmDir('./uploads', request.attachments);
+        // don't delete attachments from server directory
       });
     },
     (err) => {
@@ -124,7 +170,48 @@ const sendBroadcastEmail = (request) => {
   );
 };
 
-const decideRequest = (requestId, user, approved, req, res) => {
+const decideRequest = (requestId, approved, req) => {
+  const change = approved ? 'Approved' : 'Rejected';
+  if (!req.user.approver) {
+    console.log('decide_request unauthorized_user attempted_request_decision');
+  }
+  return Request.findById(requestId, (requestErr, request) => {
+    if (requestErr) {
+      return console.log('decide_request request_lookup database_error', requestErr);
+    }
+    if (!request) {
+      return console.log('decide_request request_lookup request_does-not-exist');
+    }
+    if (request.pending) {
+      return Request.update(
+        { _id: requestId }, {
+          $set: {
+            pending: false,
+            approved,
+            approver: req.user.username
+          }
+        },
+        (updateErr) => {
+          if (updateErr) {
+            return console.log('decide_request update database_error', updateErr);
+          }
+          // broadcast email
+          if (approved) {
+            sendBroadcastEmail(request);
+          } else {
+            // remove uploads
+            rmDir('./uploads', request.attachments);
+          }
+          // make log
+          return Log.log(change, req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', request._id);
+        }
+      );
+    }
+    return undefined; // broadcast was already processed by another approver
+  });
+};
+
+const decideEmailRequest = (requestId, user, approved, req, res) => {
   let change = 'Rejected';
   if (approved) {
     change = 'Approved';
@@ -136,7 +223,7 @@ const decideRequest = (requestId, user, approved, req, res) => {
 
   return Request.findById(requestId, (err, request) => {
     if (err) {
-      console.log('decide_request update database_error');
+      console.log('decide_email_request update database_error');
       return res.redirect('/?request=failed');
     }
     if (!request) {
@@ -153,7 +240,7 @@ const decideRequest = (requestId, user, approved, req, res) => {
         },
         (requestErr) => {
           if (requestErr) {
-            console.log('decide_request update database_error', requestErr);
+            console.log('decide_email_request update database_error', requestErr);
             res.redirect('/?request=failed');
           } else {
             // broadcast email
@@ -185,6 +272,7 @@ const validateEmail = (email) => {
 
 module.exports = {
   SendApproverEmail: sendApproverEmail,
+  DecideEmailRequest: decideEmailRequest,
   DecideRequest: decideRequest,
   ValidateEmail: validateEmail
 };
