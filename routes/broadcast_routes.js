@@ -40,7 +40,7 @@ router.use((req, res, next) => {
   }
 
   // redirect to nonSlashRoute if trying to hit slashRoute
-  if (req.url.split('/').length > 2) {
+  if (req.url.slice(-1) === '/' && req.url.length > 1) {
     return res.redirect(req.url.substring(0, req.url.length - 1));
   }
   return next();
