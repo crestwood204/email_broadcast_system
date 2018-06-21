@@ -6,7 +6,9 @@ const router = express.Router();
 module.exports = (passport) => {
   // load login page
   router.get('/login', (req, res) => {
-    res.render('login', { layout: false, error: req.query.error });
+    const user = req.session.customErr;
+    delete req.session.customErr;
+    res.render('login', { layout: false, error: req.query.error, user });
   });
 
   // handles user login, redirecting based on user type

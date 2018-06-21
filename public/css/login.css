@@ -1,7 +1,19 @@
-.alert {
-    text-align: center;
-    margin-left: 15%;
-    margin-right: 15%;
+body {
+  font-family: 'Helvetica';
+}
+
+h1 {
+  font-family: 'Open sans', sans-serif !important;
+}
+
+footer {
+  font-family: 'Georgia', serif;
+}
+
+button {
+  background-color: #5d5d5d !important;
+  color: #ffffff !important;
+  border: none;
 }
 
 .container {

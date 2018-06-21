@@ -4,63 +4,47 @@
         <title>RI Broadcast System</title>
         <meta name="Email Broadcast " content="Broadcast System">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://getbootstrap.com/docs/4.1/examples/floating-labels/floating-labels.css">
         <link rel="stylesheet" type="text/css" href="css/login.css">
         <link rel="shortcut icon" type="image/x-icon" href="favicon.ico"/>
     </head>
     <body>
-        {{#if error}}
-            <div class="alert alert-danger" role="alert">
-                Incorrect Username or Password
+      {{#if error}}
+        <form method="post" class="form-signin needs-validation was-validated" novalidate>
+      {{else}}
+        <form method="post" class="form-signin needs-validation" novalidate>
+      {{/if}}
+          <div class="text-center mb-4">
+            <img align="none" height="167" src="https://gallery.mailchimp.com/f8dfd30ea65a519e709b34ac9/images/99c7f542-f6f1-4874-9ef9-c688f0ce3737.png" style="width: 250px; height: 167px; margin: 0px;" width="250">
+          </div>
+          <div class="">
+            <div class="form-label-group">
+              <input type="username" id="inputUsername" name="username" class="form-control" placeholder="Username" required="" autofocus="" value="{{user}}">
+              <label for="inputUsername">Username</label>
             </div>
-        {{/if}}
-        <div class="container">
-            <h3 class="form-signin-heading heading-underline">RI Broadcast System. Please Sign In</h3>
-            <br>
-            <div class="small-margin">
-        	    <form method="post" id="login-form" class="needs-validation" novalidate>
-
-
-                    <div class="col-md-6">
-                      <input type="text" class="form-control" name="username" id="username" placeholder="Username" autofocus="" required>
-                      <div class="invalid-feedback">
-                        Please Enter a Username
-                      </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                      <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
-                      <div class="invalid-feedback">
-                        Please Enter a Password
-                      </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <button id="login" class="btn btn-lg btn-primary btn-block"  name="Submit" value="Login" type="Submit">Login</button>
-                        <div> Don't have an account? Contact IT for access </div>
-                    </div>
-        		</form>
+            <div class="form-label-group" style="margin-bottom: 0px;">
+              <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required="">
+              <label for="inputPassword">Password</label>
             </div>
-        </div>
+            <div class="form-label-group">
+              {{#if error}}
+                <input type="hidden" id="hiddenInput" class="form-control is-invalid">
+              {{else}}
+                <input type="hidden">
+              {{/if}}
+              <div class="invalid-feedback">
+                Username or Password is incorrect
+              </div>
+            </div>
+            <button class="btn btn-lg btn-block" type="submit">Sign in</button>
+          </div>
+          <footer>
+            <p class="mt-5 mb-3 text-muted text-center">Created by Andrew Ong</p>
+          </footer>
+        </form>
     </body>
-    <script>
-    //JavaScript for disabling form submissions if there are invalid fields
-    (function() {
-      'use strict';
-      window.addEventListener('load', function() {
-        // Fetch all the forms we want to apply custom Bootstrap validation styles to
-        var forms = document.getElementsByClassName('needs-validation');
-        // Loop over them and prevent submission
-        var validation = Array.prototype.filter.call(forms, function(form) {
-          form.addEventListener('submit', function(event) {
-            if (form.checkValidity() === false) {
-              event.preventDefault();
-              event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-          }, false);
-        });
-      }, false);
-    })();
-    </script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="/js/login.js"></script>
 </html>

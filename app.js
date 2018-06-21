@@ -113,12 +113,12 @@ passport.use(new LocalStrategy({ passReqToCallback: true }, ((req, username, pas
   models.User.findOne({ username }, (err, user) => {
     // if there's an error, finish trying to authenticate (auth failed)
     if (err) {
-      console.error(err);
+      console.error('passport localStrategy database_error', err);
       return done(err);
     }
+    req.session.customErr = username;
     // if no user present, auth failed
     if (!user) {
-      console.log(`user: ${username} does not exist`);
       return done(null, false, { message: 'Incorrect username or password' });
     }
     // if passwords do not match, auth failed
@@ -130,7 +130,6 @@ passport.use(new LocalStrategy({ passReqToCallback: true }, ((req, username, pas
     if (!user.active) {
       return done(null, false, { message: 'User is not active' });
     }
-    // auth has succeeded
     return done(null, user);
   });
 })));
