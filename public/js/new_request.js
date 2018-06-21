@@ -10,7 +10,7 @@ $(document).ready(() => {
       error(err) {
         // Error Retrieving Template
         console.log('Error:', err);
-        $('#error_msg').removeClass('display-none');
+        $('#error_msg').removeAttr('style');
       },
       success(res) {
         // on success, save templates to session storage

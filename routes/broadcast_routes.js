@@ -1,6 +1,10 @@
+/* eslint no-param-reassign: ["error",
+{ "props": true, "ignorePropertyModificationsFor": ["x", "req", "request"] }] */
+/* eslint no-unused-vars: 1 */
 // create routes for app.js
 const express = require('express');
 const multer = require('multer'); // npm package for file uploads
+const datejs = require('datejs');
 const Models = require('../models/models');
 const Helpers = require('../helpers/helpers');
 
@@ -56,7 +60,12 @@ router.get('/', (req, res) => {
       if (err) {
         res.status(500).send('Database Error: "/"');
       }
-      const broadcasts = requests.filter(x => x.approved === true);
+      let broadcasts = requests.filter(x => x.approved === true);
+      broadcasts.sort((a, b) => b.date - a.date);
+      broadcasts = broadcasts.map((x) => {
+        x.dateString = x.date.format('Y-m-d');
+        return x;
+      });
       res.render('home', { broadcasts, user: req.user });
     });
 });

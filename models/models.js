@@ -32,7 +32,11 @@ const RequestSchema = new Schema({
     type: String,
     default: undefined
   },
-  attachments: { type: [] }
+  attachments: { type: [] },
+  dateApproved: {
+    type: Date,
+    default: undefined
+  }
 });
 
 const UserSchema = new Schema({

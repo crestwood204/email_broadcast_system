@@ -8,6 +8,7 @@
               <th scope="col">Username</th>
               <th scope="col">To</th>
               <th scope="col">Date</th>
+              <th></th>
           </tr>
       </thead>
       <tbody>
@@ -16,6 +17,7 @@
                   <th scope="row">{{math @index "+" 1}}</th>
                   <td>{{this.from.username}}</td>
                   <td>{{this.to}}</td>
+                  <td>{{this.dateString}}</td>
                   <td><button type="button" class="btn btn-primary toggle-row" data-toggle="collapse" data-target="#{{this._id}}"> Details </button></td>
               </tr>
               <tr>
