@@ -1,3 +1,4 @@
+/* global bootstrapSelectSetup  */
 $(document).ready(() => {
   /*
    * Function Runs as soon as document loads
@@ -47,4 +48,8 @@ $(document).ready(() => {
       $(`#thumbnail-${number}`).parent().removeClass('hidden');
     }
   });
+  (function setupMultiSelects() {
+    const ids = ['toField', 'locationField'];
+    bootstrapSelectSetup(ids);
+  }());
 });

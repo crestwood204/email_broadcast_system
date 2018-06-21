@@ -1,0 +1,58 @@
+/* select form-control */
+.multiselect {
+  display: block;
+  width: 100%;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: .25rem;
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  text-align: left;
+  position: relative;
+  cursor: default !important;
+}
+
+.btn-group {
+  width: 100%;
+}
+
+.multiselect-container {
+  width: 100%;
+}
+
+.input-group-btn {
+  display: none;
+}
+
+.multiselect-search {
+  border-radius: .25rem !important;
+  margin-right: 3%; !important;
+}
+
+.checkbox {
+  color: black;
+  width: 100%;
+}
+
+.caret {
+  float: right;
+  position: absolute;
+}
+
+button.multiselect.dropdown-toggle.btn.btn-default::after {
+  display: none;
+}
+
+.top-right-caret {
+  top: 6;
+  right: 7;
+}
+
+.bottom-right-caret {
+  bottom: 6;
+  right: 7;
+}

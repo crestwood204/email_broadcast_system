@@ -35,3 +35,9 @@ nav {
     line-height: 0px !important;
     border-top: none !important;
 }
+
+.gray-button {
+  background-color: #5d5d5d !important;
+  color: #ffffff !important;
+  border: none;
+}

@@ -1,6 +1,4 @@
-const Helpers = require('../../helpers/helpers');
-
-const { getParamterByName } = Helpers;
+/* global getParamterByName */
 
 $(document).ready(() => {
   $('#inputTitle').val(getParamterByName('title'));

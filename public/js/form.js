@@ -22,9 +22,15 @@ $(document).ready(() => {
       });
     }, false);
   }());
+
+
   (function autoFocusPassword() {
-    if ($('#inputUsername').val()) {
-      $('#inputPassword').focus();
-    }
+    $('.needs-validation input').each(function loopOverInputs() {
+      if (!$(this).val()) {
+        $(this).focus();
+        return false;
+      }
+      return true;
+    });
   }());
 });

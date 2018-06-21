@@ -97,8 +97,8 @@ router.get('/new_request', (req, res) => {
             subject,
             request,
             templates,
+            alertMsg,
             groups: groups.map(x => x.name),
-            alert_msg: alertMsg,
             user: req.user
           });
         },

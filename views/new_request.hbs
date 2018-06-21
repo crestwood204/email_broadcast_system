@@ -1,39 +1,37 @@
+<link rel="stylesheet" href="/css/form.css">
 <div id="error_msg" class="alert alert-warning" style="display: none;" role="alert">
     Error Retrieving Template
 </div>
-{{#if request}}
-    {{#compare request "success"}}
-        <div class="alert alert-success" role="alert">
-            {{../alert_msg}}
-        </div>
-    {{/compare}}
-    {{#compare request "failure"}}
-        <div class="alert alert-warning" role="alert">
-            {{../alert_msg}}
-        </div>
-    {{/compare}}
+{{#if error}}
+  <div class="alert alert-warning" role="alert">
+      {{../alertMsg}}
+  </div>
 {{/if}}
-<form class="content" method="post" action="/new_request" enctype="multipart/form-data">
-    <div class="row">
-      <div class="col">
+{{#if error}}
+  <form class="needs-validation was-validated" method="post" action="/new_request" enctype="multipart/form-data" novalidate>
+{{else}}
+  <form class="needs-validation" method="post" action="/new_request" enctype="multipart/form-data">
+{{/if}}
+    <div class="form-row">
+      <div class="form-group col-md-6">
         <label for="toField">To:</label><br>
-        <select id="toField" name="toField" class="selectpicker" multiple>
+        <select id="toField" name="toField" class="form-control">
             {{#each groups}}
-                <option>{{this}}</option>
+                <option value={{this}}>{{this}}</option>
             {{/each}}
         </select>
         <div class="display-none" id="toSelect">{{to}}</div>
       </div>
-      <div class="col">
+      <div class="form-group col-md-6">
         <label for="locationField">Location:</label><br>
-        <select id="locationField" name="locationField" class="selectpicker form-control" multiple>
+        <select id="locationField" name="locationField" class="form-control">
             {{#each groups}}
                 <option>{{this}}</option>
             {{/each}}
         </select>
       </div>
     </div>
-    <div class="form-group col-md-12">
+    <div class="form-group">
         <label for="templateField">Template:</label>
         <select id="templateField" class="form-control">
           <option value="Choose..."selected>Choose...</option>
@@ -42,38 +40,39 @@
           {{/each}}
         </select>
     </div>
-    <div class="form-group col-md-12">
+    <div class="form-group">
         <label for="subject">Subject:</label>
         <input name="subject" type="subject" class="form-control" id="subject" aria-describedby="requestSubject" placeholder="Enter subject" value="{{subject}}">
     </div>
-    <div class="form-group col-md-12">
+    <div class="form-group">
         <label for="body">Body:</label>
         <textarea name="body" class="form-control" rows="5" id="body">{{body}}</textarea>
     </div>
-    <div class="form-group col-md-12 files" style="padding-top: 7px>
-        <label for="locationField">Attach a File (Max 7):</label><br>
+    <div class="form-group files" style="padding-top: 7px>
+        <label for="thumbnail-1">Attach a File (Max 7):</label><br>
         <input class="thumbnail" type="file" name="files" id="thumbnail-1">
     </div>
-    <div class="form-group col-md-12 hidden">
+    <div class="form-group hidden">
         <input class="thumbnail" type="hidden" name="files" id="thumbnail-2">
     </div>
-    <div class="form-group col-md-12 hidden">
+    <div class="form-group hidden">
         <input class="thumbnail" type="hidden" name="files" id="thumbnail-3">
     </div>
-    <div class="form-group col-md-12 hidden">
+    <div class="form-group hidden">
         <input class="thumbnail" type="hidden" name="files" id="thumbnail-4">
     </div>
-    <div class="form-group col-md-12 hidden">
+    <div class="form-group hidden">
         <input class="thumbnail" type="hidden" name="files" id="thumbnail-5">
     </div>
-    <div class="form-group col-md-12 hidden">
+    <div class="form-group hidden">
         <input class="thumbnail" type="hidden" name="files" id="thumbnail-6">
     </div>
-    <div class="form-group col-md-12 hidden">
+    <div class="form-group hidden">
         <input class="thumbnail" type="hidden" name="files" id="thumbnail-7">
     </div>
-    <div class="form-group col-md-12">
+    <div class="form-group">
         <button id="new_request" clicked="false" type="submit" class="btn btn-primary">Submit</button>
     </div>
 </form>
+<script src="/js/form.js"></script>
 <script src="/js/new_request.js"></script>
