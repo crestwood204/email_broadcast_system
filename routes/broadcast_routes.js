@@ -235,12 +235,15 @@ router.get('/get_templates', (req, res) => {
 });
 
 /**
- *
+ * Provides a route for pending requests
+ * Approvers see all pending requests
+ * Users only see their own pending requests
  */
 router.get('/pending_requests', (req, res) => {
   const success = req.query.request === 'success';
   const failed = req.query.request === 'failed';
 
+  // query database for requests
   Request.find({})
     .populate({
       path: 'from',
@@ -251,10 +254,13 @@ router.get('/pending_requests', (req, res) => {
         console.log('pending_requests error_fetching requests database_error');
       } else {
         let filteredRequests = requests;
+        // if user is not an approver, only show them their requests
         if (!req.user.approver) {
           filteredRequests = requests.filter(x => x.from._id.toString() ===
                   req.user._id.toString());
         }
+
+        // filter so that there are only pending requests
         const pendingRequests = filteredRequests.filter(x => x.pending);
         res.render('pending_requests', {
           success,

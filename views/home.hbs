@@ -1,5 +1,12 @@
 <div>
-  <a href="/new_request"> <button type="button" class="btn btn-light nrbtn" style="float: right;">Create New Broadcast</button> </a>
+  <span style="float: right;">
+    <form class="form-inline my-2 my-lg-0">
+      <input id="search" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+      <button id="search-btn" class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      <span style="padding: 4px;"> </span>
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">+</button>
+    </form>
+  </span>
   <h1> Broadcasts </h1>
   <table class="table">
       <thead>
@@ -58,6 +65,5 @@
       </ul>
     </nav>
   </div>
-  <div>Create a new broadcast <a href="/new_request">here</a>.</div>
   <script src="/js/collapsible_table.js"></script>
 </div>

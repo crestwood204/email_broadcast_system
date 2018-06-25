@@ -22,13 +22,17 @@ $(document).ready(() => {
       }
     });
 
-    // let to = $('#toSelect').text();
-    // if (/,+/.test(to)) {
-    //   to = to.split(',').map(x => x.trim());
-    // } else {
-    //   to = [to];
-    // }
-    // $('#toField').val(to);
+    // sets to field to previous value on error
+    let to = $('#toSelect').text();
+    if (/,+/.test(to)) {
+      to = to.split(',').map(x => x.trim());
+    } else {
+      to = [to];
+    }
+    $('#toField').val(to);
+
+    // set locationField to choose...
+    $('#locationField').val('');
   }());
 
   $('#templateField').on('change', function templateFieldChange() {
