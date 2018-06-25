@@ -63,8 +63,7 @@ router.get('/', (req, res) => {
       let broadcasts = requests.filter(x => x.approved === true);
       broadcasts.sort((a, b) => b.date - a.date);
       broadcasts = broadcasts.map((x) => {
-        console.log(x)
-        x.dateString = x.date.format('Y-m-d');
+        x.dateString = x.dateApproved.format('Y-m-d');
         return x;
       });
       res.render('home', { broadcasts, user: req.user });
