@@ -13,6 +13,8 @@ const { User, Request, Log, Group, Template } = Models;
 const router = express.Router();
 let upload = multer();
 
+const DOCS_PER_PAGE = 6; // defines number of documents to show per page
+
 // configure settings for file upload
 const uploadStorage = multer.diskStorage({
   destination(req, file, cb) {
@@ -51,7 +53,10 @@ router.use((req, res, next) => {
  * Displays Broadcasts that have been sent out
  */
 router.get('/', (req, res) => {
+  const page = (req.query.page || 1) - 1;
   Request.find({})
+    .limit(DOCS_PER_PAGE)
+    .skip(page * DOCS_PER_PAGE)
     .populate({
       path: 'from',
       model: 'User'
