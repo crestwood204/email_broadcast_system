@@ -16,7 +16,7 @@ h1 {
 }
 
 /* navbar styling */
-nav {
+.navbar {
     position: fixed !important;
     top: 0;
     width: 100%;

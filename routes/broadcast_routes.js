@@ -52,8 +52,11 @@ router.use((req, res, next) => {
  * Loads the home page
  * Displays Broadcasts that have been sent out
  */
-router.get('/', (req, res) => {
+router.get('/', (req, res, next) => {
   const page = (req.query.page || 1) - 1;
+  if (page < 0) {
+    next(new Error('User Malformed Input')); // TODO: Handle this error
+  }
   Request.find({})
     .limit(DOCS_PER_PAGE)
     .skip(page * DOCS_PER_PAGE)
@@ -71,7 +74,12 @@ router.get('/', (req, res) => {
         x.dateString = x.dateApproved.format('Y-m-d');
         return x;
       });
-      res.render('home', { broadcasts, user: req.user });
+      const startIndex = (page * DOCS_PER_PAGE) + 1;
+      let noBroadcasts = false;
+      if (page === 0 && !broadcasts) {
+        noBroadcasts = true;
+      }
+      res.render('home', { broadcasts, startIndex, noBroadcasts, user: req.user });
     });
 });
 
