@@ -3,6 +3,7 @@
 body {
     padding-top: 60px;
     font-family: 'Helvetica';
+    background-color: #ffffff;
 }
 
 .content {
@@ -21,7 +22,7 @@ nav {
     width: 100%;
     z-index: 100;
     font-family: 'Open sans', sans-serif !important;
-    background-color: #1f2332 !important;
+    background-color: #D4D4D4 !important;
 }
 
 #navbarDropdown {

@@ -22,13 +22,13 @@ $(document).ready(() => {
       }
     });
 
-    let to = $('#toSelect').text();
-    if (/,+/.test(to)) {
-      to = to.split(',').map(x => x.trim());
-    } else {
-      to = [to];
-    }
-    $('#toField').val(to);
+    // let to = $('#toSelect').text();
+    // if (/,+/.test(to)) {
+    //   to = to.split(',').map(x => x.trim());
+    // } else {
+    //   to = [to];
+    // }
+    // $('#toField').val(to);
   }());
 
   $('#templateField').on('change', function templateFieldChange() {

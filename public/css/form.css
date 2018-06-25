@@ -56,3 +56,21 @@ button.multiselect.dropdown-toggle.btn.btn-default::after {
   bottom: 6;
   right: 7;
 }
+
+form {
+  padding-top: 2%;
+}
+
+body {
+  background-color: #f5f5f5 !important;
+}
+
+.form-box {
+  padding-left: 10%;
+  padding-right: 10%;
+}
+
+.submit {
+  background-color: #5d5d5d !important;
+  color: white;
+}

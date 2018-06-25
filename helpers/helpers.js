@@ -186,9 +186,10 @@ const decideRequest = (requestId, approved, req) => {
       return Request.update(
         { _id: requestId }, {
           $set: {
-            pending: false,
             approved,
-            approver: req.user.username
+            pending: false,
+            approver: req.user.username,
+            dateApproved: new Date()
           }
         },
         (updateErr) => {
