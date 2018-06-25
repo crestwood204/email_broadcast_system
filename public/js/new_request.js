@@ -1,4 +1,5 @@
 /* global bootstrapSelectSetup  */
+/* global customValidation  */
 $(document).ready(() => {
   /*
    * Function Runs as soon as document loads
@@ -41,6 +42,7 @@ $(document).ready(() => {
       template = JSON.parse(sessionStorage.getItem(template));
       $('#subject').val(template.subject);
       $('#body').val(template.body);
+      customValidation();
     }
   });
 

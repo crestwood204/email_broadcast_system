@@ -25,6 +25,7 @@
               <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required="">
               <label for="inputPassword">Password</label>
             </div>
+            <!-- Hidden input because I want to apply invalid feedback under the password with a generous margin -->
             <div class="form-label-group">
               {{#if error}}
                 <input type="hidden" id="hiddenInput" class="form-control is-invalid">

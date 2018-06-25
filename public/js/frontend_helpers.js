@@ -2,9 +2,9 @@
 
 /**
  * Adds two numbers together.
- * @param {int} num1 The first number.
- * @param {int} num2 The second number.
- * @returns {int} The sum of the two numbers.
+ * @param {string} name name of query parameter you want the value of.
+ * @param {string} url Optional url. Defaults to current window url.
+ * @returns {string} The value of the query paramater you are looking for.
  */
 function getParamterByName(name, url) {
   const newUrl = url || window.location.href;
@@ -14,7 +14,7 @@ function getParamterByName(name, url) {
   if (!results) return null;
   if (!results[2]) return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
-};
+}
 
 /**
  * Replaces Bootstrap 4.0 selects with a multiselect

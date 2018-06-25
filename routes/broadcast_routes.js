@@ -93,12 +93,7 @@ router.get('/new_request', (req, res) => {
     missing_fields: 'One or more required fields are not filled out',
     limit_unexpected_file: 'You have attached too many files. Please do not modify the html'
   };
-  const [to, subject, body, request] =
-    [req.query.to, req.query.subject, req.query.body, req.query.request];
-  let alertMsg;
-  if (request) {
-    alertMsg = messages[req.query.type];
-  }
+  const { to, subject, body } = req.query;
   Group.find({}).then(
     (groups) => {
       Template.find({}).then(
@@ -108,9 +103,8 @@ router.get('/new_request', (req, res) => {
             to,
             body,
             subject,
-            request,
             templates,
-            alertMsg,
+            error: req.query.error,
             groups: groups.map(x => x.name),
             user: req.user
           });
@@ -140,7 +134,7 @@ router.post('/new_request', (req, res) => {
       if (file.mimetype !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
           && file.mimetype !== 'application/pdf') {
         const query = `to=${request.body.toField}&subject=${request.body.subject}&body=${request.body.body}`;
-        request.fileValidationError = `/new_request?request=failure&type=file_extension&${query}`;
+        request.fileValidationError = `/new_request?error=file_extension&${query}`;
         return callback(new Error('extension name not allowed'));
       }
       return callback(null, true);
@@ -162,16 +156,16 @@ router.post('/new_request', (req, res) => {
       // TODO: format error message if it isn't a validation error
       console.log(err.code);
       if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.redirect(`/new_request?request=failure&type=limit_file_size&${query}`);
+        return res.redirect(`/new_request?error=limit_file_size&${query}`);
       }
       if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-        return res.redirect(`/new_request?request=failure&type=limit_unexpected_file&${query}`);
+        return res.redirect(`/new_request?error=limit_unexpected_file&${query}`);
       }
       return res.status(400).send(err);
     }
 
     if (!to || !subject || !body) {
-      return res.redirect(`/new_request?request=failure&type=missing_fields&${query}`);
+      return res.redirect(`/new_request?error=missing_fields&${query}`);
     }
 
     // convert toField into an array if it is a string
