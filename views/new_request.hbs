@@ -4,17 +4,21 @@
     Error Retrieving Template
 </div>
 {{#if error}}
-  <div class="alert alert-warning" role="alert">
-    {{#compare error "file_extension"}}
+  {{#compare error "file_extension"}}
+    <div class="alert alert-warning" role="alert">
       One or more files you have attached are unsupported. Only .docx and .pdf files are allowed.
-    {{/compare}}
-    {{#compare error "limit_file_size"}}
+    </div>
+  {{/compare}}
+  {{#compare error "limit_file_size"}}
+    <div class="alert alert-warning" role="alert">
       One of more files you have attached is larger than the max file size - 250 KB.
-    {{/compare}}
-    {{#compare error "limit_unexpected_file"}}
+    </div>
+  {{/compare}}
+  {{#compare error "limit_unexpected_file"}}
+    <div class="alert alert-warning" role="alert">
       You have attached too many files. Please do not modify the html.
-    {{/compare}}
-  </div>
+    </div>
+  {{/compare}}
 {{/if}}
 <div class="form-box">
 {{#if error}}

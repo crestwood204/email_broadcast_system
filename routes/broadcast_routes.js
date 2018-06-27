@@ -6,14 +6,17 @@ const express = require('express');
 const multer = require('multer'); // npm package for file uploads
 const datejs = require('datejs');
 const Models = require('../models/models');
-const Helpers = require('../helpers/helpers');
+const EmailHelpers = require('../helpers/email_helpers');
+const ValidationHelpers = require('../helpers/validation_helpers');
 
-const { sendApproverEmail } = Helpers;
+
+const { sendApproverEmail } = EmailHelpers;
+const { createSearchObject } = ValidationHelpers;
 const { User, Request, Log, Group, Template } = Models;
 const router = express.Router();
 let upload = multer();
 
-const DOCS_PER_PAGE = 6; // defines number of documents to show per page
+const DOCS_PER_PAGE = 8; // defines number of documents to show per page
 
 // configure settings for file upload
 const uploadStorage = multer.diskStorage({
@@ -53,33 +56,50 @@ router.use((req, res, next) => {
  * Displays Broadcasts that have been sent out
  */
 router.get('/', (req, res, next) => {
+  const MAX_LENGTH = 45;
   const page = (req.query.page || 1) - 1;
+  const { search } = req.query;
+
+  // create search object
+  const searchObj = createSearchObject(search);
+
   if (page < 0) {
     next(new Error('User Malformed Input')); // TODO: Handle this error
   }
-  Request.find({})
+  /* sort by date approved so that pending requests appear last (pendings don't have dateApproved)
+   * makes it so that pages that aren't the last one always have 8 documents displayed
+   */
+  Request.find(searchObj)
+    .sort({ dateApproved: 'descending' })
     .limit(DOCS_PER_PAGE)
     .skip(page * DOCS_PER_PAGE)
     .populate({
-      path: 'from',
+      path: 'createdBy',
       model: 'User'
     })
     .exec((err, requests) => {
       if (err) {
-        res.status(500).send('Database Error: "/"');
+        console.log(err);
+        return res.status(500).send('Database Error: "/"');
       }
-      let broadcasts = requests.filter(x => x.approved === true);
-      broadcasts.sort((a, b) => b.date - a.date);
+      let broadcasts = requests ? requests.filter(x => x.approved === true) : [];
       broadcasts = broadcasts.map((x) => {
         x.dateString = x.dateApproved.format('Y-m-d');
+        x.subjectString = x.subject.substring(0, MAX_LENGTH);
+        if (x.subjectString.length === 45) {
+          x.subjectString += ' ...';
+        }
         return x;
       });
       const startIndex = (page * DOCS_PER_PAGE) + 1;
-      let noBroadcasts = false;
-      if (page === 0 && !broadcasts) {
+      let [noBroadcasts, noResults] = [false, false];
+      if (!search && page === 0 && broadcasts.length === 0) {
         noBroadcasts = true;
       }
-      res.render('home', { broadcasts, startIndex, noBroadcasts, user: req.user });
+      if (page === 0 && broadcasts.length === 0) {
+        noResults = true;
+      }
+      return res.render('home_views/home', { broadcasts, startIndex, noBroadcasts, noResults, user: req.user });
     });
 });
 

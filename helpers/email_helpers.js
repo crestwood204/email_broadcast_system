@@ -183,30 +183,37 @@ const decideRequest = (requestId, approved, req) => {
       return console.log('decide_request request_lookup request_does-not-exist');
     }
     if (request.pending) {
-      return Request.update(
-        { _id: requestId }, {
-          $set: {
-            approved,
-            pending: false,
-            approver: req.user.username,
-            dateApproved: new Date()
-          }
-        },
-        (updateErr) => {
-          if (updateErr) {
-            return console.log('decide_request update database_error', updateErr);
-          }
-          // broadcast email
-          if (approved) {
+      if (approved) {
+        return Request.update(
+          { _id: requestId }, {
+            $set: {
+              approved,
+              pending: false,
+              approver: req.user.username,
+              dateApproved: new Date()
+            }
+          },
+          (updateErr) => {
+            if (updateErr) {
+              return console.log('decide_request update database_error', updateErr);
+            }
+            // broadcast email
             sendBroadcastEmail(request);
-          } else {
-            // remove uploads
-            rmDir('./public/uploads', request.attachments);
+            // make log
+            return Log.log(change, req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', request._id);
           }
-          // make log
-          return Log.log(change, req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', request._id);
+        );
+      }
+      // remove uploads
+      rmDir('./public/uploads', request.attachments);
+
+      // remove request
+      return Request.deleteOne({ _id: requestId }, (deleteErr) => {
+        if (deleteErr) {
+          return console.log('decide_request delete_attempt database_error');
         }
-      );
+        return true;
+      });
     }
     return undefined; // broadcast was already processed by another approver
   });
@@ -261,19 +268,8 @@ const decideEmailRequest = (requestId, user, approved, req, res) => {
   });
 };
 
-/**
- * Validates email using regex.
- * @param {string} email The email
- * @returns {boolean} Whether or not the email is valid
- */
-const validateEmail = (email) => {
-  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(email);
-};
-
 module.exports = {
   sendApproverEmail,
   decideEmailRequest,
-  decideRequest,
-  validateEmail
+  decideRequest
 };

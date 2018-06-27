@@ -5,13 +5,13 @@
 const express = require('express');
 const Models = require('../models/models');
 const datejs = require('datejs');
-const Helpers = require('../helpers/helpers');
+const EmailHelpers = require('../helpers/email_helpers');
 
 // might require path
 
 const router = express.Router();
 const { User, Request, Log } = Models;
-const { decideRequest, decideEmailRequest } = Helpers;
+const { decideRequest, decideEmailRequest } = EmailHelpers;
 
 // route that rejects all non-approvers
 router.use((req, res, next) => {
@@ -27,7 +27,7 @@ router.get('/log', (req, res) => {
       path: 'request_id',
       model: Request,
       populate: {
-        path: 'from',
+        path: 'createdBy',
         model: User
       }
     }, {

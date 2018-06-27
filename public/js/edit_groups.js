@@ -1,5 +1,5 @@
 $(document).ready(() => {
-  $('.trash').on('click', () => {
+  $('.trash').on('click', function deleteGroup() {
     const id = $(this).attr('id').split('-')[2];
     $.ajax({
       url: '/delete_group',

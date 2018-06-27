@@ -14,36 +14,31 @@
               <th scope="col">#</th>
               <th scope="col">Username</th>
               <th scope="col">To</th>
+              <th scope="col">Subject</th>
               <th scope="col">Date</th>
-              <th></th>
           </tr>
       </thead>
       <tbody>
           {{#each broadcasts}}
-              <tr>
+              <tr class="clickable-row" data-href="/broadcast?id={{this._id}}">
                   <th scope="row">{{math @index "+" ../startIndex}}</th>
-                  <td>{{this.from.username}}</td>
-                  <td>{{this.to}}</td>
-                  <td>{{this.dateString}}</td>
-                  <td><button type="button" class="btn btn-primary toggle-row" data-toggle="collapse" data-target="#{{this._id}}"> Details </button></td>
+                  <td style="min-width: 20%;">{{this.from.username}}</td>
+                  <td style="min-width: 20%;">{{this.to}}</td>
+                  <td style="width: 50%;">{{this.subjectString}}</td>
+                  <td style="width: 15%;">{{this.dateString}}</td>
               </tr>
-              <tr>
-                  <td class="blank-row"> </td>
-                  <td class="blank-row details" colspan="3">
-                      <div id="{{this._id}}" class="collapse out">
-                          <div> From: {{this.from.email}} </div>
-                          <div> To: {{this.to}} </div>
-                          <div class="description"> Subject: {{this.subject}}</div>
-                          <div> Body: {{this.body}}</div>
-                      </div>
-                  </td>
-              </tr>
+
           {{/each}}
       </tbody>
   </table>
   {{#if noBroadcasts}}
       <h3> No Broadcasts Have Been Sent </h3>
   {{/if}}
+  {{#unless noBroadcasts}}
+    {{#if noResults}}
+      <h4> No Results Found</h4>
+    {{/if}}
+  {{/unless}}
   <div class="d-flex justify-content-end">
     <nav aria-label="Page navigation example">
       <ul class="pagination">
@@ -66,4 +61,5 @@
     </nav>
   </div>
   <script src="/js/collapsible_table.js"></script>
+  <script src="/js/table_search.js"></script>
 </div>

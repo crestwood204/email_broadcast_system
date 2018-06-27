@@ -1,9 +1,9 @@
 const express = require('express');
 const Models = require('../../models/models');
-const Helpers = require('../../helpers/helpers');
+const EmailHelpers = require('../../helpers/email_helpers');
 
 const { Log, Group } = Models;
-const { validateEmail } = Helpers;
+const { validateEmail } = EmailHelpers;
 const router = express.Router();
 
 router.get('/edit_groups', (req, res) => {
@@ -46,7 +46,7 @@ router.get('/new_group', (req, res) => {
 });
 
 router.post('/new_group', (req, res) => {
-  const { name, email } = req.body;
+  const { name, email, type } = req.body;
 
   // validate name and email
   if (!name || !email) {
@@ -56,9 +56,15 @@ router.post('/new_group', (req, res) => {
     return res.redirect(`/new_group?msg=emailFormat&name=${name}&email=${email}`);
   }
 
+  // validate type
+  if (type !== 'to' && type !== 'from') {
+    return res.redirect('/new_group?msg=you_messed_up');
+  }
+
   const newGroup = new Group({
     name,
-    email
+    email,
+    type
   });
 
   return newGroup.save((err, group) => {
