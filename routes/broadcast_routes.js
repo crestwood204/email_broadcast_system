@@ -90,7 +90,6 @@ router.get('/new_request', (req, res) => {
   const messages = {
     file_extension: 'One or more files you have attached are unsupported. Only .docx and .pdf files are allowed',
     limit_file_size: 'One of more files you have attached is larger than the max file size - 250 KB',
-    missing_fields: 'One or more required fields are not filled out',
     limit_unexpected_file: 'You have attached too many files. Please do not modify the html'
   };
   const { to, subject, body } = req.query;

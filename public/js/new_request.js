@@ -34,6 +34,10 @@ $(document).ready(() => {
 
     // set locationField to choose...
     $('#locationField').val('');
+
+    // set from field
+    const from = $('#fromSelect').text() || '';
+    $('#fromField').val(from).change();
   }());
 
   $('#templateField').on('change', function templateFieldChange() {
@@ -42,7 +46,9 @@ $(document).ready(() => {
       template = JSON.parse(sessionStorage.getItem(template));
       $('#subject').val(template.subject);
       $('#body').val(template.body);
-      customValidation();
+      if ($('.was-validated').length > 0) {
+        customValidation();
+      }
     }
   });
 
