@@ -47,7 +47,7 @@
     <div class="form-row">
       <div class="form-group col-md-6">
           <label for="fromField">From:</label>
-          <select id="fromField" class="form-control custom-select" required>
+          <select name="from" id="fromField" class="form-control custom-select" required>
             <option value=""selected>Choose...</option>
             {{#each templates}}
                 <option value={{this.title}}>{{this.title}}</option>

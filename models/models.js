@@ -9,8 +9,8 @@ const RequestSchema = new Schema({
     required: true
   },
   from: {
-    type: Schema.ObjectId,
-    ref: 'User'
+    type: String,
+    required: true
   },
   subject: {
     type: String,
@@ -36,6 +36,11 @@ const RequestSchema = new Schema({
   dateApproved: {
     type: Date,
     default: undefined
+  },
+  createdBy: {
+    type: Schema.ObjectId,
+    ref: 'User',
+    required: true
   }
 });
 

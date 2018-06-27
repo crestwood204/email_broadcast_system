@@ -87,12 +87,7 @@ router.get('/', (req, res, next) => {
  * Loads new_request page
  */
 router.get('/new_request', (req, res) => {
-  const messages = {
-    file_extension: 'One or more files you have attached are unsupported. Only .docx and .pdf files are allowed',
-    limit_file_size: 'One of more files you have attached is larger than the max file size - 250 KB',
-    limit_unexpected_file: 'You have attached too many files. Please do not modify the html'
-  };
-  const { to, subject, body } = req.query;
+  const { to, from, subject, body } = req.query;
   Group.find({}).then(
     (groups) => {
       Template.find({}).then(
@@ -101,6 +96,7 @@ router.get('/new_request', (req, res) => {
           res.render('new_request', {
             to,
             body,
+            from,
             subject,
             templates,
             error: req.query.error,
@@ -132,7 +128,7 @@ router.post('/new_request', (req, res) => {
     fileFilter(request, file, callback) {
       if (file.mimetype !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
           && file.mimetype !== 'application/pdf') {
-        const query = `to=${request.body.toField}&subject=${request.body.subject}&body=${request.body.body}`;
+        const query = `to=${request.body.toField}&subject=${request.body.subject}&body=${request.body.body}&from=${request.body.from}`;
         request.fileValidationError = `/new_request?error=file_extension&${query}`;
         return callback(new Error('extension name not allowed'));
       }
@@ -147,9 +143,8 @@ router.post('/new_request', (req, res) => {
     // TODO: add locationField support
 
     let to = req.body.toField;
-    const [subject, body, from] =
-       [req.body.subject, req.body.body, req.user._id];
-    const query = `to=${to}&subject=${subject}&body=${body}`;
+    const { subject, body, from } = req.body;
+    const query = `to=${to}&subject=${subject}&body=${body}&from=${from}`;
 
     if (err) {
       // TODO: format error message if it isn't a validation error
@@ -178,6 +173,7 @@ router.post('/new_request', (req, res) => {
       from,
       subject,
       body,
+      createdBy: req.user._id,
       attachments: req.files
     });
     return newRequest.save((requestErr, request) => {
@@ -239,7 +235,7 @@ router.get('/pending_requests', (req, res) => {
   // query database for requests
   Request.find({})
     .populate({
-      path: 'from',
+      path: 'createdBy',
       model: 'User'
     })
     .exec((err, requests) => {
@@ -249,7 +245,7 @@ router.get('/pending_requests', (req, res) => {
         let filteredRequests = requests;
         // if user is not an approver, only show them their requests
         if (!req.user.approver) {
-          filteredRequests = requests.filter(x => x.from._id.toString() ===
+          filteredRequests = requests.filter(x => x.createdBy._id.toString() ===
                   req.user._id.toString());
         }
 
