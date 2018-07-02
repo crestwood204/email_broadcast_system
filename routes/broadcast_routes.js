@@ -69,7 +69,7 @@ router.get('/', (req, res, next) => {
   /* sort by date approved so that pending requests appear last (pendings don't have dateApproved)
    * makes it so that pages that aren't the last one always have 8 documents displayed
    */
-  return Request.count().exec((lastErr, count) => {
+  return Request.count(searchObj).exec((lastErr, count) => {
     if (lastErr) {
       console.log(lastErr);
       return res.status(500).send('Database Error: "/"');
