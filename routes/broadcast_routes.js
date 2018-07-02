@@ -57,7 +57,7 @@ router.use((req, res, next) => {
  */
 router.get('/', (req, res, next) => {
   const MAX_LENGTH = 45;
-  const page = (req.query.page || 1) - 1;
+  let page = ((req.query.page || 1) - 1) || 0; // set to 0 if page is NaN
   const { search } = req.query;
 
   // create search object
@@ -69,38 +69,60 @@ router.get('/', (req, res, next) => {
   /* sort by date approved so that pending requests appear last (pendings don't have dateApproved)
    * makes it so that pages that aren't the last one always have 8 documents displayed
    */
-  Request.find(searchObj)
-    .sort({ dateApproved: 'descending' })
-    .limit(DOCS_PER_PAGE)
-    .skip(page * DOCS_PER_PAGE)
-    .populate({
-      path: 'createdBy',
-      model: 'User'
-    })
-    .exec((err, requests) => {
-      if (err) {
-        console.log(err);
+  const renderBroadcasts = () => {
+    Request.find(searchObj)
+      .sort({ dateApproved: 'descending' })
+      .limit(DOCS_PER_PAGE)
+      .skip(page * DOCS_PER_PAGE)
+      .populate({
+        path: 'createdBy',
+        model: 'User'
+      })
+      .exec((err, requests) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).send('Database Error: "/"');
+        }
+        let broadcasts = requests ? requests.filter(x => x.approved === true) : [];
+        broadcasts = broadcasts.map((x) => {
+          x.dateString = x.dateApproved.format('Y-m-d');
+          x.subjectString = x.subject.substring(0, MAX_LENGTH);
+          if (x.subjectString.length === 45) {
+            x.subjectString += ' ...';
+          }
+          return x;
+        });
+        const startIndex = (page * DOCS_PER_PAGE) + 1;
+        let [noBroadcasts, noResults] = [false, false];
+        if (!search && page === 0 && broadcasts.length === 0) {
+          noBroadcasts = true;
+        }
+        if (page === 0 && broadcasts.length === 0) {
+          noResults = true;
+        }
+
+        // redirects to last page
+        if (page !== 0 && broadcasts.length === 0) {
+          if (search) {
+            return res.redirect(`/?page=last&search=${search}`);
+          }
+          return res.redirect('/?page=last&last=true');
+        }
+        return res.render('home_views/home', { broadcasts, startIndex, noBroadcasts, noResults, search, page: parseInt(page, 10), last: req.query.last, user: req.user });
+      });
+  };
+
+  if (req.query.last === 'true') {
+    return Request.count().exec((lastErr, count) => {
+      if (lastErr) {
+        console.log(lastErr);
         return res.status(500).send('Database Error: "/"');
       }
-      let broadcasts = requests ? requests.filter(x => x.approved === true) : [];
-      broadcasts = broadcasts.map((x) => {
-        x.dateString = x.dateApproved.format('Y-m-d');
-        x.subjectString = x.subject.substring(0, MAX_LENGTH);
-        if (x.subjectString.length === 45) {
-          x.subjectString += ' ...';
-        }
-        return x;
-      });
-      const startIndex = (page * DOCS_PER_PAGE) + 1;
-      let [noBroadcasts, noResults] = [false, false];
-      if (!search && page === 0 && broadcasts.length === 0) {
-        noBroadcasts = true;
-      }
-      if (page === 0 && broadcasts.length === 0) {
-        noResults = true;
-      }
-      return res.render('home_views/home', { broadcasts, startIndex, noBroadcasts, noResults, user: req.user });
+      page = parseInt(count / DOCS_PER_PAGE, 10) - 1;
+      return renderBroadcasts();
     });
+  }
+  return renderBroadcasts();
 });
 
 /**

@@ -22,79 +22,73 @@ const escapeRegExp = query => query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
  * @param {string} dateString The date specified by the user
  * @returns {boolean} returns a boolean based on if the dateString is of the correct format
  */
-const validateDateString = dateString => dateString.matches(/[0-9]{4}-[0-9]{2}-[0-9]{2}/);
+const validateDateString = dateString => dateString.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/);
 
 const createSearchObject = (search) => {
   const searchObj = {};
 
   if (search) {
-    // makes sure all fields are consistently lowercase and without trailing spaces
-    const split = search.split(':').map(x => x.trim().toLowerCase());
+    // checks all fields are lowercase and without trailing spaces and that you can escape ':'
+    const split = search.match(/([^\\\][^:]|\\:)+/g).map(x => x.trim().toLowerCase().split('\\').join(''));
     const [type] = split;
     switch (split.length) {
       // case for specifying a type
       case 2:
-        if (type === 'date') {
-          if (validateDateString()) {
-            const year = parseInt(search.substring(0, 4), 10);
-            const month = parseInt(search.substring(5, 7), 10);
-            const day = parseInt(search.substring(8, 10), 10);
+        if ((type === 'date' || type === 'before' || type === 'after') && validateDateString(split[1])) {
+          const year = parseInt(split[1].substring(0, 4), 10);
+          const month = parseInt(split[1].substring(5, 7), 10) - 1;
+          const day = parseInt(split[1].substring(8, 10), 10);
+
+          if (type === 'date') {
             searchObj.dateApproved = {
-              $lte: new Date(year, month, day, 0, 0, 0, 0).toISOString(),
-              $gte: new Date(year, month, day + 1, 0, 0, 0, 0).toISOString()
+              $lte: new Date(year, month, day + 1, 0, 0, 0, 0).toISOString(),
+              $gte: new Date(year, month, day, 0, 0, 0, 0).toISOString()
             };
           }
+
+          if (type === 'before') {
+            searchObj.dateApproved = { $lte: new Date(year, month, day, 0, 0, 0, 0).toISOString() };
+          }
+
+          if (type === 'after') {
+            searchObj.dateApproved = { $gte: new Date(year, month, day, 0, 0, 0, 0).toISOString() };
+          }
         } else {
-          searchObj[type] = { $regex: new RegExp(escapeRegExp(search), 'ig') };
+          searchObj[type] = { $regex: new RegExp(escapeRegExp(split[1]), 'ig') };
         }
         break;
       // for date cases
       case 3:
-        if (split[0] === 'date' && validateDateString(search)) {
-          if ((split[2] === 'before' || split[2] === 'after')) {
-            const year = parseInt(search.substring(0, 4), 10);
-            const month = parseInt(search.substring(5, 7), 10);
-            const day = parseInt(search.substring(8, 10), 10);
-
-            if (split[2] === 'before') {
-              searchObj.dateApproved = {
-                $lte: new Date(year, month, day, 0, 0, 0, 0)
-                  .toISOString()
-              };
-            }
-
-            if (split[2] === 'after') {
-              searchObj.dateApproved = {
-                $gte: new Date(year, month, day, 0, 0, 0, 0)
-                  .toISOString()
-              };
-            }
-            break;
-          }
+        if (split[0] === 'date' && validateDateString(split[1])) {
           // before -- after --
           if (validateDateString(split[2])) {
             const lowerBound = {
-              year: parseInt(search.substring(0, 4), 10),
-              month: parseInt(search.substring(5, 7), 10),
-              day: parseInt(search.substring(8, 10), 10)
+              year: parseInt(split[1].substring(0, 4), 10),
+              month: parseInt(split[1].substring(5, 7), 10) - 1,
+              day: parseInt(split[1].substring(8, 10), 10)
             };
 
             const upperBound = {
               year: parseInt(split[2].substring(0, 4), 10),
-              month: parseInt(split[2].substring(5, 7), 10),
+              month: parseInt(split[2].substring(5, 7), 10) - 1,
               day: parseInt(split[2].substring(8, 10), 10)
             };
 
             searchObj.dateApproved = {
-              $lte: new Date(lowerBound.year, lowerBound.month, lowerBound.day, 0, 0, 0, 0),
-              $gte: new Date(upperBound.year, upperBound.month, upperBound.day, 0, 0, 0, 0)
+              $lte: new Date(upperBound.year, upperBound.month, upperBound.day, 0, 0, 0, 0),
+              $gte: new Date(lowerBound.year, lowerBound.month, lowerBound.day, 0, 0, 0, 0)
             };
+            break;
           }
         }
         // falls through
 
       default:
-        searchObj.subject = { $regex: new RegExp(escapeRegExp(search), 'ig') };
+        if (split.length === 1) {
+          searchObj.subject = { $regex: new RegExp(escapeRegExp(split[0]), 'ig') };
+        } else {
+          searchObj.subject = { $regex: new RegExp(escapeRegExp(search), 'ig') };
+        }
     }
   }
   return searchObj;
