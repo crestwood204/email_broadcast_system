@@ -41,6 +41,10 @@ const RequestSchema = new Schema({
     type: Schema.ObjectId,
     ref: 'User',
     required: true
+  },
+  dateCreated: {
+    type: Date,
+    default: undefined
   }
 });
 

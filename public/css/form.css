@@ -48,13 +48,15 @@ button.multiselect.dropdown-toggle.btn.btn-default::after {
 }
 
 .top-right-caret {
-  top: 6;
-  right: 7;
+  top: 7px;
+  right: 7px;
+  font-size: 14px;
 }
 
 .bottom-right-caret {
-  bottom: 6;
-  right: 7;
+  bottom: 7px;
+  right: 7px;
+  font-size: 14px;
 }
 
 form {
@@ -73,4 +75,34 @@ body {
 .submit {
   background-color: #5d5d5d !important;
   color: white;
+}
+
+input[type="file"]{
+    color: transparent;
+    width: 105px;
+}
+
+.file-upload {
+  margin-left: 5%;
+  margin-top: 2%;
+  overflow: hidden;
+}
+
+.close-btn {
+  border-radius: 10px;
+  background-color: #fff;
+  cursor: pointer;
+  position: absolute;
+  font-size: 8px;
+  bottom: 110%;
+  right: 75%;
+  padding: 0 3px 0 3px;
+}
+
+.file-text {
+  position: absolute;
+  font-size: 12px;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
 }

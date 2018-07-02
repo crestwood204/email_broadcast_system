@@ -211,7 +211,8 @@ router.post('/new_request', (req, res) => {
       subject,
       body,
       createdBy: req.user._id,
-      attachments: req.files
+      attachments: req.files,
+      dateCreated: new Date()
     });
     return newRequest.save((requestErr, request) => {
       if (requestErr) {
@@ -272,6 +273,7 @@ router.get('/pending_requests', (req, res, next) => {
   const { search } = req.query;
 
   const searchObj = createSearchObject(search); // create search object
+  searchObj.pending = true;
 
   if (page < 1) {
     next(new Error('User Malformed Input')); // TODO: Handle this error
@@ -308,7 +310,7 @@ router.get('/pending_requests', (req, res, next) => {
         // filter so that there are only pending requests
         pendingRequests = requests ? requests.filter(x => x.pending) : [];
         pendingRequests = pendingRequests.map((x) => {
-          x.dateString = x.dateApproved.format('Y-m-d');
+          x.dateString = x.dateCreated.format('Y-m-d');
           x.subjectString = x.subject.substring(0, MAX_LENGTH);
           if (x.subjectString.length === MAX_LENGTH) {
             x.subjectString += ' ...';

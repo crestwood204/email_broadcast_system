@@ -3,6 +3,15 @@
 <div id="error_msg" class="alert alert-warning" style="display: none;" role="alert">
     Error Retrieving Template
 </div>
+<div id="error_msg-extension" class="alert alert-warning" style="display: none;" role="alert">
+    A file you just added has an invalid extension. Only .docx and .pdf files are allowed
+</div>
+<div id="error_msg-size" class="alert alert-warning" style="display: none;" role="alert">
+    One of more files you have attached is larger than the max file size - 250 KB.
+</div>
+<div id="error_msg-number" class="alert alert-warning" style="display: none;" role="alert">
+  You attempted to attach too many files. You can only attach up to 7 files.
+</div>
 {{#if error}}
   {{#compare error "file_extension"}}
     <div class="alert alert-warning" role="alert">
@@ -51,7 +60,7 @@
     <div class="form-row">
       <div class="form-group col-md-6">
           <label for="fromField">From:</label>
-          <select name="from" id="fromField" class="form-control custom-select" required>
+          <select name="from" id="fromField" class="form-control" required>
             <option value=""selected>Choose...</option>
             {{#each templates}}
                 <option value={{this.title}}>{{this.title}}</option>
@@ -86,27 +95,12 @@
           Body is a required field *
         </div>
     </div>
-    <div class="form-group files" style="padding-top: 7px>
+    <div class="form-group files" style="padding-top: 7px">
         <label for="thumbnail-1">Attach a File (Max 7):</label><br>
-        <input class="thumbnail" type="file" name="files" id="thumbnail-1">
-    </div>
-    <div class="form-group hidden">
-        <input class="thumbnail" type="hidden" name="files" id="thumbnail-2">
-    </div>
-    <div class="form-group hidden">
-        <input class="thumbnail" type="hidden" name="files" id="thumbnail-3">
-    </div>
-    <div class="form-group hidden">
-        <input class="thumbnail" type="hidden" name="files" id="thumbnail-4">
-    </div>
-    <div class="form-group hidden">
-        <input class="thumbnail" type="hidden" name="files" id="thumbnail-5">
-    </div>
-    <div class="form-group hidden">
-        <input class="thumbnail" type="hidden" name="files" id="thumbnail-6">
-    </div>
-    <div class="form-group hidden">
-        <input class="thumbnail" type="hidden" name="files" id="thumbnail-7">
+        <div>
+          <input class="thumbnail" type="file" name="files" id="thumbnail-1" multiple>
+          <span id="files"></span>
+        </div>
     </div>
     <div class="form-group">
         <button id="new_request" clicked="false" type="submit" class="btn submit">Submit</button>
