@@ -17,6 +17,7 @@ const router = express.Router();
 let upload = multer();
 
 const DOCS_PER_PAGE = 8; // defines number of documents to show per page
+const MAX_LENGTH = 45; // defines max_length for number of characters to show in the subject line
 
 // configure settings for file upload
 const uploadStorage = multer.diskStorage({
@@ -56,7 +57,6 @@ router.use((req, res, next) => {
  * Displays Broadcasts that have been sent out
  */
 router.get('/', (req, res, next) => {
-  const MAX_LENGTH = 45;
   const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 0 if page is NaN
   const { search } = req.query;
 
@@ -92,7 +92,7 @@ router.get('/', (req, res, next) => {
         broadcasts = broadcasts.map((x) => {
           x.dateString = x.dateApproved.format('Y-m-d');
           x.subjectString = x.subject.substring(0, MAX_LENGTH);
-          if (x.subjectString.length === 45) {
+          if (x.subjectString.length === MAX_LENGTH) {
             x.subjectString += ' ...';
           }
           return x;
@@ -105,7 +105,17 @@ router.get('/', (req, res, next) => {
         if (page === 1 && broadcasts.length === 0) {
           noResults = true;
         }
-        return res.render('home_views/home', { broadcasts, startIndex, noBroadcasts, noResults, search, page, last, user: req.user });
+        return res.render('home_views/home', {
+          broadcasts,
+          startIndex,
+          noBroadcasts,
+          noResults,
+          search,
+          page,
+          last,
+          user: req.user,
+          endpoint: '/?'
+        });
       });
   });
 });
@@ -255,36 +265,77 @@ router.get('/get_templates', (req, res) => {
  * Approvers see all pending requests
  * Users only see their own pending requests
  */
-router.get('/pending_requests', (req, res) => {
+router.get('/pending_requests', (req, res, next) => {
   const success = req.query.request === 'success';
   const failed = req.query.request === 'failed';
+  const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 0 if page is NaN
+  const { search } = req.query;
 
-  // query database for requests
-  Request.find({})
-    .populate({
-      path: 'createdBy',
-      model: 'User'
-    })
-    .exec((err, requests) => {
-      if (err) {
-        console.log('pending_requests error_fetching requests database_error');
-      } else {
-        let filteredRequests = requests;
+  const searchObj = createSearchObject(search); // create search object
+
+  if (page < 1) {
+    next(new Error('User Malformed Input')); // TODO: Handle this error
+  }
+
+  /* sort by date approved so that pending requests appear first
+   * makes it so that pages that aren't the last one always have 8 documents displayed
+   */
+  return Request.count(searchObj).exec((lastErr, count) => {
+    if (lastErr) {
+      console.log(lastErr);
+      return res.status(500).send('Database Error: "/"');
+    }
+    const last = parseInt(count / DOCS_PER_PAGE, 10);
+    return Request.find(searchObj)
+      .sort({ dateApproved: 'ascending' })
+      .limit(DOCS_PER_PAGE)
+      .skip((page - 1) * DOCS_PER_PAGE)
+      .populate({
+        path: 'createdBy',
+        model: 'User'
+      })
+      .exec((err, requests) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).send('Database Error: "/"');
+        }
+        let pendingRequests = requests;
         // if user is not an approver, only show them their requests
         if (!req.user.approver) {
-          filteredRequests = requests.filter(x => x.createdBy._id.toString() ===
-                  req.user._id.toString());
+          pendingRequests = requests ? requests.filter(x => x.createdBy._id.toString() ===
+                  req.user._id.toString()) : [];
         }
-
         // filter so that there are only pending requests
-        const pendingRequests = filteredRequests.filter(x => x.pending);
-        res.render('pending_requests', {
-          success,
-          failed,
-          pendingRequests: pendingRequests.reverse(),
-          user: req.user
+        pendingRequests = requests ? requests.filter(x => x.pending) : [];
+        pendingRequests = pendingRequests.map((x) => {
+          x.dateString = x.dateApproved.format('Y-m-d');
+          x.subjectString = x.subject.substring(0, MAX_LENGTH);
+          if (x.subjectString.length === MAX_LENGTH) {
+            x.subjectString += ' ...';
+          }
+          return x;
         });
-      }
-    });
+        const startIndex = ((page - 1) * DOCS_PER_PAGE) + 1;
+        let [noBroadcasts, noResults] = [false, false];
+        if (!search && page === 1 && pendingRequests.length === 0) {
+          noBroadcasts = true;
+        }
+        if (page === 1 && pendingRequests.length === 0) {
+          noResults = true;
+        }
+        return res.render('home_views/home', {
+          startIndex,
+          noBroadcasts,
+          noResults,
+          search,
+          page,
+          last,
+          user: req.user,
+          broadcasts: pendingRequests,
+          pending: true,
+          endpoint: '/pending_requests?'
+        });
+      });
+  });
 });
 module.exports = router;

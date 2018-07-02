@@ -42,3 +42,9 @@ h1 {
   color: #ffffff !important;
   border: none;
 }
+
+.yellow-button {
+  background-color: #ffffcc !important;
+  color: black !important;
+  border: 1px solid #ffff73;
+}
