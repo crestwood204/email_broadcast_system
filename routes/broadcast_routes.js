@@ -333,7 +333,7 @@ router.get('/pending_requests', (req, res, next) => {
           page,
           last,
           user: req.user,
-          broadcasts: pendingRequests,
+          broadcasts: pendingRequests.reverse(),
           pending: true,
           endpoint: '/pending_requests?'
         });

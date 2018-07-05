@@ -109,31 +109,38 @@ $(document).ready(() => {
 
   $('#new_request').on('click', (event) => {
     event.preventDefault();
-    const data = new FormData();
-    fileStore.forEach(file => data.append('files', file));
-    data.append('to', $('#toField').val());
-    data.append('location', $('#locationField').val());
-    data.append('from', $('#fromField').val());
-    data.append('subject', $('#subject').val());
-    data.append('body', $('#body').val());
+    let executed = false;
+    // create closure so that function isn't calld multiple times
+    return () => {
+      if (!executed) {
+        executed = true;
+        const data = new FormData();
+        fileStore.forEach(file => data.append('files', file));
+        data.append('to', $('#toField').val());
+        data.append('location', $('#locationField').val());
+        data.append('from', $('#fromField').val());
+        data.append('subject', $('#subject').val());
+        data.append('body', $('#body').val());
 
-    // submit an ajax request
-    $.ajax({
-      url: '/new_request',
-      method: 'POST',
-      enctype: 'multipart/form-data',
-      processData: false,
-      contentType: false,
-      cache: false,
-      data,
-      error(err) {
-        // Error Retrieving Template
-        console.log('Error:', err);
-      },
-      success(res) {
-        window.location.href = res.redirect;
+        // submit an ajax request
+        $.ajax({
+          url: '/new_request',
+          method: 'POST',
+          enctype: 'multipart/form-data',
+          processData: false,
+          contentType: false,
+          cache: false,
+          data,
+          error(err) {
+            // Error Retrieving Template
+            console.log('Error:', err);
+          },
+          success(res) {
+            window.location.href = res.redirect;
+          }
+        });
       }
-    });
+    };
   });
 
   (function setupMultiSelects() {
