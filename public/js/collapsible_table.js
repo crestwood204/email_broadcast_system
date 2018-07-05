@@ -1,6 +1,6 @@
 $(document).ready(() => {
   const buttonDict = {};
-  $('.toggle-row').on('click', function toggleCollapse() {
+  $('.clickable-row').on('click', function toggleCollapse() {
     const id = $(this).attr('data-target');
     if (buttonDict.id) {
       return;

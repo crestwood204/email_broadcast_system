@@ -86,7 +86,6 @@ $(document).ready(() => {
     // store the validated files in global object
     for (let i = 0; i < validatedFiles.length; i += 1) {
       fileStore.push(validatedFiles[i]);
-
       // create button objects for them
       $('#files').append(`
         <span class="file-upload" style="position: relative;">

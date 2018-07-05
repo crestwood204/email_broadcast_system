@@ -171,7 +171,7 @@ router.post('/new_request', (req, res) => {
       }
       return callback(null, true);
     }
-  }).array('files', 7); // TODO: change this because want to add a bunch of single file attachments rather than a bunch of attachments from one button
+  }).array('files', 7);
   upload(req, res, (err) => {
     if (req.fileValidationError) {
       return res.json({ redirect: req.fileValidationError });
@@ -198,6 +198,7 @@ router.post('/new_request', (req, res) => {
     if (!to || !subject || !body) {
       return res.json({ redirect: `/new_request?error=missing_fields&${query}` });
     }
+
     // convert toField into an array if it is a string
     if (typeof to !== 'object') {
       to = [to];

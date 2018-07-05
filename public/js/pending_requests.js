@@ -1,5 +1,5 @@
 $(document).ready(() => {
-  const acceptReject = function acceptReject(that, event, id, decision) {
+  const approveReject = function approveReject(that, event, id, decision) {
     event.preventDefault();
     $.ajax({
       url: '/decide_request',
@@ -20,18 +20,17 @@ $(document).ready(() => {
    * Handles submit for approving request
    * Repeated calls are disabled on the server, so it is safe to click multiple times
    */
-  $('.accept-btn').on('click', function acceptButtonClick(event) {
-    const id = $(this).attr('id').substring(7);
+  $('.approve-btn').on('click', function approveButtonClick(event) {
+    const id = $(this).attr('id').substring(8);
 
     // send ajax request to server
-    acceptReject(this, event, id, 'approve');
+    approveReject(this, event, id, 'approve');
 
-    // hide the button
-    $(this).hide();
-    $(`#reject-${id}`).hide();
+    const parent = $(this).parent();
 
-    // add accepted symbol
-    $(`#decision-${id}`).append('<btn class="no-highlight no-hover-green btn-sm btn-success">Approved</btn>');
+    // remove decision buttons and add approved symbol
+    parent.empty();
+    parent.append('<btn class="approve-button btn-sm btn-success">Approved</btn>');
   });
 
   /*
@@ -42,13 +41,12 @@ $(document).ready(() => {
     const id = $(this).attr('id').substring(7);
 
     // send ajax request to server
-    acceptReject(this, event, id, 'reject');
+    approveReject(this, event, id, 'reject');
 
-    // hide the button
-    $(this).hide();
-    $(`#accept-${id}`).hide();
+    const parent = $(this).parent();
 
-    // add rejected symbol
-    $(`#decision-${id}`).append('<btn class="no-highlight no-hover-red btn-sm btn-danger">Rejected</btn>');
+    // remove decision buttons and add rejected symbol symbol
+    parent.empty();
+    $(parent).append('<btn class="reject-button btn-sm btn-danger">Rejected</btn>');
   });
 });

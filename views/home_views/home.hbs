@@ -24,14 +24,44 @@
       </thead>
       <tbody>
           {{#each broadcasts}}
-              <tr class="clickable-row" data-href="/broadcast?id={{this._id}}">
+              {{#if ../pending}}
+                <tr class="clickable-row" data-toggle="collapse" data-target="#decision-{{this._id}}">
+              {{else}}
+                <tr class="clickable-row" data-href="/broadcast?id={{this._id}}">
+              {{/if}}
                   <th scope="row">{{math @index "+" ../startIndex}}</th>
                   <td style="min-width: 20%;">{{this.createdBy.username}}</td>
                   <td style="min-width: 20%;">{{this.to}}</td>
                   <td style="width: 50%;">{{this.subjectString}}</td>
                   <td style="width: 15%;">{{this.dateString}}</td>
               </tr>
-
+              {{#if ../pending}}
+                <tr>
+                    <td class="blank-row"> </td>
+                    <td class="blank-row details" colspan="5">
+                        <div id="decision-{{this._id}}" class="collapse out">
+                            <div> To: {{this.to}} </div>
+                            <div> From: {{this.from}} </div>
+                            <div> Subject: {{this.subject}} </div>
+                            <div class="border-top"> {{this.body}} </div>
+                            <div class="border-top" style="padding-top: 10px;">
+                              {{#each this.attachments}}
+                                <span style="display: inline-block; margin-right: 10px;">
+                                  <a href="{{this.path}}" style="color: green; display: flex; flex-direction: column; align-items: center; justify-content: center;" download>
+                                    <div style="flex: start;"><i class="fa fa-file"></i></div>
+                                    <div style="color: black; flex: end;">{{this.originalname}}</div>
+                                  </a>
+                                </span>
+                              {{/each}}
+                            </div>
+                            <div style="float: right; cursor: default;">
+                              <btn id="approve-{{this._id}}" class="approve-btn btn-sm btn-success" style="cursor: default;">Approved</btn>
+                              <btn id="reject-{{this._id}}" class="reject-btn btn-sm btn-danger" style="cursor: default;">Rejected</btn>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+              {{/if}}
           {{/each}}
       </tbody>
   </table>
@@ -100,6 +130,11 @@
       </ul>
     </nav>
   </div>
-  <script src="/js/collapsible_table.js"></script>
+  {{#if pending}}
+    <script src="/js/collapsible_table.js"></script>
+    <script src="/js/pending_requests.js"></script>
+  {{else}}
+    <script src="/js/home.js"></script>
+  {{/if}}
   <script src="/js/table_search.js"></script>
 </div>

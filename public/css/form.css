@@ -101,7 +101,7 @@ input[type="file"]{
 
 .file-text {
   position: absolute;
-  font-size: 12px;
+  font-size: 10px;
   top: 16px;
   left: 50%;
   transform: translateX(-50%);

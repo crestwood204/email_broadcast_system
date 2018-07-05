@@ -48,3 +48,43 @@ h1 {
   color: black !important;
   border: 1px solid #ffff73;
 }
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.border-top {
+    border-top: 1px solid gray;
+    margin-top: 5px;
+}
+
+.details {
+    font-size: 10pt;
+}
+
+/* pending request styles */
+
+.approve-button {
+  outline: none;
+  background-color: #5cb85c !important;
+}
+
+.approve-button:hover {
+  background-color: #5cb85c !important;
+}
+
+.reject-button {
+  outline: none;
+  background-color: #c9302c !important;
+}
+
+.reject-button:hover {
+  background-color: #c9302c !important;
+}
+
+/* file icon styles */
+
+.fa-file {
+  color: #495057 !important;
+  font-size: 20px;
+}

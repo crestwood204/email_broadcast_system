@@ -3,10 +3,6 @@
     margin-right: 15%;
 }
 
-.no-highlight {
-    outline: none;
-}
-
 .margin-left {
     margin-left: 15%;
 }
@@ -45,18 +41,6 @@
     outline: none
 }
 
-.no-hover-green:hover {
-    background-color: #5cb85c !important;
-}
-
-.no-hover-red {
-    background-color: #c9302c !important;
-}
-
-.no-hover-red:hover {
-    background-color: #c9302c !important;
-}
-
 .name {
     display: block;
     padding: 3px 20px;
@@ -69,10 +53,6 @@
     background-color: transparent;
     box-sizing: border-box;
     cursor: default;
-}
-
-.details {
-    font-size: 10pt;
 }
 
 .description {
