@@ -1,6 +1,7 @@
 /**
  * Handlebar Functions to do mathematical and logical operations within .hbs files
  */
+const Handlebars = require('express-handlebars');
 
 /**
   * functino to handle basic mathematical operations
@@ -53,7 +54,18 @@ const compare = (lvalue, rvalue, options) => {
   return options.inverse(this);
 };
 
+/**
+  * function to handle substring
+  * @param {string} str The string.
+  * @param {number} startIndex The start index
+  * @param {number} endIndex The end index
+  * @returns {string} The resulting substring
+  */
+const substring = (str, startIndex, endIndex) =>
+  new Handlebars.SafeString(str.substring(startIndex, endIndex));
+
 module.exports = {
   math,
-  compare
+  compare,
+  substring
 };

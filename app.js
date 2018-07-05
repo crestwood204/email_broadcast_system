@@ -75,7 +75,8 @@ app.engine('.hbs', exphbs({
   extname: '.hbs',
   helpers: {
     math: helpers.math,
-    compare: helpers.compare
+    compare: helpers.compare,
+    substring: helpers.substring
   }
 }));
 app.set('view engine', 'hbs');
