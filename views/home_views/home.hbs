@@ -1,6 +1,6 @@
 <div>
   <span style="float: right;">
-    <form class="form-inline my-2 my-lg-0">
+    <form id="search-bar-form" action="{{endpoint}}" class="form-inline my-2 my-lg-0">
       <input id="search" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" value="{{search}}">
       <button id="search-btn" class="btn yellow-button my-2 my-sm-0 form-control" type="submit">&nbsp<i class="fa fa-search"></i>&nbsp</button>
       <span style="padding: 4px;"> </span>
@@ -78,7 +78,7 @@
     {{/if}}
   {{/unless}}
   <div class="d-flex justify-content-end">
-    <nav aria-label="Page navigation example">
+    <nav aria-label="Page navigation">
       <ul class="pagination">
         {{#compare page 1}}
           <li class="page-item disabled">
