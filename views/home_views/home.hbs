@@ -43,8 +43,8 @@
                             <div> To: {{this.to}} </div>
                             <div> From: {{this.from}} </div>
                             <div> Subject: {{this.subject}} </div>
-                            <div class="border-top" style="padding: 10px 0 10px 0;"> {{this.body}} </div>
-                            <div class="border-top" style="padding-top: 10px;">
+                            <div class="border-top" style="padding: 10px;"> {{this.body}} </div>
+                            <div class="border-top">
                               {{#each this.attachments}}
                                 <span style="display: inline-block; margin-right: 10px;">
                                   <a href="{{substring this.path 6 this.path.length}}" style="color: green; display: flex; flex-direction: column; align-items: center; justify-content: center;" download>
@@ -55,8 +55,13 @@
                               {{/each}}
                             </div>
                             <div style="float: right; cursor: default;">
-                              <btn id="approve-{{this._id}}" class="approve-btn btn-sm btn-success" style="cursor: default;">Approved</btn>
-                              <btn id="reject-{{this._id}}" class="reject-btn btn-sm btn-danger" style="cursor: default;">Rejected</btn>
+                              <btn id="approve-{{this._id}}" class="approve-btn btn-sm btn-success" style="cursor: default; padding-bottom: 7px;">Approved</btn>
+                              <btn id="reject-{{this._id}}" class="reject-btn btn-sm btn-danger" style="cursor: default; padding-bottom: 7px;">Rejected</btn>
+                              <a href="{{this.modificationHref}}">
+                                <button class="btn my-2 my-sm-0" type="button" style="padding: 2px 8px 0px 10px; font-size: 16px; background-color: #ffe554;">
+                                  <i class="fa fa-edit"></i>
+                                </button>
+                              </a>
                             </div>
                         </div>
                     </td>

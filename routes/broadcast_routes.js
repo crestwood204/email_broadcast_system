@@ -74,7 +74,10 @@ router.get('/', (req, res, next) => {
       console.log(lastErr);
       return res.status(500).send('Database Error: "/"');
     }
-    const last = parseInt(count / DOCS_PER_PAGE, 10) + 1;
+    let last = parseInt(count / DOCS_PER_PAGE, 10);
+    if (count % DOCS_PER_PAGE !== 0) {
+      last += 1;
+    }
     return Request.find(searchObj)
       .sort({ dateApproved: 'descending' })
       .limit(DOCS_PER_PAGE)
@@ -125,7 +128,7 @@ router.get('/', (req, res, next) => {
  * Loads new_request page
  */
 router.get('/new_request', (req, res) => {
-  const { to, from, subject, body } = req.query;
+  const { to, from, subject, body, attachments, id } = req.query;
   Group.find({}).then(
     (groups) => {
       Template.find({}).then(
@@ -137,6 +140,8 @@ router.get('/new_request', (req, res) => {
             from,
             subject,
             templates,
+            attachments,
+            id,
             error: req.query.error,
             groups: groups.map(x => x.name),
             user: req.user
@@ -166,7 +171,7 @@ router.post('/new_request', (req, res) => {
     fileFilter(request, file, callback) {
       if (file.mimetype
           && file.mimetype !== 'application/pdf') {
-        const query = `to=${request.body.toField}&subject=${request.body.subject}&body=${request.body.body}&from=${request.body.from}`;
+        const query = `to=${request.body.toField}&subject=${request.body.subject}&body=${request.body.body}&from=${request.body.from}&attachments=${request.files}`;
         request.fileValidationError = `/new_request?error=file_extension&${query}`;
         return callback(new Error('extension name not allowed'));
       }
@@ -181,8 +186,8 @@ router.post('/new_request', (req, res) => {
     // TODO: add locationField support
 
     let { to } = req.body;
-    const { subject, body, from, location } = req.body;
-    const query = `to=${to}&subject=${subject}&body=${body}&from=${from}`;
+    const { id, subject, body, from, location, attachments } = req.body;
+    const query = `to=${to}&subject=${subject}&body=${body}&from=${from}&attachments=${req.files}`;
 
     if (err) {
       // TODO: format error message if it isn't a validation error
@@ -203,6 +208,29 @@ router.post('/new_request', (req, res) => {
     // convert toField into an array if it is a string
     if (typeof to !== 'object') {
       to = [to];
+    }
+
+    // append filePaths to files * occurs if modifying file attachments while pending *
+    if (id) {
+      console.log('hi');
+      console.log(JSON.stringify(attachments, null, 2));
+      console.log('hi');
+      return Request.findByIdAndUpdate(id, {
+        $set: {
+          to,
+          from,
+          subject,
+          body,
+          createdBy: req.user._id,
+          attachments: req.files.concat(JSON.parse(attachments))
+        }
+      }, (updateErr) => {
+        if (updateErr) {
+          console.log('new_request update database_error', updateErr);
+          return res.json({ redirect: '/pending_requests?request=failure&type=database' });
+        }
+        return res.json({ redirect: '/pending_requests?request=success' });
+      });
     }
 
     // save request object
@@ -288,7 +316,10 @@ router.get('/pending_requests', (req, res, next) => {
       console.log(lastErr);
       return res.status(500).send('Database Error: "/"');
     }
-    const last = parseInt(count / DOCS_PER_PAGE, 10);
+    let last = parseInt(count / DOCS_PER_PAGE, 10);
+    if (count % DOCS_PER_PAGE !== 0) {
+      last += 1;
+    }
     return Request.find(searchObj)
       .sort({ dateApproved: 'ascending' })
       .limit(DOCS_PER_PAGE)
@@ -311,6 +342,8 @@ router.get('/pending_requests', (req, res, next) => {
         // filter so that there are only pending requests
         pendingRequests = requests ? requests.filter(x => x.pending) : [];
         pendingRequests = pendingRequests.map((x) => {
+          const attachments = JSON.stringify(x.attachments);
+          x.modificationHref = `/new_request?to=${x.to}&subject=${x.subject}&body=${x.body}&from=${x.from}&attachments=${attachments}&id=${x._id}`;
           x.dateString = x.dateCreated.format('Y-m-d');
           x.subjectString = x.subject.substring(0, MAX_LENGTH);
           if (x.subjectString.length === MAX_LENGTH) {
