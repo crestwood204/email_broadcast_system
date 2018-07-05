@@ -74,7 +74,7 @@ router.get('/', (req, res, next) => {
       console.log(lastErr);
       return res.status(500).send('Database Error: "/"');
     }
-    const last = parseInt(count / DOCS_PER_PAGE, 10);
+    const last = parseInt(count / DOCS_PER_PAGE, 10) + 1;
     return Request.find(searchObj)
       .sort({ dateApproved: 'descending' })
       .limit(DOCS_PER_PAGE)
@@ -113,6 +113,7 @@ router.get('/', (req, res, next) => {
           search,
           page,
           last,
+          threeBeforeLast: (last - 3) < page ? page : (last - 3),
           user: req.user,
           endpoint: '/?'
         });
@@ -332,6 +333,7 @@ router.get('/pending_requests', (req, res, next) => {
           search,
           page,
           last,
+          threeBeforeLast: (last - 3) < page ? page : (last - 3),
           user: req.user,
           broadcasts: pendingRequests.reverse(),
           pending: true,
@@ -339,5 +341,23 @@ router.get('/pending_requests', (req, res, next) => {
         });
       });
   });
+});
+
+router.get('/broadcast', (req, res) => {
+  const { id } = req.query;
+  Request.findById(id)
+    .populate({
+      path: 'createdBy',
+      model: 'User'
+    })
+    .exec((err, request) => {
+      if (err) {
+        console.log('Error fetching broadcast', err);
+      }
+      res.render('home_views/broadcast', {
+        request,
+        user: req.user
+      });
+    });
 });
 module.exports = router;

@@ -65,8 +65,38 @@ const substring = (str, startIndex, endIndex) =>
   (endIndex ? new Handlebars.SafeString(str.substring(startIndex, endIndex)) :
     new Handlebars.SafeString(str.substring(startIndex)));
 
+/**
+  * function to handle substring
+  * @param {[Object]} arguments multiple chained helpers.
+  * @returns {Object} The result of chained helpers
+  */
+const chain = () => {
+  const helpers = [];
+  let args = Array.prototype.slice.call(arguments);
+  const argsLength = args.length;
+  let index;
+  let arg;
+
+  for (index = 0, arg = args[index];
+    index < argsLength;
+    arg = args[index += 1]) {
+    if (Handlebars.helpers[arg]) {
+      helpers.push(Handlebars.helpers[arg]);
+    } else {
+      args = args.slice(index);
+      break;
+    }
+  }
+
+  while (helpers.length) {
+    args = [helpers.pop().apply(Handlebars.helpers, args)];
+  }
+
+  return args.shift();
+};
 module.exports = {
   math,
   compare,
-  substring
+  substring,
+  chain
 };

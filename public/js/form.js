@@ -47,13 +47,20 @@ const customValidation = () => {
     noValidation(searchBox);
 
     // add event listener to change the color once something is selected
-    // unfortunately this only happens when the button is clicked
-    button.on('click', () => {
-      if (button.attr('title') === 'Choose...') {
+    const validator = () => {
+      if (button.children().first().text().trim() === 'Choose...') {
         errorValidation(button, $(`#${multiselectFeedback[index]}`));
       } else {
         successValidation(button, $(`#${multiselectFeedback[index]}`));
       }
+    };
+
+    // set time out because the field will check before it changes otherwise
+    $('.checkbox').on('click', () => {
+      setTimeout(validator, 100);
+    });
+    button.on('click', () => {
+      validator();
     });
   });
 

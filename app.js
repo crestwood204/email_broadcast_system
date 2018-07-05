@@ -76,7 +76,8 @@ app.engine('.hbs', exphbs({
   helpers: {
     math: helpers.math,
     compare: helpers.compare,
-    substring: helpers.substring
+    substring: helpers.substring,
+    chain: helpers.chain
   }
 }));
 app.set('view engine', 'hbs');
