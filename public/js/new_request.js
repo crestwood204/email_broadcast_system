@@ -60,7 +60,6 @@ $(document).ready(() => {
 
     // get files
     const { files } = document.getElementById('thumbnail-1');
-
     // validate files
     const validatedFiles = [];
     for (let i = 0; i < files.length; i += 1) {
@@ -109,22 +108,33 @@ $(document).ready(() => {
     $(this).parent().parent().remove();
   });
 
-  $('#new_request').on('click', () => {
-    console.log('hi');
-    const dT = new DataTransfer();
-    for (let i = 0; i < fileStore.length; i += 1) {
-      const ext = fileStore[i].name.split('.')[1];
-      if (ext === 'pdf') {
-        dT.setData('application/pdf', fileStore[i]);
-      } else if (ext === 'docx') {
-        dT.setData('application/vnd.openxmlformats-officedocument.wordprocessingml.document', fileStore[i]);
-      }
-    }
-    console.log(dT.items);
-    $('#thumbnail-1').files = dT.items;
+  $('#new_request').on('click', (event) => {
+    event.preventDefault();
+    const data = new FormData();
+    fileStore.forEach(file => data.append('files', file));
+    data.append('to', $('#toField').val());
+    data.append('location', $('#locationField').val());
+    data.append('from', $('#fromField').val());
+    data.append('subject', $('#subject').val());
+    data.append('body', $('#body').val());
 
-    // not working, maybe submit an ajax request?
-    return true;
+    // submit an ajax request
+    $.ajax({
+      url: '/new_request',
+      method: 'POST',
+      enctype: 'multipart/form-data',
+      processData: false,
+      contentType: false,
+      cache: false,
+      data,
+      error(err) {
+        // Error Retrieving Template
+        console.log('Error:', err);
+      },
+      success(res) {
+        window.location.href = res.redirect;
+      }
+    });
   });
 
   (function setupMultiSelects() {

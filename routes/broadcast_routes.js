@@ -163,7 +163,7 @@ router.post('/new_request', (req, res) => {
     storage: uploadStorage,
     limits: { fileSize: maxSize },
     fileFilter(request, file, callback) {
-      if (file.mimetype !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      if (file.mimetype
           && file.mimetype !== 'application/pdf') {
         const query = `to=${request.body.toField}&subject=${request.body.subject}&body=${request.body.body}&from=${request.body.from}`;
         request.fileValidationError = `/new_request?error=file_extension&${query}`;
@@ -174,31 +174,30 @@ router.post('/new_request', (req, res) => {
   }).array('files', 7); // TODO: change this because want to add a bunch of single file attachments rather than a bunch of attachments from one button
   upload(req, res, (err) => {
     if (req.fileValidationError) {
-      return res.redirect(req.fileValidationError);
+      return res.json({ redirect: req.fileValidationError });
     }
 
     // TODO: add locationField support
 
-    let to = req.body.toField;
-    const { subject, body, from } = req.body;
+    let { to } = req.body;
+    const { subject, body, from, location } = req.body;
     const query = `to=${to}&subject=${subject}&body=${body}&from=${from}`;
 
     if (err) {
       // TODO: format error message if it isn't a validation error
       console.log(err.code);
       if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.redirect(`/new_request?error=limit_file_size&${query}`);
+        return res.json({ redirect: `/new_request?error=limit_file_size&${query}` });
       }
       if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-        return res.redirect(`/new_request?error=limit_unexpected_file&${query}`);
+        return res.json({ redirect: `/new_request?error=limit_unexpected_file&${query}` });
       }
-      return res.status(400).send(err);
+      return res.status(400).send({ redirect: '/404' });
     }
 
     if (!to || !subject || !body) {
-      return res.redirect(`/new_request?error=missing_fields&${query}`);
+      return res.json({ redirect: `/new_request?error=missing_fields&${query}` });
     }
-
     // convert toField into an array if it is a string
     if (typeof to !== 'object') {
       to = [to];
@@ -217,7 +216,7 @@ router.post('/new_request', (req, res) => {
     return newRequest.save((requestErr, request) => {
       if (requestErr) {
         console.log('new_request save database_error', requestErr);
-        return res.redirect('/pending_requests?request=failure&type=database', requestErr);
+        return res.json({ redirect: '/pending_requests?request=failure&type=database' });
       }
 
       // add to log
@@ -235,11 +234,11 @@ router.post('/new_request', (req, res) => {
           });
 
           sendApproverEmail(approvers, request, req.user.email);
-          return res.redirect('/pending_requests?request=success');
+          return res.json({ redirect: '/pending_requests?request=success' });
         },
         (userErr) => {
           console.log('new_request error_sending_emails database_error', userErr);
-          return res.redirect('/pending_requests?request=failure&type=database', userErr);
+          return res.json({ redirect: '/pending_requests?request=failure&type=database' });
         }
       );
     });
