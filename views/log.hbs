@@ -8,18 +8,16 @@
                 <th scope="col">Title</th>
                 <th scope="col">Time</th>
                 <th scope="col">Date</th>
-                <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
             {{#each logs}}
-                <tr>
+                <tr class="clickable-row" data-toggle="collapse" data-target="#{{this._id}}">
                     <th scope="row"> {{math @index "+" 1}}</th>
                     <td>{{this.type}}</td>
                     <td>{{this.change}}</td>
                     <td>{{this.time_string}}</td>
                     <td>{{this.date_string}}</td>
-                    <td><button type="button" class="btn btn-primary toggle-row" data-toggle="collapse" data-target="#{{this._id}}"> Details </button></td>
                 </tr>
                 <tr>
                     <td class="blank-row"> </td>
