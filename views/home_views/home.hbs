@@ -47,7 +47,7 @@
                             <div class="border-top" style="padding-top: 10px;">
                               {{#each this.attachments}}
                                 <span style="display: inline-block; margin-right: 10px;">
-                                  <a href="{{this.path}}" style="color: green; display: flex; flex-direction: column; align-items: center; justify-content: center;" download>
+                                  <a href="{{substring this.path 6 this.path.length}}" style="color: green; display: flex; flex-direction: column; align-items: center; justify-content: center;" download>
                                     <div style="flex: start;"><i class="fa fa-file"></i></div>
                                     <div style="color: black; flex: end;">{{this.originalname}}</div>
                                   </a>

@@ -83,8 +83,12 @@ const rmDir = (dirPath, attachments) => {
   }
   const mappedAttachments = attachments.map(x => `./${x.path}`);
   mappedAttachments.forEach((filePath) => {
-    if (fs.statSync(filePath).isFile()) {
-      fs.unlinkSync(filePath);
+    try {
+      if (fs.statSync(filePath).isFile()) {
+        fs.unlinkSync(filePath);
+      }
+    } catch (e) {
+      console.log('Error: ', e);
     }
   });
 };
