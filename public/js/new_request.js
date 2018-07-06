@@ -119,7 +119,7 @@ $(document).ready(() => {
   // remove file from global file store and remove the span
   $('#files').on('click', '.close-btn', function removeFile() {
     const id = $(this).attr('id').split('-')[1];
-    fileStore.slice(id, id);
+    fileStore.slice(id, 1);
     $(this).parent().parent().remove();
   });
 
