@@ -119,10 +119,10 @@
         </li>
 
         <!-- Next page -->
-        {{#compare page last operator="!=="}}
+        {{#compare page last operator="<"}}
         <li class="page-item">
         {{/compare}}
-        {{#compare page last}}
+        {{#compare page last operator=">="}}
         <li class="page-item disabled">
         {{/compare}}
         <a class="page-link" href="{{endpoint}}page={{math page "+" 1}}&search={{search}}" aria-label="Next">

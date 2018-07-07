@@ -108,6 +108,7 @@ router.get('/', (req, res, next) => {
         if (page === 1 && broadcasts.length === 0) {
           noResults = true;
         }
+        console.log(last)
         return res.render('home_views/home', {
           broadcasts,
           startIndex,
