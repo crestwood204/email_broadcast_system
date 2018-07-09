@@ -9,22 +9,11 @@ const { Log, Template } = Models;
 const { TEMPLATES_PER_PAGE, MAX_TEMPLATE_LINE_LENGTH } = Constants;
 const router = express.Router();
 
-// router.get('/edit_templates', (req, res) => {
-//   const messages = {
-//     database: 'The database failed to respond to this request. Please
-//                try again or contact IT for support.',
-//     not_found: 'Template could not be found in the database!
-//                Please try again or create a new template.',
-//     deleted: 'Template deleted successfully!',
-//     updated: 'Template updated succesfully!',
-//     created: 'Template created successfully!'
-//   };
-
 router.get('/edit_templates', (req, res, next) => {
   const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 0 if page is NaN
   const { search } = req.query;
   const error = Messages[req.query.error];
-  const status = Messages[req.query.status];
+  const status = req.query.status ? `Template ${Messages[req.query.status]}` : undefined;
   // create search object
   const searchObj = {}; // createEditSearchObject(search);
 
@@ -122,10 +111,10 @@ router.post('/new_template', (req, res) => {
   return newTemplate.save((err, template) => {
     if (err) {
       console.log('new_template save datbase_error');
-      return res.redirect('/edit_templates?request=failure&type=database');
+      return res.redirect('/edit_templates?error=database');
     }
     Log.log('Created', req.user._id, 'New Template Created', 'Template', 'post new_template database_error', null, null, template._id, null, name);
-    return res.redirect('/edit_templates?request=success&type=created');
+    return res.redirect('/edit_templates?status=created');
   });
 });
 
@@ -136,10 +125,10 @@ router.get('/edit_template', (req, res) => {
   Template.findById(templateId, (err, template) => {
     if (err) {
       console.log('edit_template template_lookup database_error');
-      return res.redirect('/edit_templates', 'request=failure&type=database');
+      return res.redirect('/edit_templates?error=database');
     }
     if (!template) {
-      return res.redirect('/edit_templates?request=failure&type=not_found');
+      return res.redirect('/edit_templates?error=not_found');
     }
     const [name, subject, body] = [nameT || template.name, subjectT ||
       template.subject, bodyT || template.body];
@@ -155,15 +144,15 @@ router.get('/edit_template', (req, res) => {
 
 router.post('/edit_template', (req, res) => {
   console.log('hi');
-  const { title, subject, body } = req.body;
+  const { name, subject, body } = req.body;
   const templateId = req.query.template;
 
-  if (!title || !subject || !body) {
+  if (!name || !subject || !body) {
     return res.redirect(`/edit_template?template=${templateId}&error=missing_fields`);
   }
 
   return Template.findByIdAndUpdate(templateId, {
-    title,
+    name,
     subject,
     body
   }, (err, template) => {
@@ -172,7 +161,7 @@ router.post('/edit_template', (req, res) => {
       return res.redirect('/edit_templates?error=database');
     }
     let logTitle = '';
-    if (title !== template.title) {
+    if (name !== template.name) {
       logTitle += 'Title_Changed ';
     }
     if (subject !== template.subject) {
@@ -186,7 +175,7 @@ router.post('/edit_template', (req, res) => {
 
     // nothing was edited, so don't make a log
     if (logTitle !== '') {
-      Log.log('Edited', req.user._id, logTitle, 'Template', 'post edit_template database_error', null, null, template._id, null, title);
+      Log.log('Edited', req.user._id, logTitle, 'Template', 'post edit_template database_error', null, null, template._id, null, name);
     }
     return res.redirect('/edit_templates?status=saved');
   });

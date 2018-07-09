@@ -14,7 +14,7 @@ $(document).ready(() => {
       },
       success() {
         const endpoint = $('#search-bar-form').attr('action');
-        window.location.href = `${endpoint}request=success&type=deleted`;
+        window.location.href = `${endpoint}status=deleted`;
       }
     });
   });
