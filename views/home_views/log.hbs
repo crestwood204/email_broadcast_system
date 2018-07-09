@@ -1,0 +1,161 @@
+<div>
+  <span style="float: right;">
+    <form id="search-bar-form" action="{{endpoint}}" class="form-inline my-2 my-lg-0">
+      <input id="search" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" value="{{search}}">
+      <button id="search-btn" class="btn yellow-button my-2 my-sm-0 form-control" type="submit">&nbsp<i class="fa fa-search"></i>&nbsp</button>
+      <span style="padding: 4px;"> </span>
+    </form>
+  </span>
+  <h1> Audit Log </h1>
+  <table class="table">
+      <thead>
+          <tr>
+              <th scope="col">#</th>
+              <th scope="col">Type</th>
+              <th scope="col">Title</th>
+              <th scope="col">Time</th>
+              <th scope="col">Date</th>
+          </tr>
+      </thead>
+      <tbody>
+          {{#each logs}}
+              <tr class="clickable-row" data-toggle="collapse" data-target="#{{this._id}}">
+                  <th scope="row"> {{math @index "+" 1}}</th>
+                  <td>{{this.type}}</td>
+                  <td>{{this.change}}</td>
+                  <td>{{this.time_string}}</td>
+                  <td>{{this.date_string}}</td>
+              </tr>
+              <tr>
+                  <td class="blank-row"> </td>
+                  <td class="blank-row details" colspan="5">
+                      <div id="{{this._id}}" class="collapse out">
+                          <div> Description: {{this.description}} </div>
+                          {{#compare this.change "Approved"}}
+                              <div> Approved By: {{../this.request_id.approver}} </div>
+                          {{/compare}}
+                          {{#compare this.change "Rejected"}}
+                              <div> Rejected By: {{../this.request_id.approver}} </div>
+                          {{/compare}}
+                          {{#compare this.change "Created"}}
+                              <div> Created By: {{../this.user_id.username}} </div>
+                          {{/compare}}
+                          {{#compare this.change "Edited"}}
+                              <div> Edited By: {{../this.user_id.username}} </div>
+                          {{/compare}}
+                          {{#compare this.change "Activated"}}
+                              <div> Activated By: {{../this.user_id.username}} </div>
+                          {{/compare}}
+                          {{#compare this.change "Deactivated"}}
+                              <div> Deactivated By: {{../this.user_id.username}} </div>
+                          {{/compare}}
+                          {{#compare this.change "Deleted"}}
+                              <div> Deleted By: {{../this.user_id.username}} </div>
+                          {{/compare}}
+                          {{#compare this.type "Broadcast"}}
+                              <div> Created By: {{../this.request_id.createdBy.username }}</div>
+                              <div class="border-top"> From: {{../this.request_id.from}} </div>
+                              <div> To: {{../this.request_id.to}} </div>
+                              <div class="border-top"> Subject: {{../this.request_id.subject}}</div>
+                              <div> Body: {{../this.request_id.body}}</div>
+                          {{/compare}}
+                          {{#compare this.type "User"}}
+                              <div> User Edited: {{../this.edit_user_id.username}}</div>
+                          {{/compare}}
+                          {{#if this.template_id.username}}
+                              {{#compare this.type "Template"}}
+                                  <div> Template Edited: {{../this.template_id.title}}</div>
+                              {{/compare}}
+                          {{/if}}
+                          {{#compare this.type "Template"}}
+                              <div> Title: {{../this.template_title}} </div>
+                              {{#compare ../this.change "Deleted" operator="!=="}}
+                                  {{#unless ../../this.template_id}}
+                                      <div> Note: Template has been Deleted </div>
+                                  {{/unless}}
+                              {{/compare}}
+                          {{/compare}}
+                          {{#compare this.type "Group"}}
+                              <div> Name: {{this.template_title}} </div>
+                              {{#compare ../this.change "Deleted" operator="!=="}}
+                                  {{#unless ../../this.group_id}}
+                                      <div> Note: Group has been Deleted </div>
+                                  {{/unless}}
+                              {{/compare}}
+                          {{/compare}}
+                      </div>
+                  </td>
+              </tr>
+          {{/each}}
+      </tbody>
+  </table>
+  {{#if noLogs}}
+    <h3> There are No Logs - Submit a request to see changes </h3>
+  {{/if}}
+  <div class="d-flex justify-content-end">
+    <nav aria-label="Page navigation">
+      <ul class="pagination">
+        <!-- Back 3 -->
+        {{#compare page 4 opeartor=">="}}
+        <li class="page-item">
+        {{/compare}}
+        {{#compare page 4 operator="<"}}
+        <li class="page-item disabled">
+        {{/compare}}
+          <a class="page-link" href="{{endpoint}}page={{math page "-" 3}}&search={{search}}" aria-label="Previous">
+            <span aria-hidden="true"><i class="fa fa-angle-double-left"></i> Skip 3</span>
+            <span class="sr-only">Back 3</span>
+          </a>
+        </li>
+
+        <!-- Back 1 -->
+        {{#compare page 1 operator="!=="}}
+        <li class="page-item">
+        {{/compare}}
+        {{#compare page 1}}
+        <li class="page-item disabled">
+        {{/compare}}
+          <a class="page-link" href="{{endpoint}}page={{math page "-" 1}}&search={{search}}" aria-label="Previous">
+            <span aria-hidden="true"><i class="fa fa-angle-left"></i></span>
+            <span class="sr-only">Previous</span>
+          </a>
+        </li>
+
+        <!-- Current page -->
+        <li class="page-item">
+          <a class="page-link" href="{{endpoint}}page={{page}}&search={{search}}">
+            <b>{{page}}</b>
+          </a>
+        </li>
+
+        <!-- Next page -->
+        {{#compare page last operator="<"}}
+        <li class="page-item">
+        {{/compare}}
+        {{#compare page last operator=">="}}
+        <li class="page-item disabled">
+        {{/compare}}
+        <a class="page-link" href="{{endpoint}}page={{math page "+" 1}}&search={{search}}" aria-label="Next">
+          <span aria-hidden="true"><i class="fa fa-angle-right"></i></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </li>
+
+        <!-- Skip 3 -->
+        {{#compare page threeBeforeLast operator="<"}}
+        <li class="page-item">
+        {{/compare}}
+        {{#compare page threeBeforeLast operator=">="}}
+        <li class="page-item disabled">
+        {{/compare}}
+          <a class="page-link" href="{{endpoint}}page={{math page "+" 3}}&search={{search}}" aria-label="Previous">
+            <span aria-hidden="true">Skip 3 <i class="fa fa-angle-double-right"></i></span>
+            <span class="sr-only">Skip 3</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+  <script src="/js/collapsible_table.js"></script>
+  <script src="/js/table_search.js"></script>
+</div>

@@ -8,16 +8,15 @@ const datejs = require('datejs');
 const Models = require('../models/models');
 const EmailHelpers = require('../helpers/email_helpers');
 const ValidationHelpers = require('../helpers/validation_helpers');
+const Constants = require('../models/constants');
 
 
 const { sendApproverEmail } = EmailHelpers;
 const { createSearchObject } = ValidationHelpers;
 const { User, Request, Log, Group, Template } = Models;
+const { DOCS_PER_PAGE, MAX_LENGTH } = Constants;
 const router = express.Router();
 let upload = multer();
-
-const DOCS_PER_PAGE = 8; // defines number of documents to show per page
-const MAX_LENGTH = 45; // defines max_length for number of characters to show in the subject line
 
 // configure settings for file upload
 const uploadStorage = multer.diskStorage({
@@ -108,7 +107,6 @@ router.get('/', (req, res, next) => {
         if (page === 1 && broadcasts.length === 0) {
           noResults = true;
         }
-        console.log(last)
         return res.render('home_views/home', {
           broadcasts,
           startIndex,
