@@ -14,7 +14,7 @@ const Constants = require('../models/constants');
 const { sendApproverEmail } = EmailHelpers;
 const { createSearchObject } = ValidationHelpers;
 const { User, Request, Log, Group, Template } = Models;
-const { DOCS_PER_PAGE, MAX_LENGTH } = Constants;
+const { DOCS_PER_PAGE, MAX_LENGTH, MAX_FILE_SIZE } = Constants;
 const router = express.Router();
 let upload = multer();
 
@@ -162,11 +162,9 @@ router.get('/new_request', (req, res) => {
  * Defines file restrictions
  */
 router.post('/new_request', (req, res) => {
-  const maxSize = 250 * 1024; // 250 KB
-
   upload = multer({
     storage: uploadStorage,
-    limits: { fileSize: maxSize },
+    limits: { fileSize: MAX_FILE_SIZE },
     fileFilter(request, file, callback) {
       if (file.mimetype
           && file.mimetype !== 'application/pdf') {
@@ -211,9 +209,6 @@ router.post('/new_request', (req, res) => {
 
     // append filePaths to files * occurs if modifying file attachments while pending *
     if (id) {
-      console.log('hi');
-      console.log(JSON.stringify(attachments, null, 2));
-      console.log('hi');
       return Request.findByIdAndUpdate(id, {
         $set: {
           to,
