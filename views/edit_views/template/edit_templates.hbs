@@ -1,4 +1,5 @@
 <div>
+  {{> banner }}
   {{> table_header }}
   <h1> Templates </h1>
   <div id="type" style="display: none;"> template </div>
@@ -19,12 +20,12 @@
                       <td style="width: 16%;">{{this.createdBy.username}}</td>
                       <td style="width: 14%;">
                         <a href="{{../endpoint.edit}}={{this._id}}" style="text-decoration: none;">
-                          <button type="button" class="btn edit-button">
+                          <button type="button" class="btn edit-button" style="padding: 2px 8px 0px 10px; font-size: 16px;">
                             <i class="fa fa-edit"></i>
                           </button>
                         </a>
                         <span class="space"></span>
-                        <button id="delete-{this._id}" type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-{{this._id}}">
+                        <button id="delete-{this._id}" type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-{{this._id}}" style="padding: 2px 8px 0px 10px; font-size: 16px;">
                           <i class="fa fa-trash"></i>
                         </button>
                       </td>

@@ -20,7 +20,7 @@
       <tbody>
           {{#each logs}}
               <tr class="clickable-row" data-toggle="collapse" data-target="#{{this._id}}">
-                  <th scope="row"> {{math @index "+" 1}}</th>
+                  <th scope="row"> {{math @index "+" ../startIndex}}</th>
                   <td>{{this.type}}</td>
                   <td>{{this.change}}</td>
                   <td>{{this.time_string}}</td>

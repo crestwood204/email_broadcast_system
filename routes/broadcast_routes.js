@@ -119,7 +119,7 @@ router.get('/', (req, res, next) => {
           last,
           threeBeforeLast: (last - 3) < page ? page : (last - 3),
           user: req.user,
-          endpoint: '/?'
+          endpoint: { endpoint: '/?', new: '/new_request' }
         });
       });
   });
@@ -366,7 +366,7 @@ router.get('/pending_requests', (req, res, next) => {
           user: req.user,
           broadcasts: pendingRequests.reverse(),
           pending: true,
-          endpoint: '/pending_requests?'
+          endpoint: { endpoint: '/pending_requests?', new: 'new_request' }
         });
       });
   });

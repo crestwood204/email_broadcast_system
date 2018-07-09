@@ -3,9 +3,10 @@
 const express = require('express');
 const Models = require('../../models/models');
 const Constants = require('../../models/constants');
+const Messages = require('../../models/message_constants');
 
 const { Log, Template } = Models;
-const { DOCS_PER_PAGE, MAX_TEMPLATE_LINE_LENGTH } = Constants;
+const { TEMPLATES_PER_PAGE, MAX_TEMPLATE_LINE_LENGTH } = Constants;
 const router = express.Router();
 
 // router.get('/edit_templates', (req, res) => {
@@ -22,7 +23,8 @@ const router = express.Router();
 router.get('/edit_templates', (req, res, next) => {
   const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 0 if page is NaN
   const { search } = req.query;
-
+  const error = Messages[req.query.error];
+  const status = Messages[req.query.status];
   // create search object
   const searchObj = {}; // createEditSearchObject(search);
 
@@ -37,14 +39,14 @@ router.get('/edit_templates', (req, res, next) => {
       console.log(lastErr);
       return res.status(500).send('Database Error: "/"');
     }
-    let last = parseInt(count / DOCS_PER_PAGE, 10);
-    if (count % DOCS_PER_PAGE !== 0) {
+    let last = parseInt(count / TEMPLATES_PER_PAGE, 10);
+    if (count % TEMPLATES_PER_PAGE !== 0) {
       last += 1;
     }
     return Template.find(searchObj)
       .sort({ name: 'ascending' })
-      .limit(DOCS_PER_PAGE)
-      .skip((page - 1) * DOCS_PER_PAGE)
+      .limit(TEMPLATES_PER_PAGE)
+      .skip((page - 1) * TEMPLATES_PER_PAGE)
       .populate({
         path: 'createdBy',
         model: 'User'
@@ -66,7 +68,7 @@ router.get('/edit_templates', (req, res, next) => {
 
           return x;
         });
-        const startIndex = ((page - 1) * DOCS_PER_PAGE) + 1;
+        const startIndex = ((page - 1) * TEMPLATES_PER_PAGE) + 1;
         let [noTemplates, noResults] = [false, false];
         if (!search && page === 1 && templates.length === 0) {
           noTemplates = true;
@@ -82,6 +84,8 @@ router.get('/edit_templates', (req, res, next) => {
           search,
           page,
           last,
+          error,
+          status,
           modal: { title: 'Delete Template', text: 'Are you sure you want to delete this template?', type: 'Delete' },
           threeBeforeLast: (last - 3) < page ? page : (last - 3),
           user: req.user,
@@ -126,12 +130,8 @@ router.post('/new_template', (req, res) => {
 });
 
 router.get('/edit_template', (req, res) => {
-  const messages = { missing_fields: 'One or more fields are missing. Please complete the form before submitting' };
-  const { request } = req.query;
-  let alertMsg;
-  if (request) {
-    alertMsg = messages[req.query.type];
-  }
+  const { nameT, subjectT, bodyT } = req.query;
+  const error = Messages[req.query.error];
   const templateId = req.query.template;
   Template.findById(templateId, (err, template) => {
     if (err) {
@@ -141,16 +141,25 @@ router.get('/edit_template', (req, res) => {
     if (!template) {
       return res.redirect('/edit_templates?request=failure&type=not_found');
     }
-    return res.render('edit_views/template/edit_template', { user: req.user, template, request, alertMsg });
+    const [name, subject, body] = [nameT || template.name, subjectT ||
+      template.subject, bodyT || template.body];
+    return res.render('edit_views/template/edit_template', {
+      name,
+      subject,
+      body,
+      error,
+      user: req.user
+    });
   });
 });
 
 router.post('/edit_template', (req, res) => {
+  console.log('hi');
   const { title, subject, body } = req.body;
   const templateId = req.query.template;
 
   if (!title || !subject || !body) {
-    return res.redirect(`/edit_template?template=${templateId}&request=failure&type=missing_fields`);
+    return res.redirect(`/edit_template?template=${templateId}&error=missing_fields`);
   }
 
   return Template.findByIdAndUpdate(templateId, {
@@ -160,7 +169,7 @@ router.post('/edit_template', (req, res) => {
   }, (err, template) => {
     if (err) {
       console.log('edit_template post_edit database_error');
-      return res.redirect('/edit_templates?request=failed');
+      return res.redirect('/edit_templates?error=database');
     }
     let logTitle = '';
     if (title !== template.title) {
@@ -176,11 +185,10 @@ router.post('/edit_template', (req, res) => {
     logTitle = logTitle.trim().split(' ').join(', ');
 
     // nothing was edited, so don't make a log
-    if (logTitle === '') {
-      return res.redirect('/edit_templates?request=success&type=updated');
+    if (logTitle !== '') {
+      Log.log('Edited', req.user._id, logTitle, 'Template', 'post edit_template database_error', null, null, template._id, null, title);
     }
-    Log.log('Edited', req.user._id, logTitle, 'Template', 'post edit_template database_error', null, null, template._id, null, title);
-    return res.redirect('/edit_templates?request=success&type=updated');
+    return res.redirect('/edit_templates?status=saved');
   });
 });
 

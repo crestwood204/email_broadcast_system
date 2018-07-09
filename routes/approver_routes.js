@@ -110,7 +110,7 @@ router.get('/log', (req, res, next) => {
           logs: newLogs,
           threeBeforeLast: (last - 3) < page ? page : (last - 3),
           user: req.user,
-          endpoint: '/log?'
+          endpoint: { endpoint: '/log?' }
         });
       });
   });

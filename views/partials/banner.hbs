@@ -1,0 +1,12 @@
+{{#if error}}
+  <div class="alert alert-danger" role="alert">
+    {{@root error}}
+  </div>
+{{/if}}
+{{#unless error}}
+  {{#if status}}
+    <div class="alert alert-success" role="alert">
+      {{@root status}}
+    </div>
+  {{/if}}
+{{/unless}}
