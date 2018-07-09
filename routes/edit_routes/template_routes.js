@@ -1,34 +1,109 @@
 const express = require('express');
 const Models = require('../../models/models');
+const Constants = require('../../models/constants');
 
 const { Log, Template } = Models;
+const { DOCS_PER_PAGE, MAX_LENGTH } = Constants;
 const router = express.Router();
 
-router.get('/edit_templates', (req, res) => {
-  const messages = {
-    database: 'The database failed to respond to this request. Please try again or contact IT for support.',
-    not_found: 'Template could not be found in the database! Please try again or create a new template.',
-    deleted: 'Template deleted successfully!',
-    updated: 'Template updated succesfully!',
-    created: 'Template created successfully!'
-  };
-  const { request } = req.query;
-  let alertMsg;
-  if (request) {
-    alertMsg = messages[req.query.type];
+// router.get('/edit_templates', (req, res) => {
+//   const messages = {
+//     database: 'The database failed to respond to this request. Please try again or contact IT for support.',
+//     not_found: 'Template could not be found in the database! Please try again or create a new template.',
+//     deleted: 'Template deleted successfully!',
+//     updated: 'Template updated succesfully!',
+//     created: 'Template created successfully!'
+//   };
+//   const { request } = req.query;
+//   let alertMsg;
+//   if (request) {
+//     alertMsg = messages[req.query.type];
+//   }
+//   Template.find({})
+//     .populate({
+//       path: 'createdBy',
+//       model: 'User'
+//     })
+//     .exec((err, templates) => {
+//       if (err) {
+//         console.log('pending_requests error_fetching requests database_error', err);
+//         return res.send('Error Fetching Templates From the Database!! Refresh the Page or Contact IT for help.');
+//       }
+//       return res.render('edit_views/edit_table', {
+//         request,
+//         alertMsg,
+//         templates,
+//         user: req.user
+//       });
+//     });
+// });
+
+router.get('/edit_templates', (req, res, next) => {
+  const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 0 if page is NaN
+  const { search } = req.query;
+
+  // create search object
+  const searchObj = {}; // createEditSearchObject(search);
+
+  if (page < 1) {
+    next(new Error('User Malformed Input')); // TODO: Handle this error
   }
-  Template.find({})
-    .populate({
-      path: 'createdBy',
-      model: 'User'
-    })
-    .exec((err, templates) => {
-      if (err) {
-        console.log('pending_requests error_fetching requests database_error', err);
-        return res.send('Error Fetching Templates From the Database!! Refresh the Page or Contact IT for help.');
-      }
-      return res.render('edit_views/template/edit_templates', { user: req.user, request, alertMsg, templates });
-    });
+  /* sort by date approved so that pending requests appear last (pendings don't have dateApproved)
+   * makes it so that pages that aren't the last one always have 8 documents displayed
+   */
+  return Template.count(searchObj).exec((lastErr, count) => {
+    if (lastErr) {
+      console.log(lastErr);
+      return res.status(500).send('Database Error: "/"');
+    }
+    let last = parseInt(count / DOCS_PER_PAGE, 10);
+    if (count % DOCS_PER_PAGE !== 0) {
+      last += 1;
+    }
+    return Template.find(searchObj)
+      .sort({ dateApproved: 'descending' })
+      .limit(DOCS_PER_PAGE)
+      .skip((page - 1) * DOCS_PER_PAGE)
+      .populate({
+        path: 'createdBy',
+        model: 'User'
+      })
+      .exec((err, requests) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).send('Database Error: "/"');
+        }
+        let broadcasts = requests ? requests.filter(x => x.approved === true) : [];
+        broadcasts = broadcasts.map((x) => {
+          // x.dateString = x.dateApproved.format('Y-m-d');
+          // x.subjectString = x.subject.substring(0, MAX_LENGTH);
+          // if (x.subjectString.length === MAX_LENGTH) {
+          //   x.subjectString += ' ...';
+          // }
+          return x;
+        });
+        const startIndex = ((page - 1) * DOCS_PER_PAGE) + 1;
+        let [noBroadcasts, noResults] = [false, false];
+        if (!search && page === 1 && broadcasts.length === 0) {
+          noBroadcasts = true;
+        }
+        if (page === 1 && broadcasts.length === 0) {
+          noResults = true;
+        }
+        return res.render('edit_views/edit_table', {
+          broadcasts,
+          startIndex,
+          noBroadcasts,
+          noResults,
+          search,
+          page,
+          last,
+          threeBeforeLast: (last - 3) < page ? page : (last - 3),
+          user: req.user,
+          endpoint: '/?'
+        });
+      });
+  });
 });
 
 router.get('/new_template', (req, res) => {

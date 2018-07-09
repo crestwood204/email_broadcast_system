@@ -1,0 +1,64 @@
+<div class="d-flex justify-content-end">
+  <nav aria-label="Page navigation">
+    <ul class="pagination">
+      <!-- Back 3 -->
+      {{#compare page 4 opeartor=">="}}
+      <li class="page-item">
+      {{/compare}}
+      {{#compare page 4 operator="<"}}
+      <li class="page-item disabled">
+      {{/compare}}
+        <a class="page-link" href="{{endpoint}}page={{math page "-" 3}}&search={{search}}" aria-label="Previous">
+          <span aria-hidden="true"><i class="fa fa-angle-double-left"></i> Skip 3</span>
+          <span class="sr-only">Back 3</span>
+        </a>
+      </li>
+
+      <!-- Back 1 -->
+      {{#compare page 1 operator="!=="}}
+      <li class="page-item">
+      {{/compare}}
+      {{#compare page 1}}
+      <li class="page-item disabled">
+      {{/compare}}
+        <a class="page-link" href="{{endpoint}}page={{math page "-" 1}}&search={{search}}" aria-label="Previous">
+          <span aria-hidden="true"><i class="fa fa-angle-left"></i></span>
+          <span class="sr-only">Previous</span>
+        </a>
+      </li>
+
+      <!-- Current page -->
+      <li class="page-item">
+        <a class="page-link" href="{{endpoint}}page={{page}}&search={{search}}">
+          <b>{{page}}</b>
+        </a>
+      </li>
+
+      <!-- Next page -->
+      {{#compare page last operator="<"}}
+      <li class="page-item">
+      {{/compare}}
+      {{#compare page last operator=">="}}
+      <li class="page-item disabled">
+      {{/compare}}
+      <a class="page-link" href="{{endpoint}}page={{math page "+" 1}}&search={{search}}" aria-label="Next">
+        <span aria-hidden="true"><i class="fa fa-angle-right"></i></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </li>
+
+      <!-- Skip 3 -->
+      {{#compare page threeBeforeLast operator="<"}}
+      <li class="page-item">
+      {{/compare}}
+      {{#compare page threeBeforeLast operator=">="}}
+      <li class="page-item disabled">
+      {{/compare}}
+        <a class="page-link" href="{{endpoint}}page={{math page "+" 3}}&search={{search}}" aria-label="Previous">
+          <span aria-hidden="true">Skip 3 <i class="fa fa-angle-double-right"></i></span>
+          <span class="sr-only">Skip 3</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>

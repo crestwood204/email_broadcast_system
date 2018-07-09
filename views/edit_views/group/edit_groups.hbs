@@ -29,7 +29,17 @@
                     <tr>
                         <th scope="row">{{this.name}}</th>
                         <td>{{this.email}}</td>
-                        <td><a href="/edit_group?group={{this._id}}"><button type="button" class="btn btn-primary"><i class="fa fa-edit"></i></button></a><span class="space"></span><button id="delete-{this._id}" type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-modal-{{this._id}}"><i class="fa fa-trash"></i></button></a></td>
+                        <td>
+                          <a href="/edit_group?group={{this._id}}">
+                            <button type="button" class="btn btn-primary">
+                              <i class="fa fa-edit"></i>
+                            </button>
+                          </a>
+                          <span class="space"></span>
+                          <button id="delete-{this._id}" type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-modal-{{this._id}}">
+                            <i class="fa fa-trash"></i>
+                          </button>
+                        </td>
                     </tr>
                     <!-- Modal -->
                     <div class="modal fade" id="delete-modal-{{this._id}}" tabindex="-1" role="dialog" aria-labelledby="deleteGroupModal" aria-hidden="true">

@@ -89,3 +89,14 @@ h1 {
   color: #495057 !important;
   font-size: 20px;
 }
+
+/* buttons */
+
+.edit-button {
+  background-color: #ffe554;
+  color: black;
+}
+
+.edit-button:hover {
+  background-color: #E5CE4B;
+}
