@@ -14,10 +14,10 @@
       <tbody>
           {{#each templates}}
                   <tr>
-                      <th scope="row">{{this.name}}</th>
-                      <td>{{this.subject}}</td>
-                      <td>{{this.createdBy.username}}</td>
-                      <td>
+                      <th scope="row" style="width: 30%;">{{this.name}}</th>
+                      <td style="width: 30%;">{{this.subject}}</td>
+                      <td style="width: 16%;">{{this.createdBy.username}}</td>
+                      <td style="width: 14%;">
                         <a href="{{../endpoint.edit}}={{this._id}}" style="text-decoration: none;">
                           <button type="button" class="btn edit-button">
                             <i class="fa fa-edit"></i>

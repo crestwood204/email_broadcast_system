@@ -5,7 +5,7 @@ const Models = require('../../models/models');
 const Constants = require('../../models/constants');
 
 const { Log, Template } = Models;
-const { DOCS_PER_PAGE, MAX_LENGTH } = Constants;
+const { DOCS_PER_PAGE, MAX_TEMPLATE_LINE_LENGTH } = Constants;
 const router = express.Router();
 
 // router.get('/edit_templates', (req, res) => {
@@ -56,12 +56,12 @@ router.get('/edit_templates', (req, res, next) => {
         }
         const templates = temps;
         templates.map((x) => {
-          if (x.subject.length > MAX_LENGTH) {
-            x.subject = `${x.subject.substring(0, MAX_LENGTH)} ...`;
+          if (x.subject.length > MAX_TEMPLATE_LINE_LENGTH) {
+            x.subject = `${x.subject.substring(0, MAX_TEMPLATE_LINE_LENGTH)} ...`;
           }
 
-          if (x.name.length > MAX_LENGTH) {
-            x.name = `${x.name.substring(0, MAX_LENGTH)} ...`;
+          if (x.name.length > MAX_TEMPLATE_LINE_LENGTH) {
+            x.name = `${x.name.substring(0, MAX_TEMPLATE_LINE_LENGTH)} ...`;
           }
 
           return x;
@@ -185,13 +185,13 @@ router.post('/edit_template', (req, res) => {
 });
 
 router.put('/delete_template', (req, res) => {
-  const { templateId, templateTitle } = req.body;
-  Template.deleteOne({ _id: templateId }, (err) => {
+  const { id, name } = req.body;
+  Template.deleteOne({ _id: id }, (err) => {
     if (err) {
       console.log('put delete_template database_error');
     } else {
       // make a log
-      Log.log('Deleted', req.user._id, 'Template Deleted', 'Template', 'put delete_template database_error', null, null, null, null, templateTitle);
+      Log.log('Deleted', req.user._id, 'Template Deleted', 'Template', 'put delete_template database_error', null, null, null, null, name);
       res.send('Template Deleted Successfully');
     }
   });
