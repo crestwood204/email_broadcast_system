@@ -95,7 +95,7 @@ router.get('/edit_templates', (req, res, next) => {
         if (page === 1 && templates.length === 0) {
           noResults = true;
         }
-        return res.render('edit_views/edit_table', {
+        return res.render('edit_views/template/edit_templates', {
           templates,
           startIndex,
           noTemplates,
@@ -103,6 +103,7 @@ router.get('/edit_templates', (req, res, next) => {
           search,
           page,
           last,
+          modal: { title: 'Delete Template', text: 'Are you sure you want to delete this template?', type: 'Delete' },
           threeBeforeLast: (last - 3) < page ? page : (last - 3),
           user: req.user,
           endpoint: '/edit_templates?',
@@ -113,23 +114,24 @@ router.get('/edit_templates', (req, res, next) => {
 });
 
 router.get('/new_template', (req, res) => {
-  const messages = { missing_fields: 'One or more fields are missing. Please complete the form before submitting.' };
-  const { request } = req.query;
-  let alertMsg;
-  if (request) {
-    alertMsg = messages[req.query.type];
-  }
-  return res.render('edit_views/template/new_template', { user: req.user, request, alertMsg });
+  const { name, subject, body, error } = req.query;
+  return res.render('edit_views/template/new_template', {
+    name,
+    subject,
+    body,
+    error,
+    user: req.user
+  });
 });
 
 router.post('/new_template', (req, res) => {
-  const { title, subject, body } = req.body;
+  const { name, subject, body } = req.body;
   const createdBy = req.user._id;
-  if (!title || !subject || !body) {
-    return res.redirect(`/new_template?request=failure&type=missing_fields&title=${title}&subject=${subject}&body=${body}`);
+  if (!name || !subject || !body) {
+    return res.redirect(`/new_template?error=missing_fields&name=${name}&subject=${subject}&body=${body}`);
   }
   const newTemplate = new Template({
-    title,
+    name,
     subject,
     body,
     createdBy
@@ -140,7 +142,7 @@ router.post('/new_template', (req, res) => {
       console.log('new_template save datbase_error');
       return res.redirect('/edit_templates?request=failure&type=database');
     }
-    Log.log('Created', req.user._id, 'New Template Created', 'Template', 'post new_template database_error', null, null, template._id, null, title);
+    Log.log('Created', req.user._id, 'New Template Created', 'Template', 'post new_template database_error', null, null, template._id, null, name);
     return res.redirect('/edit_templates?request=success&type=created');
   });
 });

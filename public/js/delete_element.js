@@ -13,7 +13,7 @@ $(document).ready(() => {
         console.log('error communicating with server', err);
       },
       success() {
-        window.location.href = '/edit_groups?request=success&type=deleted';
+        window.location.href = `/${$('#search-bar-form').attr('action')}?request=success&type=deleted`;
       }
     });
   });

@@ -83,7 +83,7 @@ const customValidation = () => {
       }
 
       // add event listener
-      selector.on('change', () => {
+      selector.bind('input propertychange', () => {
         if ($('#body').val() === '') {
           errorValidation($('#body'), $('#bodyFeedback'));
         } else {
