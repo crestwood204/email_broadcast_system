@@ -1,9 +1,9 @@
 const express = require('express');
 const Models = require('../../models/models');
-const EmailHelpers = require('../../helpers/email_helpers');
+const ValidationHelpers = require('../../helpers/validation_helpers');
 
 const { Log, Group } = Models;
-const { validateEmail } = EmailHelpers;
+const { validateEmail } = ValidationHelpers;
 const router = express.Router();
 
 router.get('/edit_groups', (req, res) => {
