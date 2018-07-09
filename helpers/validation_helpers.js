@@ -24,10 +24,12 @@ const escapeRegExp = query => query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
  */
 const validateDateString = dateString => dateString.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/);
 
-const createSearchObject = (search) => {
+const createSearchObject = (search, logParam) => {
   const searchObj = {};
 
   if (search) {
+    const date = logParam || '[date]';
+
     // checks all fields are lowercase and without trailing spaces and that you can escape ':'
     const split = search.match(/([^\\\][^:]|\\:)+/g).map(x => x.trim().toLowerCase().split('\\').join(''));
     const [type] = split;
@@ -40,18 +42,18 @@ const createSearchObject = (search) => {
           const day = parseInt(split[1].substring(8, 10), 10);
 
           if (type === 'date') {
-            searchObj.dateApproved = {
+            searchObj[date] = {
               $lte: new Date(year, month, day + 1, 0, 0, 0, 0).toISOString(),
               $gte: new Date(year, month, day, 0, 0, 0, 0).toISOString()
             };
           }
 
           if (type === 'before') {
-            searchObj.dateApproved = { $lte: new Date(year, month, day, 0, 0, 0, 0).toISOString() };
+            searchObj[date] = { $lte: new Date(year, month, day, 0, 0, 0, 0).toISOString() };
           }
 
           if (type === 'after') {
-            searchObj.dateApproved = { $gte: new Date(year, month, day, 0, 0, 0, 0).toISOString() };
+            searchObj[date] = { $gte: new Date(year, month, day, 0, 0, 0, 0).toISOString() };
           }
         } else {
           searchObj[type] = { $regex: new RegExp(escapeRegExp(split[1]), 'ig') };
@@ -74,7 +76,7 @@ const createSearchObject = (search) => {
               day: parseInt(split[2].substring(8, 10), 10)
             };
 
-            searchObj.dateApproved = {
+            searchObj[date] = {
               $lte: new Date(upperBound.year, upperBound.month, upperBound.day, 0, 0, 0, 0),
               $gte: new Date(lowerBound.year, lowerBound.month, lowerBound.day, 0, 0, 0, 0)
             };
@@ -94,7 +96,24 @@ const createSearchObject = (search) => {
   return searchObj;
 };
 
+const createEditSearchObject = (search) => {
+  const searchObj = {};
+
+  if (search) {
+    // checks all fields are lowercase and without trailing spaces and that you can escape ':'
+    const split = search.match(/([^\\\][^:]|\\:)+/g).map(x => x.trim().toLowerCase().split('\\').join(''));
+    const [type] = split;
+    if (split.length === 2) {
+      searchObj[type] = { $regex: new RegExp(escapeRegExp(split[1]), 'ig') };
+    } else {
+      searchObj.name = { $regex: new RegExp(escapeRegExp(search), 'ig') };
+    }
+  }
+  return searchObj;
+};
+
 module.exports = {
   validateEmail,
-  createSearchObject
+  createSearchObject,
+  createEditSearchObject
 };

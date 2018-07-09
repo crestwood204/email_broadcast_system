@@ -35,7 +35,7 @@ router.get('/log', (req, res, next) => {
   const { search } = req.query;
 
   // create search object
-  const searchObj = createSearchObject(search);
+  const searchObj = createSearchObject(search, 'date');
 
   if (page < 1) {
     next(new Error('User Malformed Input')); // TODO: Handle this error
@@ -77,6 +77,7 @@ router.get('/log', (req, res, next) => {
         model: 'Group'
       }])
       .exec((err, logs) => {
+        console.log(logs)
         if (err) {
           console.log('log error_fetching_logs database_error', err);
           return res.redirect('/?request=failure');

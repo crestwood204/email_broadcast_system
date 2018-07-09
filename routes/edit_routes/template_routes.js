@@ -4,6 +4,7 @@ const express = require('express');
 const Models = require('../../models/models');
 const Constants = require('../../models/constants');
 const Messages = require('../../models/message_constants');
+const ValidationHelpers = require('../../helpers/validation_helpers');
 
 const { Log, Template } = Models;
 const { TEMPLATES_PER_PAGE, MAX_TEMPLATE_LINE_LENGTH } = Constants;
@@ -15,7 +16,7 @@ router.get('/edit_templates', (req, res, next) => {
   const error = Messages[req.query.error];
   const status = req.query.status ? `Template ${Messages[req.query.status]}` : undefined;
   // create search object
-  const searchObj = {}; // createEditSearchObject(search);
+  const searchObj = ValidationHelpers.createEditSearchObject(search);
 
   if (page < 1) {
     next(new Error('User Malformed Input')); // TODO: Handle this error
