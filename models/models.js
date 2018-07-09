@@ -171,7 +171,7 @@ const GroupSchema = new Schema({
 });
 
 const TemplateSchema = new Schema({
-  title: {
+  name: {
     type: String,
     required: true
   },

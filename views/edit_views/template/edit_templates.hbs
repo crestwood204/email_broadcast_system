@@ -1,42 +1,50 @@
-{{#if request}}
-    {{#compare request "success"}}
-        <div class="alert alert-success" role="alert">
-            {{../alertMsg}}
-        </div>
-    {{/compare}}
-    {{#compare request "failure"}}
-        <div class="alert alert-warning" role="alert">
-            {{../alertMsg}}
-        </div>
-    {{/compare}}
-{{/if}}
+<div>
+  {{> table_header }}
+  <h1> Templates </h1>
+  <div id="type" style="display: none;"> template </div>
+  <table class="table">
+      <thead>
+          <tr>
+              <th scope="col">Title</th>
+              <th scope="col">Subject</th>
+              <th scope="col">Created By</th>
+              <th scope="col"></th>
+          </tr>
+      </thead>
+      <tbody>
+          {{#each templates}}
+                  <tr>
+                      <th scope="row">{{this.name}}</th>
+                      <td>{{this.subject}}</td>
+                      <td>{{this.createdBy.username}}</td>
+                      <td>
+                        <a href="/edit_group?group={{this._id}}" style="text-decoration: none;">
+                          <button type="button" class="btn edit-button">
+                            <i class="fa fa-edit"></i>
+                          </button>
+                        </a>
+                        <span class="space"></span>
+                        <button id="delete-{this._id}" type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-{{this._id}}">
+                          <i class="fa fa-trash"></i>
+                        </button>
+                      </td>
+                  </tr>
+                  {{> modal}}
+          {{/each}}
+      </tbody>
+  </table>
+  {{#if noTemplates}}
+      <h3> No Templates </h3>
+  {{/if}}
+  {{#unless noTemplates}}
+    {{#if noResults}}
+      <h3> No Results Found</h3>
+    {{/if}}
+  {{/unless}}
 
-<div class="content">
-    <!-- Create New Template -->
-    <div>
-        <a href="/new_template"><button type="button" class="btn btn-primary">Add New Template</button></a>
-    </div>
+  {{> pagination}}
 
-    <!-- Modify Current Templates -->
-    <h1> Templates </h1>
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Title</th>
-                <th scope="col">Subject</th>
-                <th scope="col">Created By</th>
-                <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#each templates}}
-                    <tr>
-                        <th scope="row">{{this.title}}</th>
-                        <td>{{this.subject}}</td>
-                        <td>{{this.createdBy.username}}</td>
-                        <td><a href="edit_template?template={{this._id}}"><button type="button" class="btn btn-primary">Edit</button></a></td>
-                    </tr>
-            {{/each}}
-        </tbody>
-    </table>
+  <script src="/js/collapsible_table.js"></script>
+  <script src="/js/table_search.js"></script>
+  <script src="/js/delete_element.js"></script>
 </div>

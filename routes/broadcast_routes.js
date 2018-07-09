@@ -93,10 +93,12 @@ router.get('/', (req, res, next) => {
         let broadcasts = requests ? requests.filter(x => x.approved === true) : [];
         broadcasts = broadcasts.map((x) => {
           x.dateString = x.dateApproved.format('Y-m-d');
-          x.subjectString = x.subject.substring(0, MAX_LENGTH);
-          if (x.subjectString.length === MAX_LENGTH) {
-            x.subjectString += ' ...';
+          x.subjectString = x.subject;
+
+          if (x.subject.length > MAX_LENGTH) {
+            x.subjectString = `${x.subject.substring(0, MAX_LENGTH)} ...`;
           }
+
           return x;
         });
         const startIndex = ((page - 1) * DOCS_PER_PAGE) + 1;

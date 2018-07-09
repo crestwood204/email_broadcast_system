@@ -78,8 +78,7 @@ app.engine('.hbs', exphbs({
     compare: helpers.compare,
     substring: helpers.substring,
     chain: helpers.chain
-  },
-  partials: { pagination: helpers.pagination }
+  }
 }));
 app.set('view engine', 'hbs');
 app.use(express.static(path.join(__dirname, 'public')));

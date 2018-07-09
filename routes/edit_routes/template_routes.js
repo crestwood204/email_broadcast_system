@@ -1,3 +1,5 @@
+/* eslint no-param-reassign: ["error",
+{ "props": true, "ignorePropertyModificationsFor": ["x"] }] */
 const express = require('express');
 const Models = require('../../models/models');
 const Constants = require('../../models/constants');
@@ -61,46 +63,50 @@ router.get('/edit_templates', (req, res, next) => {
       last += 1;
     }
     return Template.find(searchObj)
-      .sort({ dateApproved: 'descending' })
+      .sort({ name: 'ascending' })
       .limit(DOCS_PER_PAGE)
       .skip((page - 1) * DOCS_PER_PAGE)
       .populate({
         path: 'createdBy',
         model: 'User'
       })
-      .exec((err, requests) => {
+      .exec((err, temps) => {
         if (err) {
           console.log(err);
           return res.status(500).send('Database Error: "/"');
         }
-        let broadcasts = requests ? requests.filter(x => x.approved === true) : [];
-        broadcasts = broadcasts.map((x) => {
-          // x.dateString = x.dateApproved.format('Y-m-d');
-          // x.subjectString = x.subject.substring(0, MAX_LENGTH);
-          // if (x.subjectString.length === MAX_LENGTH) {
-          //   x.subjectString += ' ...';
-          // }
+        const templates = temps;
+        templates.map((x) => {
+          if (x.subject.length > MAX_LENGTH) {
+            x.subject = `${x.subject.substring(0, MAX_LENGTH)} ...`;
+          }
+
+          if (x.name.length > MAX_LENGTH) {
+            x.name = `${x.name.substring(0, MAX_LENGTH)} ...`;
+          }
+
           return x;
         });
         const startIndex = ((page - 1) * DOCS_PER_PAGE) + 1;
-        let [noBroadcasts, noResults] = [false, false];
-        if (!search && page === 1 && broadcasts.length === 0) {
-          noBroadcasts = true;
+        let [noTemplates, noResults] = [false, false];
+        if (!search && page === 1 && templates.length === 0) {
+          noTemplates = true;
         }
-        if (page === 1 && broadcasts.length === 0) {
+        if (page === 1 && templates.length === 0) {
           noResults = true;
         }
         return res.render('edit_views/edit_table', {
-          broadcasts,
+          templates,
           startIndex,
-          noBroadcasts,
+          noTemplates,
           noResults,
           search,
           page,
           last,
           threeBeforeLast: (last - 3) < page ? page : (last - 3),
           user: req.user,
-          endpoint: '/?'
+          endpoint: '/edit_templates?',
+          new_endpoint: '/new_template'
         });
       });
   });
