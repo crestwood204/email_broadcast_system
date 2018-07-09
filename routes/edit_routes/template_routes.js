@@ -10,35 +10,14 @@ const router = express.Router();
 
 // router.get('/edit_templates', (req, res) => {
 //   const messages = {
-//     database: 'The database failed to respond to this request. Please try again or contact IT for support.',
-//     not_found: 'Template could not be found in the database! Please try again or create a new template.',
+//     database: 'The database failed to respond to this request. Please
+//                try again or contact IT for support.',
+//     not_found: 'Template could not be found in the database!
+//                Please try again or create a new template.',
 //     deleted: 'Template deleted successfully!',
 //     updated: 'Template updated succesfully!',
 //     created: 'Template created successfully!'
 //   };
-//   const { request } = req.query;
-//   let alertMsg;
-//   if (request) {
-//     alertMsg = messages[req.query.type];
-//   }
-//   Template.find({})
-//     .populate({
-//       path: 'createdBy',
-//       model: 'User'
-//     })
-//     .exec((err, templates) => {
-//       if (err) {
-//         console.log('pending_requests error_fetching requests database_error', err);
-//         return res.send('Error Fetching Templates From the Database!! Refresh the Page or Contact IT for help.');
-//       }
-//       return res.render('edit_views/edit_table', {
-//         request,
-//         alertMsg,
-//         templates,
-//         user: req.user
-//       });
-//     });
-// });
 
 router.get('/edit_templates', (req, res, next) => {
   const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 0 if page is NaN
@@ -106,8 +85,7 @@ router.get('/edit_templates', (req, res, next) => {
           modal: { title: 'Delete Template', text: 'Are you sure you want to delete this template?', type: 'Delete' },
           threeBeforeLast: (last - 3) < page ? page : (last - 3),
           user: req.user,
-          endpoint: '/edit_templates?',
-          new_endpoint: '/new_template'
+          endpoint: { endpoint: '/edit_templates?', new: '/new_template', edit: '/edit_template?template' }
         });
       });
   });

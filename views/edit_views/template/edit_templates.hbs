@@ -18,7 +18,7 @@
                       <td>{{this.subject}}</td>
                       <td>{{this.createdBy.username}}</td>
                       <td>
-                        <a href="/edit_group?group={{this._id}}" style="text-decoration: none;">
+                        <a href="{{../endpoint.edit}}={{this._id}}" style="text-decoration: none;">
                           <button type="button" class="btn edit-button">
                             <i class="fa fa-edit"></i>
                           </button>
