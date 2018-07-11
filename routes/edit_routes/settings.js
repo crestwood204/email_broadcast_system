@@ -6,7 +6,6 @@ const router = express.Router();
 
 router.get('/user_settings', (req, res, next) => {
   const { user } = req.query;
-  console.log(user);
   User.findById(user).then(
     (profile) => {
       res.render('edit_views/user/edit_user', { user: req.user, profile });
