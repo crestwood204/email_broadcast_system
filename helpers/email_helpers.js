@@ -142,7 +142,7 @@ const sendBroadcastEmail = (request) => {
     <div style="border:none; border-bottom:double windowtext 2.25pt; padding:0in 0in 1.0pt 0in">
       <p class="MsoNormal" style="border:none; padding:0in">&nbsp;</p>
     </div>
-    <div> ${request.body} </div> hi
+    <div> ${request.body} </div>
   </html>`;
 
   Group.find({}).then(
@@ -150,7 +150,7 @@ const sendBroadcastEmail = (request) => {
       let filteredGroups = groups.filter(x => request.to.includes(x.name));
       filteredGroups = filteredGroups.map(x => x.email);
       const mailOptions = {
-        from: process.env.BROADCAST_ADDRESS, // sender address
+        from: groups.filter(x => x.name === request.from)[0].email, // sender address
         to: '', // list of receivers
         bcc: filteredGroups,
         subject: request.subject, // Subject line

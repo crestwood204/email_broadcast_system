@@ -9,6 +9,7 @@ const Models = require('../models/models');
 const EmailHelpers = require('../helpers/email_helpers');
 const ValidationHelpers = require('../helpers/validation_helpers');
 const Constants = require('../models/constants');
+const Messages = require('../models/message_constants');
 
 
 const { sendApproverEmail } = EmailHelpers;
@@ -130,15 +131,13 @@ router.get('/', (req, res, next) => {
  */
 router.get('/new_request', (req, res) => {
   const { to, from, subject, body, attachments, id } = req.query;
+  const error = Messages[req.query.error];
+  const status = Messages[req.query.status];
   Group.find({}).then(
-    (grps) => {
+    (groups) => {
       Template.find({}).then(
         (templates) => {
           templates.sort((a, b) => a.name - b.name);
-          const groups = grps.map((x) => {
-            x.distibution = x.distribution === 'distribution';
-            return x;
-          });
           res.render('new_request', {
             to,
             body,
@@ -147,8 +146,9 @@ router.get('/new_request', (req, res) => {
             templates,
             attachments,
             id,
-            error: req.query.error,
-            groups: groups.map(x => x.name),
+            groups,
+            error,
+            status,
             user: req.user
           });
         },
@@ -208,10 +208,8 @@ router.post('/new_request', (req, res) => {
       return res.json({ redirect: `/new_request?error=missing_fields&${query}` });
     }
 
-    // convert toField into an array if it is a string
-    if (typeof to !== 'object') {
-      to = [to];
-    }
+    // convert toField into an array
+    to = to.split(',');
 
     // append filePaths to files * occurs if modifying file attachments while pending *
     if (id) {
@@ -227,9 +225,9 @@ router.post('/new_request', (req, res) => {
       }, (updateErr) => {
         if (updateErr) {
           console.log('new_request update database_error', updateErr);
-          return res.json({ redirect: '/pending_requests?request=failure&type=database' });
+          return res.json({ redirect: '/pending_requests?error=database' });
         }
-        return res.json({ redirect: '/pending_requests?request=success' });
+        return res.json({ redirect: '/pending_requests?request=saved' });
       });
     }
 
@@ -246,7 +244,7 @@ router.post('/new_request', (req, res) => {
     return newRequest.save((requestErr, request) => {
       if (requestErr) {
         console.log('new_request save database_error', requestErr);
-        return res.json({ redirect: '/pending_requests?request=failure&type=database' });
+        return res.json({ redirect: '/pending_requests?error=database' });
       }
 
       // add to log
@@ -264,11 +262,11 @@ router.post('/new_request', (req, res) => {
           });
 
           sendApproverEmail(approvers, request, req.user.email);
-          return res.json({ redirect: '/pending_requests?request=success' });
+          return res.json({ redirect: '/pending_requests?status=created' });
         },
         (userErr) => {
           console.log('new_request error_sending_emails database_error', userErr);
-          return res.json({ redirect: '/pending_requests?request=failure&type=database' });
+          return res.json({ redirect: '/pending_requests?error=database' });
         }
       );
     });
@@ -296,8 +294,8 @@ router.get('/get_templates', (req, res) => {
  * Users only see their own pending requests
  */
 router.get('/pending_requests', (req, res, next) => {
-  const success = req.query.request === 'success';
-  const failed = req.query.request === 'failed';
+  const error = Messages[req.query.error];
+  const status = Messages[req.query.status];
   const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 0 if page is NaN
   const { search } = req.query;
 
@@ -366,6 +364,8 @@ router.get('/pending_requests', (req, res, next) => {
           search,
           page,
           last,
+          error,
+          status,
           threeBeforeLast: (last - 3) < page ? page : (last - 3),
           user: req.user,
           broadcasts: pendingRequests.reverse(),

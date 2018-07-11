@@ -12,23 +12,7 @@
 <div id="error_msg-number" class="alert alert-warning" style="display: none;" role="alert">
   You attempted to attach too many files. You can only attach up to 7 files.
 </div>
-{{#if error}}
-  {{#compare error "file_extension"}}
-    <div class="alert alert-warning" role="alert">
-      One or more files you have attached are unsupported. Only .docx and .pdf files are allowed.
-    </div>
-  {{/compare}}
-  {{#compare error "limit_file_size"}}
-    <div class="alert alert-warning" role="alert">
-      One of more files you have attached is larger than the max file size - 250 KB.
-    </div>
-  {{/compare}}
-  {{#compare error "limit_unexpected_file"}}
-    <div class="alert alert-warning" role="alert">
-      You have attached too many files. Please do not modify the html.
-    </div>
-  {{/compare}}
-{{/if}}
+{{> banner}}
 <div class="form-box">
 {{#if error}}
   <form class="needs-validation was-validated" method="post" action="/new_request" enctype="multipart/form-data" novalidate>
@@ -40,9 +24,9 @@
         <label for="toField">To:</label><br>
         <select id="toField" name="toField" class="form-control">
             {{#each groups}}
-              {{#if this.distribution}}
-                <option value={{this.name}}>{{this.name}}</option>
-              {{/if}}
+              {{#compare this.type "distribution"}}
+                <option value={{../this.name}}>{{../this.name}}</option>
+              {{/compare}}
             {{/each}}
         </select>
         <div class="invalid-feedback" id="toFeedback">
@@ -54,7 +38,7 @@
         <label for="locationField">Location:</label><br>
         <select id="locationField" name="locationField" class="form-control">
             {{#each groups}}
-                <option value={{this}}>{{this}}</option>
+                <option value={{this.name}}>{{this.name}}</option>
             {{/each}}
         </select>
       </div>
@@ -65,9 +49,9 @@
           <select name="from" id="fromField" class="form-control" required>
             <option value=""selected>Choose...</option>
             {{#each groups}}
-              {{#unless this.distribution}}
-                <option value={{this.name}}>{{this.name}}</option>
-              {{/unless}}
+              {{#compare this.type "internal"}}
+                <option value={{../this.name}}>{{../this.name}}</option>
+              {{/compare}}
             {{/each}}
           </select>
           <div class="invalid-feedback">

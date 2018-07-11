@@ -70,7 +70,7 @@ $(document).ready(() => {
         // on success, save templates to session storage
         const parsedRes = JSON.parse(res);
         for (let i = 0; i < parsedRes.length; i += 1) {
-          sessionStorage.setItem(parsedRes[i].title, JSON.stringify(parsedRes[i]));
+          sessionStorage.setItem(parsedRes[i].name, JSON.stringify(parsedRes[i]));
         }
       }
     });
@@ -82,6 +82,7 @@ $(document).ready(() => {
     } else {
       to = [to];
     }
+
     $('#toField').val(to);
 
     // set locationField to choose...

@@ -142,13 +142,13 @@ app.use(passport.session());
 // include routes to use
 app.use('/', routes.AUTH_ROUTES(passport)); // authentication routes
 app.use('/', routes.BROADCAST_ROUTES); // broadcast routes
+app.use('/', routes.SETTINGS);
 app.use('/', routes.APPROVER_ROUTES); // routes that are approver-only after this point
 
 // routes that edit users, groups, or templates
 app.use('/', routes.USER_ROUTES);
 app.use('/', routes.GROUP_ROUTES);
 app.use('/', routes.TEMPLATE_ROUTES);
-app.use('/', routes.SETTINGS);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
