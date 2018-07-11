@@ -51,7 +51,9 @@ const RequestSchema = new Schema({
 const UserSchema = new Schema({
   username: {
     type: String,
-    required: true
+    required: true,
+    unique: true,
+    dropDups: true
   },
   password: {
     type: String,

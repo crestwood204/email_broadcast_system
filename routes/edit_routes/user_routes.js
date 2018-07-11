@@ -1,5 +1,6 @@
 const express = require('express');
 const Models = require('../../models/models');
+const Messages = require('../../models/message_constants');
 
 const { User, Log } = Models;
 const router = express.Router();
@@ -82,40 +83,59 @@ router.post('/new_user', (req, res) => {
 });
 
 router.get('/edit_user', (req, res) => {
-  const messages = { missing_fields: 'One or more fields are missing. Please complete the form before submitting.' };
-  const { request } = req.query;
-  let alertMsg;
-  if (request) {
-    alertMsg = messages[req.query.type];
-  }
-  return User.findById(req.query.user, (err, user) => {
+  const { usernameU, emailU, approverU } = req.query;
+  const error = Messages[req.query.error];
+  const status = Messages[req.query.status];
+  const userId = req.query.user;
+
+  return User.findById(userId, (err, user) => {
     if (err) {
       console.log('edit_user user_lookup database_error');
-      return res.redirect('/edit_users', 'request=failure&type=database');
+      return res.redirect('/edit_users?error=database');
     }
     if (!user) {
-      return res.redirect('/edit_users?request=failure&type=notFound');
+      return res.redirect('/edit_users?error=notFound');
     }
-    return res.render('edit_views/user/edit_user', { user: req.user, profile: user, request, alertMsg });
+    const [username, email, approver] = [usernameU || user.username, emailU ||
+      user.email, approverU || user.approver];
+    return res.render('edit_views/user/edit_user', {
+      username,
+      email,
+      approver,
+      status,
+      error,
+      user: req.user,
+      profile: user
+    });
   });
 });
 
 router.post('/edit_user', (req, res) => {
-  const { email, password } = req.body;
+  const { username, email, password } = req.body;
   const approver = !!req.body.approver;
-  if (!email || !password) {
-    return res.redirect(`/edit_user?user=${req.query.user}&request=failure&type=missing_fields`);
+  const userId = req.query.user;
+  const query = `&user=${req.query.user}&username=${req.query.username}&email=${req.query.email}&approver=${req.query.approver}`;
+
+  if (!username || !email || !password) {
+    return res.redirect(`/edit_user?error=missing_fields${query}`);
   }
-  return User.findByIdAndUpdate(req.query.user, {
+
+  return User.findByIdAndUpdate(userId, {
+    username,
     email,
     password,
     approver
   }, (err, user) => {
     if (err) {
-      console.log('edit_user post_edit database_error', err);
-      return res.redirect('/edit_users?request=failure&type=database');
+      if (err.codeName === 'DuplicateKey') {
+        return res.redirect(`/edit_user?error=dupKey${query}`);
+      }
+      return res.redirect('/edit_users?error=database');
     }
     let title = '';
+    if (username !== user.username) {
+      title += 'Username_Changed ';
+    }
     if (email !== user.email) {
       title += 'Email_Changed ';
     }
@@ -132,11 +152,10 @@ router.post('/edit_user', (req, res) => {
     title = title.trim().split(' ').join(', ');
 
     // nothing was edited, so don't make a log
-    if (title === '') {
-      return res.redirect('/edit_users?request=success&type=updated');
+    if (title !== '') {
+      Log.log('Edited', req.user._id, title, 'User', 'post edit_user database_error', null, user._id);
     }
-    Log.log('Edited', req.user._id, title, 'User', 'post edit_user database_error', null, user._id);
-    return res.redirect('/edit_users?request=success&type=updated');
+    return res.redirect('/edit_users?status=saved');
   });
 });
 

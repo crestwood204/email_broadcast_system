@@ -122,6 +122,7 @@ router.post('/new_template', (req, res) => {
 router.get('/edit_template', (req, res) => {
   const { nameT, subjectT, bodyT } = req.query;
   const error = Messages[req.query.error];
+  const status = Messages[req.query.error];
   const templateId = req.query.template;
   Template.findById(templateId, (err, template) => {
     if (err) {
@@ -138,13 +139,13 @@ router.get('/edit_template', (req, res) => {
       subject,
       body,
       error,
+      status,
       user: req.user
     });
   });
 });
 
 router.post('/edit_template', (req, res) => {
-  console.log('hi');
   const { name, subject, body } = req.body;
   const templateId = req.query.template;
 
