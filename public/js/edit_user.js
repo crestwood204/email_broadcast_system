@@ -14,25 +14,4 @@ $(document).ready(() => {
       i.addClass('fa-eye');
     }
   });
-
-  (function setUsernameToDeactivate() {
-    const username = $('#inputUsername').val();
-    $('#deactivate_username').text(username);
-  }());
-
-  $('#deactivate_confirm').on('click', (event) => {
-    event.preventDefault();
-    const username = $('#inputUsername').val();
-    $.ajax({
-      url: '/deactivate_user',
-      method: 'PUT',
-      data: { username },
-      error(err) {
-        console.log('error communicating with server', err);
-      },
-      success() {
-        window.location.href = '/edit_users?request=success&type=deactivated';
-      }
-    });
-  });
 });

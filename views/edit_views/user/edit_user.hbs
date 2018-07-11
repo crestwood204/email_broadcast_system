@@ -1,69 +1,46 @@
-{{#if request}}
-    {{#compare request "success"}}
-        <div class="alert alert-success" role="alert">
-            {{../alertMsg}}
-        </div>
-    {{/compare}}
-    {{#compare request "failure"}}
-        <div class="alert alert-warning" role="alert">
-            {{../alertMsg}}
-        </div>
-    {{/compare}}
-{{/if}}
+<link rel="stylesheet" href="/css/form.css">
 <div class="content">
-    <button id="deactivate_user" type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#deactivate_modal">Deactivate User</button>
-    <h2> Edit User </h2>
-    <form method="POST">
-      <div class="form-group">
-        <label for="inputUsername" class="col-2 col-form-label">Username</label>
-        <input class="form-control" value="{{profile.username}}" type=inputUsername disabled>
-        <input name="username" type="hidden" id="inputUsername" placeholder="Username" value="{{profile.username}}">
-      </div>
-      <div class="form-group">
-        <label for="inputEmail" class="col-2 col-form-label">Email Address</label>
-        <input class="form-control" name="email" type="inputEmail" id="inputEmail" placeholder="Email Address" value="{{profile.email}}">
-      </div>
-      <div class="form-group">
-        <label for="inputPassword" class="col-2 col-form-label">Password</label>
-        <div class="input-group" id="show_hide_password">
-            <input class="form-control" name="password" type="password" id="inputPassword" placeholder="Password" value="{{profile.password}}">
-            <div class="input-group-addon">
-            <a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
+  <h2> Edit User </h2>
+  {{#if error}}
+    <form class="needs-validation was-validated" method="post" novalidate>
+  {{else}}
+    <form class="needs-validation" method="post" novalidate>
+  {{/if}}
+    <div class="form-group">
+        <label for="inputUsername">Username:</label>
+        <input name="username" type="username" class="form-control" id="username" aria-describedby="username" placeholder="Enter username" value="{{profile.username}}" required>
+        <div class="invalid-feedback">
+          Username is a required field *
         </div>
-        </div>
+    </div>
+    <div class="form-group">
+      <label for="inputEmail">Email Address:</label>
+      <input class="form-control" name="email" type="email" id="inputEmail" aria-describedby="email address" placeholder="Email Address" value="{{profile.email}}" required>
+      <div class="invalid-feedback">
+        Email Address is a required field *
       </div>
-      <div class="form-check">
-        <label class="form-check-label">
-            {{#if profile.approver}}
-                <input type="checkbox" name="approver" class="form-check-input" checked>
-            {{else}}
-                <input type="checkbox" name="approver" class="form-check-input">
-            {{/if}}
-          Approver
-        </label>
-      </div>
-      <a href="/edit_users"><button type="button" class="btn btn-danger">Cancel</button></a>
-      <button type="submit" class="btn btn-success">Save</button>
-    </form>
-    <!-- Modal -->
-    <div class="modal fade" id="deactivate_modal" tabindex="-1" role="dialog" aria-labelledby="deactiveUserModal" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="deactivateUserModalLabel">Deactivate User</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <span> Are you sure you want to deactivate </span> <b id="deactivate_username"> </b><span>?</span>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-danger" id="deactivate_confirm">Deactivate</button>
-          </div>
+    </div>
+    <div class="form-group">
+      <label for="inputPassword">Password</label>
+      <div class="input-group mb-3" id="show_hide_password">
+        <input type="password" name="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password" value="{{profile.password}}" required id="inputPassword">
+        <div class="input-group-append">
+          <span class="input-group-text"><a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a></span>
         </div>
       </div>
     </div>
+    <div class="form-check form-group">
+      <label class="form-check-label">
+          {{#if profile.approver}}
+              <input type="checkbox" name="approver" class="form-check-input" checked>
+          {{else}}
+              <input type="checkbox" name="approver" class="form-check-input">
+          {{/if}}
+        Approver
+      </label>
+    </div>
+    <a href="/edit_users"><button type="button" class="btn" style="border: 1px solid #5d5d5d; color: #5d5d5d;">Cancel</button></a>
+    <button type="submit" class="btn submit">Save</button>
+  </form>
 </div>
 <script src="/js/edit_user.js"></script>
