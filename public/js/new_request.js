@@ -186,7 +186,6 @@ $(document).ready(() => {
 
       // check boxes
       $('.checkbox').each((index, el) => {
-        console.log($(el))
         if (to.includes($(el).prop('outerText').trim())) {
           $(el).children().first().prop('checked', true);
         }
