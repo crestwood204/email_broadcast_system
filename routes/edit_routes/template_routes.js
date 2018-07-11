@@ -129,7 +129,7 @@ router.get('/edit_template', (req, res) => {
       return res.redirect('/edit_templates?error=database');
     }
     if (!template) {
-      return res.redirect('/edit_templates?error=not_found');
+      return res.redirect('/edit_templates?error=notFound');
     }
     const [name, subject, body] = [nameT || template.name, subjectT ||
       template.subject, bodyT || template.body];

@@ -17,7 +17,7 @@ router.get('/edit_groups', (req, res, next) => {
   const error = Messages[req.query.error];
   const status = req.query.status ? `Group ${Messages[req.query.status]}` : undefined;
   // create search object
-  const searchObj = createEditSearchObject(search);
+  const searchObj = createEditSearchObject(search, 'group');
 
   if (page < 1) {
     next(new Error('User Malformed Input')); // TODO: Handle this error
@@ -33,7 +33,7 @@ router.get('/edit_groups', (req, res, next) => {
       last += 1;
     }
     return Group.find(searchObj)
-      .sort({ name: 'ascending' })
+      .sort({ type: 'descending', name: 'ascending' })
       .limit(EDIT_OBJECTS_PER_PAGE)
       .skip((page - 1) * EDIT_OBJECTS_PER_PAGE)
       .exec((err, grps) => {
@@ -101,8 +101,7 @@ router.get('/new_group', (req, res) => {
  */
 router.post('/new_group', (req, res) => {
   const { name, email } = req.body;
-  let { type } = req.body;
-  type = type ? 'distribution' : 'internal';
+  const type = req.body.type ? 'distribution' : 'internal';
   const query = `&name=${name}&email=${email}&type=${type}`;
 
   // validate name and email
@@ -134,48 +133,56 @@ router.post('/new_group', (req, res) => {
 });
 
 router.get('/edit_group', (req, res) => {
-  const messages = { dupKey: 'There is already another group with this name. Please choose another name and try again.' };
-  const id = req.query.group;
-  const { name, email } = req.query;
-  let msg;
-  if (req.query.msg) {
-    msg = messages[req.query.msg];
-    return res.render('edit_views/group/edit_group', { user: req.user, name, email, msg });
-  }
-  return Group.findById(id).then(
-    group => res.render('edit_views/group/edit_group', { user: req.user, name: group.name, email: group.email }),
+  const { group, error } = req.query;
+  let { name, email, type } = req.query;
+  return Group.findById(group).then(
+    (grp) => {
+      name = name || grp.name;
+      email = email || grp.email;
+      type = (type || grp.type) === 'distribution';
+      res.render('edit_views/group/edit_group', {
+        name,
+        email,
+        type,
+        error,
+        user: req.user
+      });
+    },
     (err) => {
       console.log('get edit_group database_error', err);
-      return res.redirect('/edit_groups?request=failure&type=fail_find');
+      return res.redirect('/edit_groups?error=notFound');
     }
   );
 });
 
 router.post('/edit_group', (req, res) => {
   const { name, email } = req.body;
+  const type = req.body.type ? 'distribution' : 'internal';
   const id = req.query.group;
+  const query = `&group=${id}&name=${name}&email=${email}`;
+
 
   if (!name || !email) {
-    return res.redirect(`/new_group?group=${id}&msg=missing_fields&name=${name}&email=${email}`);
+    return res.redirect(`/new_group?error=missing_fields${query}`);
   }
 
   // validate email
   if (!validateEmail(email)) {
-    return res.redirect(`/new_group?group=${id}&msg=emailFormat&name=${name}&email=${email}`);
+    return res.redirect(`/new_group?error=emailFormat${query}`);
   }
 
   // make sure no duplicate template name
-  return Group.findByIdAndUpdate(id, { $set: { name, email } }, (err, group) => {
+  return Group.findByIdAndUpdate(id, { $set: { name, email, type } }, (err, group) => {
     if (err) {
       if (err.codeName === 'DuplicateKey') {
-        return res.redirect(`/edit_group?group=${id}&msg=dupKey&name=${name}&email=${email}`);
+        return res.redirect(`/edit_group?error=dupKey${query}`);
       }
       console.log('edit_group update database_error', err.errmsg);
-      return res.redirect('/edit_groups?request=failure&type=database');
+      return res.redirect('/edit_groups?error=database');
     }
     // make a log
     Log.log('Edited', req.user._id, 'Group Edited', 'Group', 'post edit_group database_error', null, null, null, group._id, name);
-    return res.redirect('/edit_groups?request=success&type=saved');
+    return res.redirect('/edit_groups?status=saved');
   });
 });
 

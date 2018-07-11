@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/edit_users', (req, res) => {
   const messages = {
     database: 'The database failed to respond to this request. Please try again or contact IT for support.',
-    not_found: 'User could not be found in the database! Please try again or contact IT for help.',
+    notFound: 'User could not be found in the database! Please try again or contact IT for help.',
     deactivated: 'User deactivated successfully!',
     activated: 'User activated successfully',
     updated: 'User updated succesfully!',
@@ -94,7 +94,7 @@ router.get('/edit_user', (req, res) => {
       return res.redirect('/edit_users', 'request=failure&type=database');
     }
     if (!user) {
-      return res.redirect('/edit_users?request=failure&type=not_found');
+      return res.redirect('/edit_users?request=failure&type=notFound');
     }
     return res.render('edit_views/user/edit_user', { user: req.user, profile: user, request, alertMsg });
   });

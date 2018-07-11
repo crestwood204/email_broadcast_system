@@ -131,10 +131,14 @@ router.get('/', (req, res, next) => {
 router.get('/new_request', (req, res) => {
   const { to, from, subject, body, attachments, id } = req.query;
   Group.find({}).then(
-    (groups) => {
+    (grps) => {
       Template.find({}).then(
         (templates) => {
           templates.sort((a, b) => a.name - b.name);
+          const groups = grps.map((x) => {
+            x.distibution = x.distribution === 'distribution';
+            return x;
+          });
           res.render('new_request', {
             to,
             body,

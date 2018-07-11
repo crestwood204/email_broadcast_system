@@ -1,6 +1,6 @@
 module.exports = {
   database: 'A database error occurred. Please try again or contact IT for assistance.',
-  not_found: 'Template could not be found in the database! Please try again or create a new template.',
+  notFound: 'Template could not be found in the database! Please try again or create a new template.',
   saved: 'saved successfully',
   deleted: 'deleted successfully!',
   created: 'created successfully!',

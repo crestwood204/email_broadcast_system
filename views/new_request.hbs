@@ -40,7 +40,9 @@
         <label for="toField">To:</label><br>
         <select id="toField" name="toField" class="form-control">
             {{#each groups}}
-                <option value={{this}}>{{this}}</option>
+              {{#if this.distribution}}
+                <option value={{this.name}}>{{this.name}}</option>
+              {{/if}}
             {{/each}}
         </select>
         <div class="invalid-feedback" id="toFeedback">
@@ -62,8 +64,10 @@
           <label for="fromField">From:</label>
           <select name="from" id="fromField" class="form-control" required>
             <option value=""selected>Choose...</option>
-            {{#each templates}}
-                <option value={{this.title}}>{{this.title}}</option>
+            {{#each groups}}
+              {{#unless this.distribution}}
+                <option value={{this.name}}>{{this.name}}</option>
+              {{/unless}}
             {{/each}}
           </select>
           <div class="invalid-feedback">
@@ -76,7 +80,7 @@
           <select id="templateField" class="form-control">
             <option value=""selected>Choose...</option>
             {{#each templates}}
-                <option>{{this.title}}</option>
+                <option>{{this.name}}</option>
             {{/each}}
           </select>
       </div>

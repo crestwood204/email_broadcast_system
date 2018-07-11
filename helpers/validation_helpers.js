@@ -96,14 +96,22 @@ const createSearchObject = (search, logParam) => {
   return searchObj;
 };
 
-const createEditSearchObject = (search) => {
+const createEditSearchObject = (search, options) => {
   const searchObj = {};
 
   if (search) {
     // checks all fields are lowercase and without trailing spaces and that you can escape ':'
     const split = search.match(/([^\\\][^:]|\\:)+/g).map(x => x.trim().toLowerCase().split('\\').join(''));
-    const [type] = split;
+    let [type] = split;
     if (split.length === 2) {
+      if (options === 'group' && type === 'distribution') {
+        type = 'type';
+        if (split[1] === 'true') {
+          split[1] = 'distribution';
+        } else {
+          split[1] = 'internal';
+        }
+      }
       searchObj[type] = { $regex: new RegExp(escapeRegExp(split[1]), 'ig') };
     } else {
       searchObj.name = { $regex: new RegExp(escapeRegExp(search), 'ig') };
