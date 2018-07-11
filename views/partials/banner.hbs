@@ -1,7 +1,9 @@
 {{#if error}}
-  <div class="alert alert-danger" role="alert">
-    {{@root.error}}
-  </div>
+  {{#compare error "missingFields" operator="!=="}}
+    <div class="alert alert-danger" role="alert">
+      {{@root.error}}
+    </div>
+  {{/compare}}
 {{/if}}
 {{#unless error}}
   {{#if status}}

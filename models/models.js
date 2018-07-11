@@ -153,6 +153,11 @@ LogSchema.statics.log = (
   });
 };
 
+/*
+ * Type: Distribution - Specifies that the group has an email of a distribution list
+ *       Internal - Specifies that the email is one used internally
+ *                - Just used to change the email address sent from
+ */
 const GroupSchema = new Schema({
   name: {
     type: String,

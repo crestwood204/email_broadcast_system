@@ -1,64 +1,116 @@
+/* eslint no-param-reassign: ["error",
+{ "props": true, "ignorePropertyModificationsFor": ["x"] }] */
 const express = require('express');
 const Models = require('../../models/models');
 const ValidationHelpers = require('../../helpers/validation_helpers');
+const Constants = require('../../models/constants');
+const Messages = require('../../models/message_constants');
 
 const { Log, Group } = Models;
-const { validateEmail } = ValidationHelpers;
+const { validateEmail, createEditSearchObject } = ValidationHelpers;
+const { EDIT_OBJECTS_PER_PAGE, MAX_LENGTH } = Constants;
 const router = express.Router();
 
-router.get('/edit_groups', (req, res) => {
-  const messages = {
-    database: 'The database failed to respond to this request. Please try again or contact IT for support.',
-    created: 'Group created successfully!',
-    updated: 'Group updated succesfully!',
-    fail_find: 'The database failed to find this group. Please try again or contact IT for support.',
-    deleted: 'Group deleted successfully!'
-  };
-  const { request } = req.query;
-  let alertMsg;
-  if (request) {
-    alertMsg = messages[req.query.type];
+router.get('/edit_groups', (req, res, next) => {
+  const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 0 if page is NaN
+  const { search } = req.query;
+  const error = Messages[req.query.error];
+  const status = req.query.status ? `Group ${Messages[req.query.status]}` : undefined;
+  // create search object
+  const searchObj = createEditSearchObject(search);
+
+  if (page < 1) {
+    next(new Error('User Malformed Input')); // TODO: Handle this error
   }
-  Group.find({}).then(
-    (groups) => {
-      res.render('edit_views/group/edit_groups', { user: req.user, request, alertMsg, groups });
-    },
-    (err) => {
-      console.log('edit_groups group_lookup database_error', err);
-      res.render('edit_views/group/edit_groups', { user: req.user, request: 'failure', alertMsg: 'Error Fetching Groups From the Database!! Refresh the Page or Contact IT for help.' });
+
+  return Group.count(searchObj).exec((lastErr, count) => {
+    if (lastErr) {
+      console.log(lastErr);
+      return res.status(500).send('Database Error: "/"');
     }
-  );
+    let last = parseInt(count / EDIT_OBJECTS_PER_PAGE, 10);
+    if (count % EDIT_OBJECTS_PER_PAGE !== 0) {
+      last += 1;
+    }
+    return Group.find(searchObj)
+      .sort({ name: 'ascending' })
+      .limit(EDIT_OBJECTS_PER_PAGE)
+      .skip((page - 1) * EDIT_OBJECTS_PER_PAGE)
+      .exec((err, grps) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).send('Database Error: "/"');
+        }
+
+        const groups = grps;
+        groups.map((x) => {
+          if (x.email.length > MAX_LENGTH) {
+            x.email = `${x.email.substring(0, MAX_LENGTH)} ...`;
+          }
+
+          if (x.name.length > MAX_LENGTH) {
+            x.name = `${x.name.substring(0, MAX_LENGTH)} ...`;
+          }
+
+          x.distribution = (x.type === 'distribution');
+
+          return x;
+        });
+        const startIndex = ((page - 1) * EDIT_OBJECTS_PER_PAGE) + 1;
+        let [noGroups, noResults] = [false, false];
+        if (!search && page === 1 && groups.length === 0) {
+          noGroups = true;
+        }
+        if (page === 1 && groups.length === 0) {
+          noResults = true;
+        }
+        return res.render('edit_views/group/edit_groups', {
+          groups,
+          startIndex,
+          noGroups,
+          noResults,
+          search,
+          page,
+          last,
+          error,
+          status,
+          modal: { title: 'Delete Group', text: 'Are you sure you want to delete this group?', type: 'Delete' },
+          threeBeforeLast: (last - 3) < page ? page : (last - 3),
+          user: req.user,
+          endpoint: { endpoint: '/edit_groups?', new: '/new_group', edit: '/edit_group?group' }
+        });
+      });
+  });
 });
 
 router.get('/new_group', (req, res) => {
-  const messages = {
-    emailFormat: 'Email Format is Incorrect.',
-    missing_fields: 'One or more fields are missing. Please complete the form before submitting.',
-    dupKey: 'There is already a group with this name. Please choose a different name.'
-  };
-  let msg;
-  if (req.query.msg) {
-    msg = messages[req.query.msg];
-  }
-  const { name, email } = req.query;
-
-  return res.render('edit_views/group/new_group', { user: req.user, msg, name, email });
+  const { name, email, type, error } = req.query;
+  return res.render('edit_views/group/new_group', {
+    name,
+    email,
+    type,
+    error,
+    user: req.user
+  });
 });
 
+/*
+ * Generates errors for new_group GET: missingFields, emailFormat, dupKey
+ * Generates errors for edit_groups GET: database
+ * Generates status for edit_groups GET: created
+ */
 router.post('/new_group', (req, res) => {
-  const { name, email, type } = req.body;
+  const { name, email } = req.body;
+  let { type } = req.body;
+  type = type ? 'distribution' : 'internal';
+  const query = `&name=${name}&email=${email}&type=${type}`;
 
   // validate name and email
   if (!name || !email) {
-    return res.redirect(`/new_group?msg=missing_fields&name=${name}&email=${email}`);
+    return res.redirect(`/new_group?error=missingFields${query}`);
   }
   if (!validateEmail(email)) {
-    return res.redirect(`/new_group?msg=emailFormat&name=${name}&email=${email}`);
-  }
-
-  // validate type
-  if (type !== 'to' && type !== 'from') {
-    return res.redirect('/new_group?msg=you_messed_up');
+    return res.redirect(`/new_group?error=emailFormat${query}`);
   }
 
   const newGroup = new Group({
@@ -70,14 +122,14 @@ router.post('/new_group', (req, res) => {
   return newGroup.save((err, group) => {
     if (err) {
       if (err.code === 11000) {
-        return res.redirect(`/new_group?msg=dupKey&name=${name}&email=${email}`);
+        return res.redirect(`/new_group?error=dupKey${query}`);
       }
       console.log('new_group create database_error', err);
-      return res.redirect('/edit_groups?request=failure&type=database');
+      return res.redirect('/edit_groups?error=database');
     }
     // make a log;
     Log.log('Created', req.user._id, 'New Group Created', 'Group', 'post new_group database_error', null, null, null, group._id, name);
-    return res.redirect('/edit_groups?request=success&type=created');
+    return res.redirect('/edit_groups?status=created');
   });
 });
 
@@ -123,13 +175,13 @@ router.post('/edit_group', (req, res) => {
     }
     // make a log
     Log.log('Edited', req.user._id, 'Group Edited', 'Group', 'post edit_group database_error', null, null, null, group._id, name);
-    return res.redirect('/edit_groups?request=success&type=updated');
+    return res.redirect('/edit_groups?request=success&type=saved');
   });
 });
 
 router.put('/delete_group', (req, res) => {
-  const { groupName } = req.body;
-  Group.deleteOne({ _id: req.body.id }, (err) => {
+  const { groupName, id } = req.body;
+  Group.deleteOne({ _id: id }, (err) => {
     if (err) {
       return res.status(500).send('Database Error, could not delete document.');
     }

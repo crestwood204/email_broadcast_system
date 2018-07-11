@@ -7,7 +7,7 @@ const Messages = require('../../models/message_constants');
 const ValidationHelpers = require('../../helpers/validation_helpers');
 
 const { Log, Template } = Models;
-const { TEMPLATES_PER_PAGE, MAX_TEMPLATE_LINE_LENGTH } = Constants;
+const { EDIT_OBJECTS_PER_PAGE, MAX_TEMPLATE_LINE_LENGTH } = Constants;
 const router = express.Router();
 
 router.get('/edit_templates', (req, res, next) => {
@@ -29,14 +29,14 @@ router.get('/edit_templates', (req, res, next) => {
       console.log(lastErr);
       return res.status(500).send('Database Error: "/"');
     }
-    let last = parseInt(count / TEMPLATES_PER_PAGE, 10);
-    if (count % TEMPLATES_PER_PAGE !== 0) {
+    let last = parseInt(count / EDIT_OBJECTS_PER_PAGE, 10);
+    if (count % EDIT_OBJECTS_PER_PAGE !== 0) {
       last += 1;
     }
     return Template.find(searchObj)
       .sort({ name: 'ascending' })
-      .limit(TEMPLATES_PER_PAGE)
-      .skip((page - 1) * TEMPLATES_PER_PAGE)
+      .limit(EDIT_OBJECTS_PER_PAGE)
+      .skip((page - 1) * EDIT_OBJECTS_PER_PAGE)
       .populate({
         path: 'createdBy',
         model: 'User'
@@ -58,7 +58,7 @@ router.get('/edit_templates', (req, res, next) => {
 
           return x;
         });
-        const startIndex = ((page - 1) * TEMPLATES_PER_PAGE) + 1;
+        const startIndex = ((page - 1) * EDIT_OBJECTS_PER_PAGE) + 1;
         let [noTemplates, noResults] = [false, false];
         if (!search && page === 1 && templates.length === 0) {
           noTemplates = true;
@@ -100,7 +100,7 @@ router.post('/new_template', (req, res) => {
   const { name, subject, body } = req.body;
   const createdBy = req.user._id;
   if (!name || !subject || !body) {
-    return res.redirect(`/new_template?error=missing_fields&name=${name}&subject=${subject}&body=${body}`);
+    return res.redirect(`/new_template?error=missingFields&name=${name}&subject=${subject}&body=${body}`);
   }
   const newTemplate = new Template({
     name,
@@ -149,7 +149,7 @@ router.post('/edit_template', (req, res) => {
   const templateId = req.query.template;
 
   if (!name || !subject || !body) {
-    return res.redirect(`/edit_template?template=${templateId}&error=missing_fields`);
+    return res.redirect(`/edit_template?template=${templateId}&error=missingFields`);
   }
 
   return Template.findByIdAndUpdate(templateId, {

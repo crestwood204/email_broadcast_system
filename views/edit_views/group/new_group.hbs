@@ -1,21 +1,42 @@
+<link rel="stylesheet" href="/css/form.css">
 <div class="content">
-    {{#if msg}}
-    <div class="alert alert-danger" role="alert">
-        {{msg}}
+  {{> banner}}
+  <h2> Create New Group </h2>
+  {{#if error}}
+    <form class="needs-validation was-validated" method="post" action="/new_group" novalidate>
+  {{else}}
+    <form class="needs-validation" method="post" action="/new_group" novalidate>
+  {{/if}}
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input name="name" type="name" class="form-control" id="name" aria-describedby="groupName" placeholder="Enter name" value="{{name}}" required>
+        <div class="invalid-feedback">
+          Name is a required field *
+        </div>
     </div>
-    {{/if}}
-    <h2> Create New Group </h2>
-    <form method="POST">
-      <div class="form-group">
-        <label for="inputName" class="col-2 col-form-label">Name</label>
-        <input class="form-control" name="name" type="inputName" id="inputName" placeholder="Name" value={{name}}>
-      </div>
-      <div class="form-group">
-        <label for="inputEmail" class="col-2 col-form-label">Email Address</label>
-        <input class="form-control" name="email" type="inputEmail" id="inputEmail" placeholder="Email Address" value={{email}}>
-      </div>
-      <input name="type" type="hidden" value="to">
-      <a href="/edit_groups"><button type="button" class="btn btn-danger">Cancel</button></a>
-      <button type="submit" class="btn btn-primary">Create</button>
-    </form>
+    <div class="form-group">
+        <label for="email">Email Address:</label>
+        <input name="email" type="email" class="form-control" id="email" aria-describedby="groupEmail" placeholder="Enter email" value="{{email}}" required>
+        <div class="invalid-feedback">
+          Email Address is a required field *
+        </div>
+    </div>
+    <div class="form-check form-group">
+      {{#if type}}
+        <input class="form-check-input" type="checkbox" name="type" id="distribution" checked>
+      {{else}}
+        <input class="form-check-input" type="checkbox" name="type" id="distribution">
+      {{/if}}
+      <label class="form-check-label" for="defaultCheck1">
+        Distribution
+      </label>
+    </div>
+    <div class="form-group">
+      <a href="/edit_groups"><button type="button" class="btn" style="border: 1px solid #5d5d5d; color: #5d5d5d;">Cancel</button></a>
+      <button clicked="false" type="submit" class="btn submit">Create</button>
+    </div>
+  </form>
 </div>
+<script src="/js/frontend_helpers.js"></script>
+<script src="/js/frontend_validation/custom_validators/template_validator.js"></script>
+<script src="/js/frontend_validation/form-validation.js"></script>
