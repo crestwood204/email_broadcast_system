@@ -38,7 +38,7 @@ router.get('/log', (req, res, next) => {
   const searchObj = createSearchObject(search, 'date');
 
   if (page < 1) {
-    next(new Error('User Malformed Input')); // TODO: Handle this error
+    return next(new Error('User Malformed Input')); // TODO: Handle this error
   }
   /* sort by date approved so that pending requests appear last (pendings don't have dateApproved)
    * makes it so that pages that aren't the last one always have 8 documents displayed

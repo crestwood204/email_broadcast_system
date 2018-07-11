@@ -75,19 +75,6 @@ $(document).ready(() => {
       }
     });
 
-    // sets to field to previous value on error
-    let to = $('#toSelect').text();
-    if (/,+/.test(to)) {
-      to = to.split(',').map(x => x.trim());
-    } else {
-      to = [to];
-    }
-
-    $('#toField').val(to);
-
-    // set locationField to choose...
-    $('#locationField').val('');
-
     // set from field
     const from = $('#fromSelect').text() || '';
     $('#fromField').val(from).change();
@@ -172,5 +159,38 @@ $(document).ready(() => {
   (function setupMultiSelects() {
     const ids = ['toField', 'locationField'];
     bootstrapSelectSetup(ids);
+
+    // sets to field to previous value on error
+    const toText = $('#toSelect').text();
+
+    // set value of multiselect to nothing
+    $('#toField').val('');
+
+    // remove button text
+    $('.multiselect').first().attr('title', 'Choose...');
+    $('.multiselect-selected-text').first().text('Choose...');
+
+    // uncheck all check boxes
+    $('.checkbox').each((index, el) => {
+      $(el).children().first().prop('checked', false);
+    });
+
+    if (toText) {
+      // set value of multiselect
+      const to = toText.split(',').map(x => x.trim());
+      $('#toField').val(to);
+
+      // set button text
+      $('.multiselect').first().attr('title', toText);
+      $('.multiselect-selected-text').first().text(toText);
+
+      // check boxes
+      $('.checkbox').each((index, el) => {
+        console.log($(el))
+        if (to.includes($(el).prop('outerText').trim())) {
+          $(el).children().first().prop('checked', true);
+        }
+      });
+    }
   }());
 });

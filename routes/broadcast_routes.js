@@ -64,7 +64,7 @@ router.get('/', (req, res, next) => {
   const searchObj = createSearchObject(search);
 
   if (page < 1) {
-    next(new Error('User Malformed Input')); // TODO: Handle this error
+    return next(new Error('User Malformed Input')); // TODO: Handle this error
   }
   /* sort by date approved so that pending requests appear last (pendings don't have dateApproved)
    * makes it so that pages that aren't the last one always have 8 documents displayed
@@ -137,7 +137,8 @@ router.get('/new_request', (req, res) => {
     (groups) => {
       Template.find({}).then(
         (templates) => {
-          templates.sort((a, b) => a.name - b.name);
+          templates.sort((a, b) => (`${a.name}`).localeCompare(b.name));
+          groups.sort((a, b) => (`${a.name}`).localeCompare(b.name));
           res.render('new_request', {
             to,
             body,
@@ -303,7 +304,7 @@ router.get('/pending_requests', (req, res, next) => {
   searchObj.pending = true;
 
   if (page < 1) {
-    next(new Error('User Malformed Input')); // TODO: Handle this error
+    return next(new Error('User Malformed Input')); // TODO: Handle this error
   }
 
   /* sort by date approved so that pending requests appear first

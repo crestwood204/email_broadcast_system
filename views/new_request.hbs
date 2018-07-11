@@ -35,16 +35,6 @@
         <div style="display: none;" id="toSelect">{{to}}</div>
       </div>
       <div class="form-group col-md-6">
-        <label for="locationField">Location:</label><br>
-        <select id="locationField" name="locationField" class="form-control">
-            {{#each groups}}
-                <option value={{this.name}}>{{this.name}}</option>
-            {{/each}}
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group col-md-6">
           <label for="fromField">From:</label>
           <select name="from" id="fromField" class="form-control" required>
             <option value=""selected>Choose...</option>
@@ -59,15 +49,15 @@
           </div>
           <div style="display: none;" id="fromSelect">{{from}}</div>
       </div>
-      <div class="form-group col-md-6">
-          <label for="templateField">Template:</label>
-          <select id="templateField" class="form-control">
-            <option value=""selected>Choose...</option>
-            {{#each templates}}
-                <option>{{this.name}}</option>
-            {{/each}}
-          </select>
-      </div>
+    </div>
+    <div class="form-group">
+        <label for="templateField">Template:</label>
+        <select id="templateField" class="form-control">
+          <option value=""selected>Choose...</option>
+          {{#each templates}}
+              <option>{{this.name}}</option>
+          {{/each}}
+        </select>
     </div>
     <div class="form-group">
         <label for="subject">Subject:</label>

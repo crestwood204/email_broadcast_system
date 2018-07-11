@@ -20,7 +20,7 @@ router.get('/edit_groups', (req, res, next) => {
   const searchObj = createEditSearchObject(search, 'group');
 
   if (page < 1) {
-    next(new Error('User Malformed Input')); // TODO: Handle this error
+    return next(new Error('User Malformed Input')); // TODO: Handle this error
   }
 
   return Group.count(searchObj).exec((lastErr, count) => {

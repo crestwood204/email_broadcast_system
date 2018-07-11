@@ -13,7 +13,7 @@ router.get('/user_settings', (req, res, next) => {
     },
     (err) => {
       console.log('settings user_query database_error', err);
-      next(err);
+      return next(err);
     }
   );
 });
