@@ -95,23 +95,23 @@ const LogSchema = new Schema({
     type: Date,
     required: true
   },
-  request_id: {
+  requestId: {
     type: Schema.ObjectId,
     ref: 'Request'
   },
-  edit_user_id: {
+  editUserId: {
     type: Schema.ObjectId,
     ref: 'User'
   },
-  template_id: {
+  templateId: {
     type: Schema.ObjectId,
     ref: 'Template'
   },
-  group_id: {
+  groupId: {
     type: Schema.ObjectId,
     ref: 'Group'
   },
-  template_title: String
+  templateName: String
 });
 
 LogSchema.statics.log = (
@@ -120,11 +120,7 @@ LogSchema.statics.log = (
   description,
   type,
   errMsg,
-  requestId,
-  editUserId,
-  templateId,
-  groupId,
-  templateTitle
+  options
 ) => {
   const newLog = new Log({
     change,
@@ -134,18 +130,10 @@ LogSchema.statics.log = (
     date: new Date()
   });
 
-  if (requestId) {
-    newLog.request_id = requestId;
-  } else if (editUserId) {
-    newLog.edit_user_id = editUserId;
-  } else if (templateId) {
-    newLog.template_id = templateId;
-  } else if (groupId) {
-    newLog.group_id = groupId;
-  }
-
-  if (templateTitle) {
-    newLog.template_title = templateTitle;
+  // set optional log fields
+  const keys = Object.keys(options);
+  for (let i = 0; i < keys.length; i += 1) {
+    newLog[keys[i]] = options[keys[i]];
   }
 
   newLog.save((err) => {

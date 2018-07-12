@@ -123,7 +123,7 @@ router.post('/new_user', (req, res) => {
         console.log('new_user save database_error', err);
         return res.redirect('/new_user?error=database');
       }
-      Log.log('Created', req.user._id, 'New User Created', 'User', 'post new_user database_error', null, user2._id);
+      Log.log('Created', req.user._id, 'New User Created', 'User', 'post new_user database_error', { editUserId: user2._id });
       return res.redirect('/edit_users?status=created');
     });
   });
@@ -204,7 +204,7 @@ router.post('/edit_user', (req, res) => {
 
     // nothing was edited, so don't make a log
     if (title !== '') {
-      Log.log('Edited', req.user._id, title, 'User', 'post edit_user database_error', null, user._id);
+      Log.log('Edited', req.user._id, title, 'User', 'post edit_user database_error', { editUserId: user._id });
     }
     return res.redirect('/edit_users?status=saved');
   });
@@ -218,7 +218,7 @@ router.put('/deactivate_user', (req, res) => {
       return res.status(500).send('database error when deactivating user');
     }
     if (user) {
-      Log.log('Deactivated', req.user._id, 'User Deactivated', 'User', 'put deactivate_user database_error', null, user._id);
+      Log.log('Deactivated', req.user._id, 'User Deactivated', 'User', 'put deactivate_user database_error', { editUserId: user._id });
       return res.status(200).send('user deactivated');
     }
 
@@ -234,7 +234,7 @@ router.put('/activate_user', (req, res) => {
       return res.status(500).send('datbase error when activating user');
     }
     if (user) {
-      Log.log('Activated', req.user._id, 'User Activated', 'User', 'put activate_user database_error', null, user._id);
+      Log.log('Activated', req.user._id, 'User Activated', 'User', 'put activate_user database_error', { editUserId: user._id });
       return res.status(200).send('user activated');
     }
     return res.status(400).send('user not found');

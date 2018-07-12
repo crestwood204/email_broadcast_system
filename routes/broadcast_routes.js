@@ -243,7 +243,7 @@ router.post('/new_request', (req, res) => {
       }
 
       // add to log
-      Log.log('Create', req.user._id, 'Broadcast Request Created', 'Broadcast', 'post new_request database_error', request._id);
+      Log.log('Create', req.user._id, 'Broadcast Request Created', 'Broadcast', 'post new_request database_error', { requestId: request._id });
 
       // send emails to approvers
       return User.find({}).then(

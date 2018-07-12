@@ -126,7 +126,7 @@ router.post('/new_group', (req, res) => {
       return res.redirect('/edit_groups?error=database');
     }
     // make a log;
-    Log.log('Created', req.user._id, 'New Group Created', 'Group', 'post new_group database_error', null, null, null, group._id, name);
+    Log.log('Created', req.user._id, 'New Group Created', 'Group', 'post new_group database_error', { groupId: group._id, templateName: name });
     return res.redirect('/edit_groups?status=created');
   });
 });
@@ -180,7 +180,7 @@ router.post('/edit_group', (req, res) => {
       return res.redirect('/edit_groups?error=database');
     }
     // make a log
-    Log.log('Edited', req.user._id, 'Group Edited', 'Group', 'post edit_group database_error', null, null, null, group._id, name);
+    Log.log('Edited', req.user._id, 'Group Edited', 'Group', 'post edit_group database_error', { groupId: group._id, templateName: name });
     return res.redirect('/edit_groups?status=saved');
   });
 });
@@ -192,7 +192,7 @@ router.put('/delete_group', (req, res) => {
       return res.status(500).send('Database Error, could not delete document.');
     }
     // make a log
-    Log.log('Deleted', req.user._id, 'Group Deleted', 'Group', 'put delete_group database_error', null, null, null, null, groupName);
+    Log.log('Deleted', req.user._id, 'Group Deleted', 'Group', 'put delete_group database_error', { templateName: groupName });
     return res.status(200).send('Document deleted');
   });
 });

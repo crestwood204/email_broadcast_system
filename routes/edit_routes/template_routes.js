@@ -112,7 +112,7 @@ router.post('/new_template', (req, res) => {
       console.log('new_template save datbase_error');
       return res.redirect('/edit_templates?error=database');
     }
-    Log.log('Created', req.user._id, 'New Template Created', 'Template', 'post new_template database_error', null, null, template._id, null, name);
+    Log.log('Created', req.user._id, 'New Template Created', 'Template', 'post new_template database_error', { templateId: template._id, templateName: name });
     return res.redirect('/edit_templates?status=created');
   });
 });
@@ -175,7 +175,7 @@ router.post('/edit_template', (req, res) => {
 
     // nothing was edited, so don't make a log
     if (logTitle !== '') {
-      Log.log('Edited', req.user._id, logTitle, 'Template', 'post edit_template database_error', null, null, template._id, null, name);
+      Log.log('Edited', req.user._id, logTitle, 'Template', 'post edit_template database_error', { templateId: template._id, templateName: name });
     }
     return res.redirect('/edit_templates?status=saved');
   });
@@ -188,7 +188,7 @@ router.put('/delete_template', (req, res) => {
       console.log('put delete_template database_error');
     } else {
       // make a log
-      Log.log('Deleted', req.user._id, 'Template Deleted', 'Template', 'put delete_template database_error', null, null, null, null, name);
+      Log.log('Deleted', req.user._id, 'Template Deleted', 'Template', 'put delete_template database_error', { templateName: name });
       res.send('Template Deleted Successfully');
     }
   });

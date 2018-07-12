@@ -221,15 +221,18 @@ const decideRequest = (requestId, approved, req, options) => {
 
             // make log
             if (options) {
-              Log.log(change, options ? user._id : req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', request._id);
+              Log.log(change, user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', { requestId: request._id });
               return res.render('close_window', { user: req.user });
             }
-            return Log.log(change, options ? user._id : req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', request._id);
+            return Log.log(change, req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', { requestId: request._id });
           }
         );
       }
       // remove uploads
       rmDir('./public/uploads', request.attachments);
+
+      // Log
+      Log.log(change, options ? user._id : req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', { requestId: request._id });
 
       // remove request
       return Request.deleteOne({ _id: requestId }, (deleteErr) => {
