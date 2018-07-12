@@ -9,5 +9,6 @@ module.exports = {
   passwordMatch: 'The passwords provided do not match',
   missing_fields: 'missingFields',
   deactivated: 'deactivated successfully!',
-  activated: 'activated successfully'
+  activated: 'activated successfully',
+  file_extension: 'A file you attached is unsupported'
 };

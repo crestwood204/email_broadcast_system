@@ -173,34 +173,28 @@ router.post('/new_request', (req, res) => {
     storage: uploadStorage,
     limits: { fileSize: MAX_FILE_SIZE },
     fileFilter(request, file, callback) {
-      if (file.mimetype !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-          && file.mimetype !== 'application/pdf') {
-        const query = `to=${request.body.toField}&subject=${request.body.subject}&body=${request.body.body}&from=${request.body.from}&attachments=${request.files}`;
-        request.fileValidationError = `/new_request?error=file_extension&${query}`;
-        return callback(new Error('extension name not allowed'));
+      if (file.mimetype !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && file.mimetype !== 'application/pdf') {
+        return callback(new Error('extension'));
       }
       return callback(null, true);
     }
   }).array('files', 7);
   upload(req, res, (err) => {
-    if (req.fileValidationError) {
-      return res.json({ redirect: req.fileValidationError });
-    }
-
-    // TODO: add locationField support
-
     let { to } = req.body;
-    const { id, subject, body, from, location, attachments } = req.body;
+    const { id, subject, body, from, attachments } = req.body;
     const query = `to=${to}&subject=${subject}&body=${body}&from=${from}&attachments=${req.files}`;
 
     if (err) {
-      // TODO: format error message if it isn't a validation error
-      console.log(err.code);
+      // TODO: format error message
+      console.log('err:', err);
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.json({ redirect: `/new_request?error=limit_file_size&${query}` });
       }
       if (err.code === 'LIMIT_UNEXPECTED_FILE') {
         return res.json({ redirect: `/new_request?error=limit_unexpected_file&${query}` });
+      }
+      if (err.message === 'extension') {
+        return res.json({ redirect: `new_request?error=file_extension&${query}` });
       }
       return res.status(400).send({ redirect: '/404' });
     }
