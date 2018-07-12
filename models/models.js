@@ -157,7 +157,7 @@ LogSchema.statics.log = (
 
 /*
  * Type: Distribution - Specifies that the group has an email of a distribution list
- *       Internal - Specifies that the email is one used internally
+ *       Sender - Specifies that the email is a sender address
  *                - Just used to change the email address sent from
  */
 const GroupSchema = new Schema({

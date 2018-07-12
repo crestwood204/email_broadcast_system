@@ -53,8 +53,6 @@ router.get('/edit_groups', (req, res, next) => {
             x.name = `${x.name.substring(0, MAX_LENGTH)} ...`;
           }
 
-          x.distribution = (x.type === 'distribution');
-
           return x;
         });
         const startIndex = ((page - 1) * EDIT_OBJECTS_PER_PAGE) + 1;
@@ -102,7 +100,7 @@ router.get('/new_group', (req, res) => {
  */
 router.post('/new_group', (req, res) => {
   const { name, email } = req.body;
-  const type = req.body.type ? 'distribution' : 'internal';
+  const type = req.body.type ? 'distribution' : 'sender';
   const query = `&name=${name}&email=${email}&type=${type}`;
 
   // validate name and email
