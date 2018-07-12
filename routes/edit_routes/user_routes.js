@@ -1,39 +1,76 @@
 const express = require('express');
 const Models = require('../../models/models');
 const Messages = require('../../models/message_constants');
+const Constants = require('../../models/constants');
+const ValidationHelpers = require('../../helpers/validation_helpers');
 
 const { User, Log } = Models;
+const { EDIT_OBJECTS_PER_PAGE } = Constants;
 const router = express.Router();
 
 
-router.get('/edit_users', (req, res) => {
-  const messages = {
-    database: 'The database failed to respond to this request. Please try again or contact IT for support.',
-    notFound: 'User could not be found in the database! Please try again or contact IT for help.',
-    deactivated: 'User deactivated successfully!',
-    activated: 'User activated successfully',
-    updated: 'User updated succesfully!',
-    created: 'User created successfully!'
-  };
-  const { request } = req.query;
-  let alertMsg;
-  if (request) {
-    alertMsg = messages[req.query.type];
+router.get('/edit_users', (req, res, next) => {
+  const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 0 if page is NaN
+  const { search } = req.query;
+  const [error, status] = [Messages[req.query.error],
+    req.query.status ? `User ${Messages[req.query.status]}` : undefined];
+
+  // create search object
+  const searchObj = ValidationHelpers.createEditSearchObject(search);
+
+  if (page < 1) {
+    return next(new Error('User Malformed Input')); // TODO: Handle this error
   }
-  User.find({}).then(
-    (users) => {
-      users.sort((a, b) => (`${a.username}`).localeCompare(b.username));
-      return res.render('edit_views/user/edit_users', { users, request, alertMsg, user: req.user });
-    },
-    (err) => {
-      console.log('edit_users fetch database_error', err);
+  return User.count(searchObj).exec((lastErr, count) => {
+    if (lastErr) {
+      console.log(lastErr);
+      return res.status(500).send('Database Error: "/"');
     }
-  );
+    let last = parseInt(count / EDIT_OBJECTS_PER_PAGE, 10);
+    if (count % EDIT_OBJECTS_PER_PAGE !== 0) {
+      last += 1;
+    }
+    return User.find(searchObj)
+      .collation({ locale: 'en', strength: 2 })
+      .sort({ active: 'ascending', username: 'ascending' })
+      .limit(EDIT_OBJECTS_PER_PAGE)
+      .skip((page - 1) * EDIT_OBJECTS_PER_PAGE)
+      .exec((err, users) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).send('Database Error: "/"');
+        }
+        const startIndex = ((page - 1) * EDIT_OBJECTS_PER_PAGE) + 1;
+        let [noTemplates, noResults] = [false, false];
+        if (!search && page === 1 && users.length === 0) {
+          noTemplates = true;
+        }
+        if (page === 1 && users.length === 0) {
+          noResults = true;
+        }
+        return res.render('edit_views/user/edit_users', {
+          users,
+          startIndex,
+          noTemplates,
+          noResults,
+          search,
+          page,
+          last,
+          error,
+          status,
+          modal: { title: 'Deactivate User', text: 'Are you sure you want to deactivate this user?', type: 'Deactivate' },
+          threeBeforeLast: (last - 3) < page ? page : (last - 3),
+          user: req.user,
+          endpoint: { endpoint: '/edit_users?', new: '/new_user', edit: '/edit_user?user' }
+        });
+      });
+  });
 });
 
 router.get('/new_user', (req, res) => {
   const { username, email, approver } = req.query;
-  const [error, status] = [Messages[req.query.error], Messages[req.query.status]];
+  const [error, status] = [Messages[req.query.error],
+    req.query.status ? `User ${Messages[req.query.status]}` : undefined];
 
   return res.render('edit_views/user/new_user', {
     username,
@@ -167,17 +204,18 @@ router.post('/edit_user', (req, res) => {
 });
 
 router.put('/deactivate_user', (req, res) => {
-  const { username } = req.body;
-  User.findOneAndUpdate({ username }, { $set: { active: false } }, (err, user) => {
+  const { id } = req.body;
+  User.findByIdAndUpdate(id, { $set: { active: false } }, (err, user) => {
     if (err) {
-      res.status(500).send('database error when deactivating user');
+      console.log(err);
+      return res.status(500).send('database error when deactivating user');
     }
     if (user) {
       Log.log('Deactivated', req.user._id, 'User Deactivated', 'User', 'put deactivate_user database_error', null, user._id);
-      res.status(200).send('user deactivated');
-    } else {
-      res.status(500).send('database error when deactivating user');
+      return res.status(200).send('user deactivated');
     }
+
+    return res.status(400).send('user not found');
   });
 });
 
@@ -185,10 +223,10 @@ router.put('/activate_user', (req, res) => {
   const { id } = req.body;
   User.findByIdAndUpdate(id, { $set: { active: true } }, (err, user) => {
     if (err) {
-      res.status(500).send('datbase error when activating user');
+      return res.status(500).send('datbase error when activating user');
     }
     Log.log('Activated', req.user._id, 'User Activated', 'User', 'put activate_user database_error', null, user._id);
-    res.status(200).send('user activated');
+    return res.status(200).send('user activated');
   });
 });
 
