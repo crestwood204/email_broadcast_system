@@ -5,5 +5,7 @@ module.exports = {
   deleted: 'deleted successfully!',
   created: 'created successfully!',
   emailFormat: 'The email provided is invalid.',
-  dupKey: 'The name provided already exists'
+  dupKey: 'The name provided already exists',
+  passwordMatch: 'The passwords provided do not match',
+  missing_fields: 'missingFields'
 };

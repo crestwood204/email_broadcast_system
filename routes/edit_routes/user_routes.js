@@ -32,38 +32,41 @@ router.get('/edit_users', (req, res) => {
 });
 
 router.get('/new_user', (req, res) => {
-  const messages = {
-    username_taken: 'Username is taken. Please choose a different username.',
-    password_match: 'Passwords did not match',
-    database: 'The database failed to respond to this request. Please try again or contact IT for support.',
-    missing_fields: 'One or more fields are missing. Please complete the form before submitting'
-  };
-  const { request } = req.query;
-  let alertMsg;
-  if (request) {
-    alertMsg = messages[req.query.type];
-  }
-  return res.render('edit_views/user/new_user', { user: req.user, request, alertMsg });
+  const { username, email, approver } = req.query;
+  const [error, status] = [Messages[req.query.error], Messages[req.query.status]];
+
+  return res.render('edit_views/user/new_user', {
+    username,
+    email,
+    approver,
+    error,
+    status,
+    user: req.user
+  });
 });
 
 router.post('/new_user', (req, res) => {
-  const { username, email, password, confirmPassword } = req.body;
+  const { email, password, confirmPassword } = req.body;
+  let { username } = req.body;
   const approver = !!req.body.approver;
+  const query = `&username=${username}&email=${email}&approver=${approver}`;
 
   if (!username || !email || !password || !confirmPassword) {
-    return res.redirect('/new_user?request=failure&type=missing_fields');
+    return res.redirect(`/new_user?error=missing_fields${query}`);
   }
 
   if (password !== confirmPassword) {
-    return res.redirect('/new_user?request=failure&type=password_match');
+    return res.redirect(`/new_user?error=passwordMatch${query}`);
   }
+
   return User.findOne({ username }, (err, user) => {
     if (err) {
       console.log('new_user username_lookup database_error', err);
-      return res.redirect('/new_user?request=failure&type=database');
+      return res.redirect('/new_user?error=database');
     }
     if (user) {
-      return res.redirect('/new_user?request=failure&type=username_taken');
+      ({ username } = user);
+      return res.redirect(`/new_user?error=dupKey${query}`);
     }
     const newUser = new User({
       username,
@@ -74,10 +77,10 @@ router.post('/new_user', (req, res) => {
     return newUser.save((userErr, user2) => {
       if (userErr) {
         console.log('new_user save database_error', err);
-        return res.redirect('/new_user?request=failure&type=database');
+        return res.redirect('/new_user?error=database');
       }
       Log.log('Created', req.user._id, 'New User Created', 'User', 'post new_user database_error', null, user2._id);
-      return res.redirect('/edit_users?request=success&type=created');
+      return res.redirect('/edit_users?status=created');
     });
   });
 });

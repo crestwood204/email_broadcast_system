@@ -1,34 +1,58 @@
+<link rel="stylesheet" href="/css/form.css">
 <div class="content">
-    {{#if msg}}
-    <div class="alert alert-danger" role="alert">
-        {{msg}}
+  {{> banner}}
+  <h2> Create New User </h2>
+  {{#if error}}
+    <form class="needs-validation was-validated" method="post" novalidate>
+  {{else}}
+    <form class="needs-validation" method="post" novalidate>
+  {{/if}}
+    <div class="form-group">
+        <label for="inputUsername">Username:</label>
+        <input name="username" type="username" class="form-control" id="username" aria-describedby="username" placeholder="Enter username" value="{{username}}" required>
+        <div class="invalid-feedback">
+          Username is a required field *
+        </div>
     </div>
-    {{/if}}
-    <h2> Create New User </h2>
-    <form method="POST">
-      <div class="form-group">
-        <label for="inputUsername" class="col-2 col-form-label">Username</label>
-        <input class="form-control" name="username" type="inputUsername" id="inputUsername" placeholder="Username">
+    <div class="form-group">
+      <label for="inputEmail">Email Address:</label>
+      <input class="form-control" name="email" type="email" id="inputEmail" aria-describedby="email address" placeholder="Email Address" value="{{email}}" required>
+      <div class="invalid-feedback">
+        Email Address is a required field *
       </div>
-      <div class="form-group">
-        <label for="inputEmail" class="col-2 col-form-label">Email Address</label>
-        <input class="form-control" name="email" type="inputEmail" id="inputEmail" placeholder="Email Address">
+    </div>
+    <div class="form-group">
+      <label for="inputPassword">Password</label>
+      <div class="input-group mb-3" id="show_hide_password">
+        <input type="password" name="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password" required id="inputPassword">
+        <div class="input-group-append">
+          <span class="input-group-text"><a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a></span>
+        </div>
+        <div class="invalid-feedback">
+          Password is a required field *
+        </div>
       </div>
-      <div class="form-group">
-        <label for="inputPassword" class="col-2 col-form-label">Password</label>
-        <input class="form-control" name="password" type="password" id="inputPassword" placeholder="Password">
+    </div>
+    <div class="form-group">
+      <label for="inputConfirmPassword">ConfirmPassword</label>
+      <input type="password" name="confirmPassword" class="form-control" placeholder="Password" aria-label="confirmPassword" aria-describedby="confirmPassword" required id="inputConfirmPassword">
+      <div id="confirmPasswordLabel" class="invalid-feedback">
+        Passwords do not match *
       </div>
-      <div class="form-group">
-        <label for="inputConfirmPassword" class="col-2 col-form-label">Confirm Password</label>
-        <input class="form-control" name="confirmPassword" type="password" id="inputConfirmPassword" placeholder="Confirm Password">
-      </div>
-      <div class="form-check">
-        <label class="form-check-label">
-          <input type="checkbox" name="approver" class="form-check-input">
-          Approver
-        </label>
-      </div>
-      <a href="/edit_users"><button type="button" class="btn btn-danger">Cancel</button></a>
-      <button type="submit" class="btn btn-primary">Create</button>
-    </form>
+    </div>
+    <div class="form-check form-group">
+      <label class="form-check-label">
+          {{#if profile.approver}}
+              <input type="checkbox" name="approver" class="form-check-input" checked>
+          {{else}}
+              <input type="checkbox" name="approver" class="form-check-input">
+          {{/if}}
+        Approver
+      </label>
+    </div>
+    <a href="/edit_users"><button type="button" class="btn" style="border: 1px solid #5d5d5d; color: #5d5d5d;">Cancel</button></a>
+    <button type="submit" class="btn submit">Save</button>
+  </form>
 </div>
+<script src="/js/frontend_validation/new_user.js"></script>
+<script src="/js/password_toggle.js"></script>
