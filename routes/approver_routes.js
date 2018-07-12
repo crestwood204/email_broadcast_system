@@ -77,7 +77,6 @@ router.get('/log', (req, res, next) => {
         model: 'Group'
       }])
       .exec((err, logs) => {
-        console.log(logs)
         if (err) {
           console.log('log error_fetching_logs database_error', err);
           return res.redirect('/?request=failure');
@@ -108,6 +107,7 @@ router.get('/log', (req, res, next) => {
           search,
           page,
           last,
+          add_disabled: true,
           logs: newLogs,
           threeBeforeLast: (last - 3) < page ? page : (last - 3),
           user: req.user,

@@ -1,10 +1,6 @@
 <div>
   <span style="float: right;">
-    <form id="search-bar-form" action="{{endpoint.endpoint}}" class="form-inline my-2 my-lg-0">
-      <input id="search" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" value="{{search}}">
-      <button id="search-btn" class="btn yellow-button my-2 my-sm-0 form-control" type="submit">&nbsp<i class="fa fa-search"></i>&nbsp</button>
-      <span style="padding: 4px;"> </span>
-    </form>
+    {{> table_header}}
   </span>
   <h1> Audit Log </h1>
   <table class="table">
