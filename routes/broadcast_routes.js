@@ -35,7 +35,7 @@ const uploadStorage = multer.diskStorage({
  */
 router.use((req, res, next) => {
   // redirect to login if not signed in
-  if (!req.user) {
+  if (!req.user || !req.user.active) {
     const index = req.url.indexOf('?');
     if (index !== -1) {
       req.session.returnTo = req.path + req.url.substr(index);
