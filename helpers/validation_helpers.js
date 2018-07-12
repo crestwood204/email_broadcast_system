@@ -109,7 +109,7 @@ const createEditSearchObject = (search, options) => {
         if (split[1] === 'true') {
           split[1] = 'distribution';
         } else {
-          split[1] = 'internal';
+          split[1] = 'sender';
         }
       }
       searchObj[type] = { $regex: new RegExp(escapeRegExp(split[1]), 'ig') };
