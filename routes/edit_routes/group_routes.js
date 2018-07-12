@@ -156,7 +156,7 @@ router.get('/edit_group', (req, res) => {
 
 router.post('/edit_group', (req, res) => {
   const { name, email } = req.body;
-  const type = req.body.type ? 'distribution' : 'internal';
+  const type = req.body.type ? 'distribution' : 'sender';
   const id = req.query.group;
   const query = `&group=${id}&name=${name}&email=${email}`;
 

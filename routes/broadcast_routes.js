@@ -173,7 +173,7 @@ router.post('/new_request', (req, res) => {
     storage: uploadStorage,
     limits: { fileSize: MAX_FILE_SIZE },
     fileFilter(request, file, callback) {
-      if (file.mimetype
+      if (file.mimetype !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
           && file.mimetype !== 'application/pdf') {
         const query = `to=${request.body.toField}&subject=${request.body.subject}&body=${request.body.body}&from=${request.body.from}&attachments=${request.files}`;
         request.fileValidationError = `/new_request?error=file_extension&${query}`;
