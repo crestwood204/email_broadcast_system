@@ -33,13 +33,17 @@
                   <i class="fa fa-ban"></i>
                 </button>
               {{else}}
-                <button id="delete-{this._id}" type="button" class="btn" data-toggle="modal" data-target="#modal-{{this._id}}" style="padding: 2px 8px 0px 8px; font-size: 16px;">
+                <button id="delete-{this._id}" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-{{this._id}}" style="padding: 2px 8px 0px 8px; font-size: 16px;">
                   <i class="fa fa-chevron-circle-up"></i>
                 </button>
               {{/if}}
             </td>
         </tr>
-        {{> modal}}
+        {{#if this.active}}
+          {{> modal}}
+        {{else}}
+          {{> secondaryModal}}
+        {{/if}}
       {{/each}}
     </tbody>
   </table>

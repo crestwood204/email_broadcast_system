@@ -32,7 +32,7 @@ router.get('/edit_users', (req, res, next) => {
     }
     return User.find(searchObj)
       .collation({ locale: 'en', strength: 2 })
-      .sort({ active: 'ascending', username: 'ascending' })
+      .sort({ active: 'descending', username: 'ascending' })
       .limit(EDIT_OBJECTS_PER_PAGE)
       .skip((page - 1) * EDIT_OBJECTS_PER_PAGE)
       .exec((err, users) => {
