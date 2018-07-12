@@ -114,13 +114,17 @@ router.get('/edit_user', (req, res) => {
 });
 
 router.post('/edit_user', (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, confirmPassword } = req.body;
   const approver = !!req.body.approver;
   const userId = req.query.user;
   const query = `&user=${req.query.user}&username=${req.query.username}&email=${req.query.email}&approver=${req.query.approver}`;
 
-  if (!username || !email || !password) {
+  if (!username || !email || !password || !confirmPassword) {
     return res.redirect(`/edit_user?error=missing_fields${query}`);
+  }
+
+  if (password !== confirmPassword) {
+    return res.redirect(`/edit_user?error=passwordMatch${query}`);
   }
 
   return User.findByIdAndUpdate(userId, {
