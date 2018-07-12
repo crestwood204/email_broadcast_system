@@ -174,16 +174,28 @@ const sendBroadcastEmail = (request) => {
   );
 };
 
-const decideRequest = (requestId, approved, req) => {
+const decideRequest = (requestId, approved, req, options) => {
+  const res = options ? options.res : false;
+  const user = options ? options.user : false;
+
   const change = approved ? 'Approved' : 'Rejected';
   if (!req.user.approver) {
+    if (options) {
+      return res.render('error_views/unauthorized');
+    }
     console.log('decide_request unauthorized_user attempted_request_decision');
   }
   return Request.findById(requestId, (requestErr, request) => {
     if (requestErr) {
+      if (options) {
+        return res.redirect('/?error=database');
+      }
       return console.log('decide_request request_lookup database_error', requestErr);
     }
     if (!request) {
+      if (options) {
+        return res.redirect('/?error=notFound');
+      }
       return console.log('decide_request request_lookup request_does-not-exist');
     }
     if (request.pending) {
@@ -193,18 +205,26 @@ const decideRequest = (requestId, approved, req) => {
             $set: {
               approved,
               pending: false,
-              approver: req.user.username,
+              approver: options ? user.username : req.user.username,
               dateApproved: new Date()
             }
           },
           (updateErr) => {
             if (updateErr) {
+              if (options) {
+                return res.redirect('/?error=database');
+              }
               return console.log('decide_request update database_error', updateErr);
             }
             // broadcast email
             sendBroadcastEmail(request);
+
             // make log
-            return Log.log(change, req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', request._id);
+            if (options) {
+              Log.log(change, options ? user._id : req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', request._id);
+              return res.render('close_window', { user: req.user });
+            }
+            return Log.log(change, options ? user._id : req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', request._id);
           }
         );
       }
@@ -219,61 +239,16 @@ const decideRequest = (requestId, approved, req) => {
         return true;
       });
     }
-    return undefined; // broadcast was already processed by another approver
-  });
-};
 
-const decideEmailRequest = (requestId, user, approved, req, res) => {
-  let change = 'Rejected';
-  if (approved) {
-    change = 'Approved';
-  }
-
-  if (!req.user.approver) {
-    return res.render('error_views/unauthorized');
-  }
-
-  return Request.findById(requestId, (err, request) => {
-    if (err) {
-      console.log('decide_email_request update database_error');
-      return res.redirect('/?request=failed');
+    // broadcast was already processed by another approver
+    if (options) {
+      return res.render('request_decision', { request, user: req.user });
     }
-    if (!request) {
-      return res.redirect('/?request=failed');
-    }
-    if (request.pending) {
-      return Request.update(
-        { _id: requestId }, {
-          $set: {
-            pending: false,
-            approved,
-            approver: user.username
-          }
-        },
-        (requestErr) => {
-          if (requestErr) {
-            console.log('decide_email_request update database_error', requestErr);
-            res.redirect('/?request=failed');
-          } else {
-            // broadcast email
-            if (approved) {
-              sendBroadcastEmail(request);
-            } else {
-              rmDir('./public/uploads', request.attachments);
-            }
-            // make log
-            Log.log(change, user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', request._id);
-            res.render('close_window', { user: req.user });
-          }
-        }
-      );
-    }
-    return res.render('request_decision', { request, user: req.user });
+    return undefined;
   });
 };
 
 module.exports = {
   sendApproverEmail,
-  decideEmailRequest,
   decideRequest
 };

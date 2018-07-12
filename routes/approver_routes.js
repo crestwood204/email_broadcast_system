@@ -13,7 +13,7 @@ const Constants = require('../models/constants');
 
 const router = express.Router();
 const { User, Request, Log } = Models;
-const { decideRequest, decideEmailRequest } = EmailHelpers;
+const { decideRequest } = EmailHelpers;
 const { createSearchObject } = ValidationHelpers;
 const { DOCS_PER_PAGE } = Constants;
 
@@ -134,7 +134,11 @@ router.get('/decide_request_email', (req, res) => {
     if (err) {
       console.log('decide_request mobile_user_lookup database_error', err);
     } else {
-      decideEmailRequest(requestId, user, approved, req, res);
+      const options = {
+        user,
+        res
+      };
+      decideRequest(requestId, approved, req, options);
     }
   });
 });
