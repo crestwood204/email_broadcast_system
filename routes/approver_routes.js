@@ -57,7 +57,7 @@ router.get('/log', (req, res, next) => {
       .limit(DOCS_PER_PAGE)
       .skip((page - 1) * DOCS_PER_PAGE)
       .populate([{
-        path: 'request_id',
+        path: 'requestId',
         model: 'Request',
         populate: {
           path: 'createdBy',
@@ -67,13 +67,13 @@ router.get('/log', (req, res, next) => {
         path: 'user_id',
         model: 'User'
       }, {
-        path: 'edit_user_id',
+        path: 'editUserId',
         model: 'User'
       }, {
-        path: 'template_id',
+        path: 'templateId',
         model: 'Template'
       }, {
-        path: 'group_id',
+        path: 'groupId',
         model: 'Group'
       }])
       .exec((err, logs) => {
