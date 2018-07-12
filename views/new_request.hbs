@@ -39,7 +39,7 @@
           <select name="from" id="fromField" class="form-control" required>
             <option value=""selected>Choose...</option>
             {{#each groups}}
-              {{#compare this.type "internal"}}
+              {{#compare this.type "sender"}}
                 <option value={{../this.name}}>{{../this.name}}</option>
               {{/compare}}
             {{/each}}
