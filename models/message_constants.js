@@ -8,6 +8,6 @@ module.exports = {
   dupKey: 'The name provided already exists',
   passwordMatch: 'The passwords provided do not match',
   missing_fields: 'missingFields',
-  deactivated: 'User deactivated successfully!',
-  activated: 'User activated successfully'
+  deactivated: 'deactivated successfully!',
+  activated: 'activated successfully'
 };

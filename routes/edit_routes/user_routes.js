@@ -58,7 +58,14 @@ router.get('/edit_users', (req, res, next) => {
           last,
           error,
           status,
-          modal: { title: 'Deactivate User', text: 'Are you sure you want to deactivate this user?', type: 'Deactivate' },
+          modal: {
+            title: 'Deactivate User',
+            text: 'Are you sure you want to deactivate this user?',
+            type: 'Deactivate',
+            secondaryTitle: 'Activate User',
+            secondaryText: 'Are you sure you want to activate this user?',
+            secondaryType: 'Activate'
+          },
           threeBeforeLast: (last - 3) < page ? page : (last - 3),
           user: req.user,
           endpoint: { endpoint: '/edit_users?', new: '/new_user', edit: '/edit_user?user' }
@@ -223,10 +230,14 @@ router.put('/activate_user', (req, res) => {
   const { id } = req.body;
   User.findByIdAndUpdate(id, { $set: { active: true } }, (err, user) => {
     if (err) {
+      console.log(err);
       return res.status(500).send('datbase error when activating user');
     }
-    Log.log('Activated', req.user._id, 'User Activated', 'User', 'put activate_user database_error', null, user._id);
-    return res.status(200).send('user activated');
+    if (user) {
+      Log.log('Activated', req.user._id, 'User Activated', 'User', 'put activate_user database_error', null, user._id);
+      return res.status(200).send('user activated');
+    }
+    return res.status(400).send('user not found');
   });
 });
 

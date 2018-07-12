@@ -9,9 +9,9 @@ $(document).ready(() => {
   }());
 
 
-  $('.activate_confirm').on('click', function activateConfirm(event) {
+  $('.promote').on('click', function activateConfirm(event) {
     event.preventDefault();
-    const id = $(this).attr('id');
+    const id = $(this).attr('id').split('-')[2];
     $.ajax({
       url: '/activate_user',
       method: 'PUT',
@@ -20,7 +20,7 @@ $(document).ready(() => {
         console.log('error communicating with server', err);
       },
       success() {
-        window.location.href = '/edit_users?request=success&type=activated';
+        window.location.href = '/edit_users?status=activated';
       }
     });
   });
@@ -40,7 +40,7 @@ $(document).ready(() => {
       },
       success() {
         const endpoint = $('#search-bar-form').attr('action');
-        window.location.href = `${endpoint}status=deleted`;
+        window.location.href = `${endpoint}status=deactivated`;
       }
     });
   });
