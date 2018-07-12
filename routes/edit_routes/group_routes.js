@@ -33,6 +33,7 @@ router.get('/edit_groups', (req, res, next) => {
       last += 1;
     }
     return Group.find(searchObj)
+      .collation({ locale: 'en', strength: 2 })
       .sort({ type: 'descending', name: 'ascending' })
       .limit(EDIT_OBJECTS_PER_PAGE)
       .skip((page - 1) * EDIT_OBJECTS_PER_PAGE)

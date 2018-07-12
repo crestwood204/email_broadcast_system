@@ -31,6 +31,7 @@ router.get('/edit_templates', (req, res, next) => {
       last += 1;
     }
     return Template.find(searchObj)
+      .collation({ locale: 'en', strength: 2 })
       .sort({ name: 'ascending' })
       .limit(EDIT_OBJECTS_PER_PAGE)
       .skip((page - 1) * EDIT_OBJECTS_PER_PAGE)
