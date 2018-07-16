@@ -91,7 +91,14 @@ $(document).ready(() => {
     editor = new MediumEditor('.editable', {
       buttonLabels: 'fontawesome',
       toolbar: { buttons: ['indent', 'outdent', 'bold', 'italic', 'underline', 'justifyLeft', 'justifyCenter', 'justifyRight', 'h2', 'h3', 'quote', 'removeFormat'] },
-      placeholder: { text: '' }
+      placeholder: { text: '' },
+      paste: {
+        cleanPastedHTML: true,
+        forcePlainText: true,
+        cleanReplacements: [[/<!--[^>]*-->/gi, '']],
+        cleanAttrs: ['class', 'dir', 'style'],
+        cleanTags: ['label', 'meta', 'aside', 'span']
+      }
     });
   }());
 
@@ -106,10 +113,6 @@ $(document).ready(() => {
       editor.destroy();
       $('#body').val(template.body);
       editor.setup();
-      // editor.pasteHTML(template.body, {
-      //   forcePlainText: false,
-      //   cleanPastedHTML: true
-      // });
     }
   });
 
