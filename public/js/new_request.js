@@ -48,10 +48,12 @@ $(document).ready(() => {
         } else {
           $('.alert').attr('style', 'display: none;');
           $('#error_msg-extension').removeAttr('style');
+          return;
         }
       } else {
         $('.alert').attr('style', 'display: none;');
         $('#error_msg-size').removeAttr('style');
+        return;
       }
     }
     createFileObjects(validatedFiles);
@@ -137,6 +139,8 @@ $(document).ready(() => {
     const split = file.name.split('.');
     const ext = split[1];
     if (ext !== 'docx' || split.length > 2) {
+      $('.alert').attr('style', 'display: none;');
+      $('#error_msg-extension').removeAttr('style');
       return;
     }
     const reader = new FileReader();
