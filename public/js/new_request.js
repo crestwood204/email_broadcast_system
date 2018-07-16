@@ -1,6 +1,7 @@
 /* global bootstrapSelectSetup  */
 /* global customValidation  */
 /* global MediumEditor */
+/* global mammoth */
 $(document).ready(() => {
   const MAX_FILE_SIZE = 250000;
   let submitted = false;
@@ -90,7 +91,21 @@ $(document).ready(() => {
     // instantiate editable body
     editor = new MediumEditor('.editable', {
       buttonLabels: 'fontawesome',
-      toolbar: { buttons: ['indent', 'outdent', 'bold', 'italic', 'underline', 'justifyLeft', 'justifyCenter', 'justifyRight', 'h2', 'h3', 'quote', 'removeFormat'] },
+      toolbar: {
+        buttons: [
+          'indent',
+          'outdent',
+          'bold',
+          'italic',
+          'underline',
+          'orderedlist',
+          'unorderedlist',
+          'h2',
+          'h3',
+          'quote',
+          'removeFormat'
+        ]
+      },
       placeholder: { text: '' },
       paste: {
         cleanPastedHTML: true,
@@ -116,7 +131,23 @@ $(document).ready(() => {
     }
   });
 
-  // dynamically add
+  // get html and append it to the editor
+  $('#wordDoc').on('change', () => {
+    const [file] = document.getElementById('wordDoc').files;
+    const reader = new FileReader();
+    reader.onload = (loadEvent) => {
+      const arrayBuffer = loadEvent.target.result;
+      mammoth.convertToHtml({ arrayBuffer })
+        .then((result) => {
+          const bodyValue = $('#body').val();
+          editor.destroy();
+          $('#body').val(`${bodyValue}${result.value}`);
+          editor.setup();
+        })
+        .done();
+    };
+    reader.readAsArrayBuffer(file);
+  });
 
   $('.thumbnail').on('change', () => {
     // get files

@@ -70,10 +70,15 @@
     </div>
     <div class="form-group">
         <label for="body">Body:</label>
+
         <textarea name="body" class="form-control editable" rows="4" id="body" style="padding-top: 10px;">{{body}}</textarea>
         <div class="invalid-feedback" id="bodyFeedback">
           Body is a required field *
         </div>
+    </div>
+    <div class="form-group">
+      <label for="importWordDoc">Import text from a word doc:</label><br>
+      <input id="wordDoc" type="file"><br>
     </div>
     <div class="form-group files" style="padding-top: 7px">
         <label for="thumbnail-1">Attach a File (Max 7):</label><br>
@@ -90,4 +95,5 @@
   </form>
 </div>
 <script src="/js/form.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.6/mammoth.browser.min.js"></script>
 <script src="/js/new_request.js"></script>

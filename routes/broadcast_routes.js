@@ -11,7 +11,6 @@ const ValidationHelpers = require('../helpers/validation_helpers');
 const Constants = require('../models/constants');
 const Messages = require('../models/message_constants');
 
-
 const { sendApproverEmail } = EmailHelpers;
 const { createSearchObject } = ValidationHelpers;
 const { User, Request, Log, Group, Template } = Models;
@@ -388,4 +387,5 @@ router.get('/broadcast', (req, res) => {
       });
     });
 });
+
 module.exports = router;
