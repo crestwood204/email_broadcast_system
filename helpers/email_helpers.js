@@ -253,5 +253,6 @@ const decideRequest = (requestId, approved, req, options) => {
 
 module.exports = {
   sendApproverEmail,
-  decideRequest
+  decideRequest,
+  rmDir
 };

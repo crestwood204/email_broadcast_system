@@ -1,0 +1,26 @@
+<link rel="stylesheet" href="/css/form.css">
+<div class="content">
+  {{> banner}}
+  <div id="type" style="display: none;"> signature </div>
+  <h2> User Profile: {{profile.username}} </h2>
+  {{#if profile.signature.filename}}
+    <div style="position: relative">
+      <img src="user_data/signatures/{{profile.signature.filename}}"></img>
+      <div>
+        <button data-toggle="modal" data-target="#modal-" type="button" id="delete-btn" style="position: absolute; top: 0px; left: -10px; color: red; background-color: transparent;">
+          <i class="fa fa-times"></i>
+        </button>
+        {{> modal}}
+      </div>
+    </div>
+  {{/if}}
+  <form action="/user_settings" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="signatureUpload">Upload Signature:</label><br>
+      <input type="file" name="fileUpload" aria-label="fileUpload" aria-describedby="signatureUpload" id="signatureUpload" style="color: black; width: 100%;">
+    </div>
+    <a href="/home"><button type="button" class="btn" style="border: 1px solid #5d5d5d; color: #5d5d5d;">Cancel</button></a>
+    <button type="submit" class="btn submit">Save</button>
+  </form>
+</div>
+<script src="/js/delete_element.js"></script>

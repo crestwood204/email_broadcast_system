@@ -71,6 +71,10 @@ const UserSchema = new Schema({
     type: Boolean,
     default: true,
     required: true
+  },
+  signature: {
+    type: Object,
+    required: false
   }
 });
 

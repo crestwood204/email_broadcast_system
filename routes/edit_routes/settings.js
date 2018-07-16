@@ -1,14 +1,36 @@
 const express = require('express');
 const Models = require('../../models/models');
+const multer = require('multer'); // npm package for file uploads
+const Constants = require('../../models/constants');
+const EmailHelpers = require('../../helpers/email_helpers');
 
+const { rmDir } = EmailHelpers;
+const { MAX_FILE_SIZE } = Constants;
 const { User } = Models;
 const router = express.Router();
 
+let upload = multer();
+
+// configure settings for file upload
+const uploadStorage = multer.diskStorage({
+  destination(req, file, cb) {
+    cb(null, './public/user_data/signatures');
+  },
+  filename(req, file, cb) {
+    cb(null, `${file.fieldname}-${Date.now()}-${file.originalname}`);
+  }
+});
+
 router.get('/user_settings', (req, res, next) => {
-  const { user } = req.query;
-  User.findById(user).then(
+  const userId = req.user._id;
+  User.findById(userId).then(
     (profile) => {
-      res.render('edit_views/user/edit_user', { user: req.user, profile });
+      res.render('user_settings', {
+        user: req.user,
+        profile,
+        modal: { title: 'Delete Signature', text: 'Are you sure you want to delete this signature?', type: 'Delete' },
+        endpoint: { endpoint: 'user_settings' }
+      });
     },
     (err) => {
       console.log('settings user_query database_error', err);
@@ -17,4 +39,55 @@ router.get('/user_settings', (req, res, next) => {
   );
 });
 
+const updateSignature = function updateSignature(req, res, next, file) {
+  if (Object.prototype.hasOwnProperty.call(req.user.signature, 'path')) {
+    rmDir('./public/user_data/signatures', [req.user.signature]);
+  }
+  return User.findByIdAndUpdate(req.user._id, { $set: { signature: file } })
+    .then(
+      () => res.redirect('/user_settings'),
+      userErr => next(userErr)
+    )
+    .catch(promiseErr => next(promiseErr));
+};
+
+
+router.post('/user_settings', (req, res, next) => {
+  upload = multer({
+    storage: uploadStorage,
+    limits: { fileSize: MAX_FILE_SIZE },
+    fileFilter(request, file, callback) {
+      if (file.mimetype !== 'image/png' && file.mimetype !== 'image/jpeg') {
+        return callback(new Error('extension'));
+      }
+      return callback(null, true);
+    }
+  }).single('fileUpload');
+  upload(req, res, (err) => {
+    if (err) {
+      // TODO: format error message
+      console.log('err:', err);
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.json({ redirect: '/new_request?error=limit_file_size' });
+      }
+      if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+        return res.json({ redirect: '/new_request?error=limit_unexpected_file' });
+      }
+      if (err.message === 'extension') {
+        return res.json({ redirect: 'new_request?error=file_extension' });
+      }
+      return res.status(400).send({ redirect: '/404' });
+    }
+
+    if (!req.file) {
+      return res.redirect('user_settings');
+    }
+
+    return updateSignature(req, res, next, req.file);
+  });
+});
+
+router.put('/delete_signature', (req, res, next) => {
+  updateSignature(req, res, next, {});
+});
 module.exports = router;

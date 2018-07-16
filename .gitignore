@@ -68,9 +68,11 @@ readme.txt
 
 # exclude everything
 public/uploads/*
+public/user_data/signatures/*
 
 # exception to the rule
 !public/uploads/.gitkeep
+!public/user_data/signatures/.gitkeep
 
 # create local db
 createDB.js
