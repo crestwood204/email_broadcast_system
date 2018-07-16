@@ -14,7 +14,7 @@ $(document).ready(() => {
         console.log('error communicating with server', err);
       },
       success() {
-        const endpoint = $('#search-bar-form').attr('action') || '/user_settings?';
+        const endpoint = $('#search-bar-form').attr('action');
         window.location.href = `${endpoint}status=deleted`;
       }
     });
