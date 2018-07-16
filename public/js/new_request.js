@@ -134,6 +134,11 @@ $(document).ready(() => {
   // get html and append it to the editor
   $('#wordDoc').on('change', () => {
     const [file] = document.getElementById('wordDoc').files;
+    const split = file.name.split('.');
+    const ext = split[1];
+    if (ext !== 'docx' || split.length > 2) {
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (loadEvent) => {
       const arrayBuffer = loadEvent.target.result;
