@@ -1,0 +1,54 @@
+.toolbar {
+  border: 1px solid #ced4da;
+  background-clip: padding-box;
+  border-top-left-radius: .25rem;
+  border-top-right-radius: .25rem;
+  background-color: white;
+  width: 100%;
+  display: block;
+  text-align: center;
+  padding-bottom: 1px;
+  cursor: default;
+}
+
+.toolbar-item {
+  color: #3D3F41;
+  font-size: 13px;
+  background: none;
+  border: none;
+  transition: 0.2s;
+  margin: 10px 0px 5px 0px;
+}
+
+.toolbar-item:hover {
+    color: #909498;
+}
+
+.toolbar-item:focus {
+  outline: none;
+}
+
+.toolbar-selector {
+  margin: 1px 3px 1px 3px;
+  background: white;
+  border-radius: 1px;
+  font-size: 12px;
+  border: 1px solid #EDEDED;
+  cursor: default;
+  /* color: @gray - #666; not sure what this one is for*/
+  position: relative;
+}
+
+.toolbar-selector-content:hover {
+  background-color: #A5CCCC;
+}
+
+.toolbar-selector:focus {
+  outline: none;
+}
+
+.toolbar-divider {
+  margin: 0px 10px;
+  color: #3D3F41;
+  cursor: default;
+}

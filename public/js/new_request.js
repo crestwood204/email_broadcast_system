@@ -1,9 +1,11 @@
 /* global bootstrapSelectSetup  */
 /* global customValidation  */
+/* global MediumEditor */
 $(document).ready(() => {
   const MAX_FILE_SIZE = 250000;
   let submitted = false;
   const fileStore = [];
+  let editor;
 
   const createFileObjects = (validatedFiles, attachments) => {
     // store the validated files in global object
@@ -84,19 +86,34 @@ $(document).ready(() => {
     if (attachments) {
       createFileObjects(JSON.parse(attachments), true);
     }
+
+    // instantiate editable body
+    editor = new MediumEditor('.editable', {
+      buttonLabels: 'fontawesome',
+      toolbar: { buttons: ['indent', 'outdent', 'bold', 'italic', 'underline', 'justifyLeft', 'justifyCenter', 'justifyRight', 'h2', 'h3', 'quote', 'removeFormat'] },
+      placeholder: { text: '' }
+    });
   }());
 
   $('#templateField').on('change', function templateFieldChange() {
     let template = $(this).val();
-    if (template !== 'Choose...') {
+    if (template && template !== 'Choose...') {
       template = JSON.parse(sessionStorage.getItem(template));
       $('#subject').val(template.subject);
-      $('#body').val(template.body);
       if ($('.was-validated').length > 0) {
         customValidation();
       }
+      editor.destroy();
+      $('#body').val(template.body);
+      editor.setup();
+      // editor.pasteHTML(template.body, {
+      //   forcePlainText: false,
+      //   cleanPastedHTML: true
+      // });
     }
   });
+
+  // dynamically add
 
   $('.thumbnail').on('change', () => {
     // get files

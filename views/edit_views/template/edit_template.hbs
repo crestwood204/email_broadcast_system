@@ -1,4 +1,6 @@
 <link rel="stylesheet" href="/css/form.css">
+<script src="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/js/medium-editor.min.js"></script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/css/medium-editor.min.css" type="text/css" media="screen" charset="utf-8">
 <div class="content">
   {{> banner}}
   <h2> Edit Template </h2>
@@ -23,7 +25,7 @@
     </div>
     <div class="form-group">
         <label for="body">Body:</label>
-        <textarea name="body" class="form-control" rows="4" id="body">{{body}}</textarea>
+        <textarea name="body" class="form-control editable" rows="4" id="body">{{body}}</textarea>
         <div class="invalid-feedback" id="bodyFeedback">
           Body is a required field *
         </div>
@@ -37,3 +39,10 @@
 <script src="/js/frontend_helpers.js"></script>
 <script src="/js/frontend_validation/custom_validators/template_validator.js"></script>
 <script src="/js/frontend_validation/form-validation.js"></script>
+<script>
+  const editor = new MediumEditor('.editable', {
+    buttonLabels: 'fontawesome',
+    toolbar: { buttons: ['indent', 'outdent', 'bold', 'italic', 'underline', 'justifyLeft', 'justifyCenter', 'justifyRight', 'h2', 'h3', 'quote', 'removeFormat'] },
+    placeholder: { text: '' }
+  });
+</script>
