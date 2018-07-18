@@ -268,8 +268,11 @@ const decideRequest = (requestId, approved, req, options) => {
       return console.log('decide_request request_lookup request_does-not-exist');
     }
     if (options) {
+      const stringDate = request.lastUpdated.toString();
+      console.log(stringDate);
+      console.log(options.lastUpdated);
       // check if request has been updated since this email was sent
-      if (request.lastUpdated.toString() === options.lastUpdated) {
+      if (stringDate === options.lastUpdated) {
         // render specific pending_request view
         return res.status(200).send('This request was edited'); // TODO: HANDLE THIS
       }
