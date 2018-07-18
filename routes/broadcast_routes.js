@@ -438,4 +438,18 @@ router.get('/broadcast', (req, res) => {
     });
 });
 
+router.get('/request_decision', (req, res) => {
+  const { requestId } = req.query;
+  Request.findById(requestId)
+    .then(
+      (request) => {
+        res.render('request_decision', request);
+      },
+      (err) => {
+        console.log('database error request decision', err);
+        res.status(500).send('Database Error');
+      }
+    );
+});
+
 module.exports = router;

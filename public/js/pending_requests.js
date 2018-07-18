@@ -16,6 +16,8 @@ $(document).ready(() => {
       success(res) {
         if (res.error === 'updatedRequest') {
           window.location.href = `/pending_broadcast?requestId=${id}&error=lastUpdated`;
+        } else if (res.error === 'requestDecision') {
+          window.location.href = `/request_decision?requestId=${id}`;
         }
       }
     });
