@@ -124,12 +124,15 @@ router.post('/decide_request', (req, res) => {
   decideRequest(requestId, approved, req);
 });
 
-router.get('/decide_request_email', (req, res) => {
+router.get('/decide_request_email', (req, res, next) => {
   const userId = req.query.user_id;
   const requestId = req.query.request_id;
   const approved = req.query.decision === 'approve';
   const { lastUpdated } = req.query;
 
+  if (!userId || !requestId) {
+    next(new Error('malformed user input'));
+  }
 
   User.findById(userId, (err, user) => {
     if (err) {

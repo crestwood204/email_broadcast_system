@@ -1,6 +1,5 @@
 const nodemailer = require('nodemailer');
 const Models = require('../models/models');
-const datejs = require('datejs');
 const fs = require('fs');
 
 const { User, Group, Request, Log } = Models;
@@ -75,7 +74,6 @@ const sendApproverEmail = (approvers, request, userEmail, requestEdited) => {
           files = [signature];
         }
       }
-      console.log('lastupdated', request.lastUpdated);
       // send email to approvers
       approvers.forEach((user) => {
         html = `<html>
@@ -92,11 +90,11 @@ const sendApproverEmail = (approvers, request, userEmail, requestEdited) => {
               <table cellspacing="0" cellpadding="0">
                 <tr>
                   <td align="center" bgcolor="#d9534f" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
-                    <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&lastUpdated=${request.lastUpdated}&decision=reject" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Reject</span></a>
+                    <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&lastUpdated=${request.lastUpdated.toString()}&decision=reject" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Reject</span></a>
                   </td>
                   <td align="center" display="inline-block" width="10px"> </td>
                   <td align="center" bgcolor="#449d44" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
-                    <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&lastUpdated=${request.lastUpdated}&decision=approve" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline; padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Approve</span></a>
+                    <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&lastUpdated=${request.lastUpdated.toString()}&decision=approve" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline; padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Approve</span></a>
                   </td>
                 </tr>
               </table>
@@ -271,11 +269,9 @@ const decideRequest = (requestId, approved, req, options) => {
     }
     if (options) {
       // check if request has been updated since this email was sent
-      console.log(request.lastUpdated);
-      console.log(Date.parseExact(options.lastUpdated));
-      if (request.lastUpdated.compareTo(Date.parseExact(options.lastUpdated)) !== 0) {
+      if (request.lastUpdated.toString() === options.lastUpdated) {
         // render specific pending_request view
-        return res.status(200).send('This request was edited');
+        return res.status(200).send('This request was edited'); // TODO: HANDLE THIS
       }
     }
     if (request.pending) {
