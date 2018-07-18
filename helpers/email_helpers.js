@@ -11,6 +11,55 @@ const transporter = nodemailer.createTransport({
   tls: { rejectUnauthorized: false }
 });
 
+const getHTML = (to, from, subject, date, body) => `
+<html>
+  <p style="margin: 0 0 5px 0;">
+    <strong>
+      <b style="font-size: 36pt; font-family: Arial,sans-serif;">MEMO</b>
+    </strong>
+  </p>
+
+  <table border="0" cellspacing="0" cellpadding="0" width="75%" style="width:75.0%; border-collapse:collapse font-size: 8px">
+    <tbody>
+      <tr>
+        <td width="15%" style="width:10.0%; padding: 0;">
+          <p style="margin: 0 0 8px 0;"><b style="font-size: 10.0pt; font-family: Arial, sans-serif;">TO: </b></p>
+        </td>
+        <td width="85%" style="width:90.0%; padding:0in 0in 0in 0in">
+          <p style="margin: 0 0 8px 0;"><span style="font-size:10.0pt; font-family:Arial, sans-serif;">${to}</span></p>
+        </td>
+      </tr>
+      <tr style="margin: 0 0 2px 0;">
+        <td width="15%" style="width:10.0%; padding:0in 0in 0in 0in">
+          <p style="margin: 0 0 8px 0;"><b><span style="font-size:10.0pt; font-family: Arial, sans-serif;">FROM: </span></b></p>
+        </td>
+        <td width="85%" style="width:90.0%; padding:0in 0in 0in 0in">
+          <p style="margin: 0 0 8px 0;"><span style="font-size:10.0pt; font-family:Arial, sans-serif;">${from}</span></p>
+        </td>
+      </tr>
+      <tr style="margin: 0 0 2px 0;">
+        <td width="15%" style="width:10.0%; padding:0in 0in 0in 0in">
+          <p style="margin: 0 0 8px 0;"><b><span style="font-size:10.0pt; font-family: Arial, sans-serif;">DATE: </span></b></p>
+        </td>
+        <td width="85%" style="width:90.0%; padding:0in 0in 0in 0in">
+          <p style="margin: 0 0 8px 0;"><span style="font-size:10.0pt; font-family:Arial, sans-serif;">${date.format('l, F')} ${date.format('%d')}<sup>${date.format('S')}</sup>, ${date.format('Y')}</span></p>
+        </td>
+      </tr>
+      <tr style="margin: 0 0 2px 0;">
+        <td width="15%" style="width:10.0%; padding:0in 0in 0in 0in">
+          <p style="margin: 0 0 8px 0;"><b><span style="font-size: 10.0pt; font-family: Arial, sans-serif;">SUBJECT: </span></b></p>
+        </td>
+        <td width="85%" style="width:90.0%; padding:0in 0in 0in 0in">
+          <p style="margin: 0 0 8px 0;"><span style="font-size: 10.0pt; font-family: Arial, sans-serif;">${subject}</span></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div style="border-bottom: 3px double black; padding-top: 9px;"></div>
+  <div style="margin-top: 9px;"> ${body} </div>
+</html>
+`;
+
 const matchSignature = (body) => {
   const signatureRegex = /\.~[a-zA-Z0-9]*[a-zA-Z]+[a-zA-Z0-9]*/; // regex for username
   const match = body.match(signatureRegex);
@@ -163,55 +212,7 @@ const sendBroadcastEmail = (request) => {
           files = [signature];
         }
       }
-      const html = `<html>
-        <p>
-          <strong>
-            <b style="font-size:36.0pt; font-family:Arial,sans-serif">MEMO</b>
-          </strong>
-        </p>
-        <table class="MsoNormalTable" border="0" cellspacing="0" cellpadding="0" width="75%" style="width:75.0%; border-collapse:collapse font-size: 8px">
-          <tbody>
-            <tr>
-              <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
-                <p class="MsoNormal"><b style="font-size:10.0pt; font-family:Arial,sans-serif">TO: </b></p>
-              </td>
-              <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
-                <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${request.to}</span></p>
-              </td>
-            </tr>
-            <tr>
-              <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
-                <p class="MsoNormal"><b><span style="font-size:10.0pt; font-family:Arial,sans-serif">FROM: </span></b></p>
-              </td>
-              <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
-                <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${request.from}</span></p>
-              </td>
-            </tr>
-            <tr>
-              <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
-                <p class="MsoNormal"><b><span style="font-size:10.0pt; font-family:Arial,sans-serif">DATE: </span></b></p>
-              </td>
-              <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
-                <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${date.format('l, F')} ${date.format('j')}<sup>${date.format('S')}</sup>, ${date.format('Y')}</span></p>
-              </td>
-            </tr>
-            <tr>
-            </tr>
-            <tr>
-              <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
-                <p class="MsoNormal"><b><span style="font-size:10.0pt; font-family:Arial,sans-serif">SUBJECT: </span></b></p>
-              </td>
-              <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
-                <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${request.subject}</span></p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div style="border:none; border-bottom:double windowtext 2.25pt; padding:0in 0in 1.0pt 0in">
-          <p class="MsoNormal" style="border:none; padding:0in">&nbsp;</p>
-        </div>
-        <div> ${bodyWithSignature[1]} </div>
-      </html>`;
+      const html = getHTML(request.to, request.from, request.subject, date, bodyWithSignature[1]);
 
       Group.find({}).then(
         (groups) => {
