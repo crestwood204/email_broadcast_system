@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const Models = require('../models/models');
+const datejs = require('datejs');
 const fs = require('fs');
 
 const { User, Group, Request, Log } = Models;
@@ -268,8 +269,11 @@ const decideRequest = (requestId, approved, req, options) => {
       return console.log('decide_request request_lookup request_does-not-exist');
     }
     if (options) {
-      console.log(typeof (request.lastUpdated));
-      console.log(typeof (options.lastUpdated));
+      // check if request has been updated since this email was sent
+      if (request.lastUpdated > Date.parse(options.lastUpdated)) {
+        // render specific pending_request view
+        return res.status(200).send('This request was edited');
+      }
     }
     if (request.pending) {
       if (approved) {
