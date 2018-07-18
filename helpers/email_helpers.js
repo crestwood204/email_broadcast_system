@@ -323,10 +323,7 @@ const decideRequest = (requestId, approved, req, res, lastUpdated, options) => {
     }
 
     // broadcast was already processed by another approver
-    if (options) {
-      return res.render('request_decision', { request, user: req.user });
-    }
-    return undefined;
+    return res.render('request_decision', { request, user: options ? options.user : req.user });
   });
 };
 
