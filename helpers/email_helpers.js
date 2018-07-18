@@ -38,10 +38,11 @@ const matchSignature = (body) => {
     resolve([null, body]);
   });
 };
-
-const sendApproverEmail = (approvers, request, userEmail) => {
+// consolidate email functions?
+const sendApproverEmail = (approvers, request, userEmail, requestEdited) => {
   let html;
   let mailOptions;
+  let editedTag;
   let files = request.attachments;
 
   if (files) {
@@ -53,6 +54,10 @@ const sendApproverEmail = (approvers, request, userEmail) => {
       };
       return rObj;
     });
+  }
+
+  if (requestEdited) {
+    editedTag = '<div style="color: red;">This is an edited request</div>';
   }
   matchSignature(request.body)
     .then((bodyWithSignature) => {
@@ -93,6 +98,7 @@ const sendApproverEmail = (approvers, request, userEmail) => {
                   </td>
                 </tr>
               </table>
+              ${editedTag}
               <div> Note that you may need to login in order to approve or reject the request - In this case, you must login before you can approve or reject a broadcast request.</div>
           </body>
         </html>`;

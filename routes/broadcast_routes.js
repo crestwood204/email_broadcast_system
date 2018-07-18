@@ -198,6 +198,10 @@ router.post('/new_request', (req, res) => {
     }
   }).array('files', 7);
   upload(req, res, (err) => {
+    /*
+     * req.files are newly attached files from the user
+     * attachments are file objects sent from the server to the frontend and back again
+     */
     let { to } = req.body;
     const { id, subject, body, from, attachments } = req.body;
     const query = `to=${to}&subject=${subject}&body=${body}&from=${from}&attachments=${req.files}`;
@@ -230,29 +234,40 @@ router.post('/new_request', (req, res) => {
         .then(
           (request) => {
             // if something changed then update
-            if (to !== request.to || from !== request.from || subject !== request.subject ||
-              body !== request.body) { // TODO: attachments changed as well
-              Request.update(
-                { _id: id }, {
-                  $set: {
-                    to,
-                    from,
-                    subject,
-                    body,
-                    createdBy: req.user._id,
-                    lastUpdated: new Date(),
-                    attachments: req.files.concat(JSON.parse(attachments))
-                  }
-                },
-                (updateErr) => {
-                  if (updateErr) {
-                    console.log('new_request update database_error', updateErr);
-                    return res.json({ redirect: '/pending_requests?error=database' });
-                  }
-                  return res.json({ redirect: '/pending_requests?request=saved' });
+            if (to !== request.to || from !== request.from ||
+              subject !== request.subject || body !== request.body ||
+              req.files || request.attachments.length !== attachments.length) {
+              request.set({
+                to,
+                from,
+                subject,
+                body,
+                createdBy: req.user._id,
+                lastUpdated: new Date(),
+                attachments: req.files.concat(JSON.parse(attachments))
+              });
+              request.save((updateErr, updatedRequest) => {
+                if (updateErr) {
+                  console.log('new_request update database_error', updateErr);
+                  return res.json({ redirect: '/pending_requests?error=database' });
                 }
-              );
+                // This code is repeated => Move to email helpers later?
+                // send approval email
+                return User.find({}).then((users) => {
+                  const approvers = users.filter(x => (x.approver && x.active)).map((x) => {
+                    const rObj = {
+                      email: x.email,
+                      id: x._id
+                    };
+                    return rObj;
+                  });
+                  sendApproverEmail(approvers, updatedRequest, req.user.email, true);
+                  return res.json({ redirect: '/pending_requests?status=created' });
+                });
+              });
             }
+            // nothing updated
+            return res.json({ redirect: '/pending_requests?request=saved' });
           },
           (requestByIdErr) => {
             console.log('requestByIdErr', requestByIdErr);
