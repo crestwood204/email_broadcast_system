@@ -8,7 +8,7 @@ $(document).ready(() => {
         console.log('Error:', err);
       },
       success() {
-        // window.location.href = '/user_settings';
+        window.location.href = '/user_settings';
       }
     });
   });

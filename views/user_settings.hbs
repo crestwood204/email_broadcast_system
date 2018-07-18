@@ -9,6 +9,7 @@
         <button data-toggle="modal" data-target="#modal" type="button" id="delete-btn" style="position: absolute; top: 0px; left: -10px; color: red; background-color: transparent;">
           <i class="fa fa-times"></i>
         </button>
+        <!-- Modal -->
         <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="groupModal" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -28,17 +29,16 @@
             </div>
           </div>
         </div>
-
       </div>
     </div>
   {{/if}}
   <form action="/user_settings" method="post" enctype="multipart/form-data">
     <div class="form-group">
-      <label for="signatureUpload">Upload Signature:</label><br>
+      <label for="signatureUpload">Upload Signature (Uploading a new signature will replace the current one!):</label><br>
       <input type="file" name="fileUpload" aria-label="fileUpload" aria-describedby="signatureUpload" id="signatureUpload" style="color: black; width: 100%;">
     </div>
-    <a href="/home"><button type="button" class="btn" style="border: 1px solid #5d5d5d; color: #5d5d5d;">Cancel</button></a>
-    <button type="submit" class="btn submit">Save</button>
+    <a href="/"><button type="button" class="btn" style="border: 1px solid #5d5d5d; color: #5d5d5d;">Cancel</button></a>
+    <button type="submit" class="btn submit">Upload</button>
   </form>
 </div>
 <script src="/js/user_settings.js"></script>

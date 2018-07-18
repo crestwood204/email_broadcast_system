@@ -3,6 +3,7 @@ const Models = require('../../models/models');
 const multer = require('multer'); // npm package for file uploads
 const Constants = require('../../models/constants');
 const EmailHelpers = require('../../helpers/email_helpers');
+const Messages = require('../../models/message_constants');
 
 const { rmDir } = EmailHelpers;
 const { MAX_FILE_SIZE } = Constants;
@@ -22,6 +23,7 @@ const uploadStorage = multer.diskStorage({
 });
 
 router.get('/user_settings', (req, res, next) => {
+  const [error, status] = [Messages[req.query.error], Messages[req.query.status]];
   const userId = req.user._id;
   User.findById(userId).then(
     (profile) => {
@@ -29,7 +31,9 @@ router.get('/user_settings', (req, res, next) => {
         user: req.user,
         profile,
         modal: { title: 'Delete Signature', text: 'Are you sure you want to delete this signature?', type: 'Delete' },
-        endpoint: { endpoint: 'user_settings' }
+        endpoint: { endpoint: 'user_settings' },
+        error,
+        status
       });
     },
     (err) => {
@@ -45,7 +49,7 @@ const updateSignature = function updateSignature(req, res, next, file) {
   }
   return User.findByIdAndUpdate(req.user._id, { $set: { signature: file } })
     .then(
-      () => res.redirect('/user_settings'),
+      () => (Object.prototype.hasOwnProperty.call(req.user.signature, 'path') ? res.status(200).send('success') : res.redirect('/user_settings')),
       userErr => next(userErr)
     )
     .catch(promiseErr => next(promiseErr));
@@ -68,13 +72,13 @@ router.post('/user_settings', (req, res, next) => {
       // TODO: format error message
       console.log('err:', err);
       if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.json({ redirect: '/new_request?error=limit_file_size' });
+        return res.redirect('/user_settings?error=limit_file_size');
       }
       if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-        return res.json({ redirect: '/new_request?error=limit_unexpected_file' });
+        return res.redirect('/user_settings?error=limit_unexpected_file');
       }
       if (err.message === 'extension') {
-        return res.json({ redirect: 'new_request?error=file_extension' });
+        return res.redirect('user_settings?error=file_extension');
       }
       return res.status(400).send({ redirect: '/404' });
     }
