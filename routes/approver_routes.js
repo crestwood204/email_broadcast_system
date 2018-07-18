@@ -128,15 +128,17 @@ router.get('/decide_request_email', (req, res) => {
   const userId = req.query.user_id;
   const requestId = req.query.request_id;
   const approved = req.query.decision === 'approve';
+  const { lastUpdated } = req.query;
 
 
   User.findById(userId, (err, user) => {
     if (err) {
-      console.log('decide_request mobile_user_lookup database_error', err);
+      console.log('decide_request user_lookup database_error', err);
     } else {
       const options = {
         user,
-        res
+        res,
+        lastUpdated
       };
       decideRequest(requestId, approved, req, options);
     }
