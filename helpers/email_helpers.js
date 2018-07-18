@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 const Models = require('../models/models');
 const fs = require('fs');
 
-const { Group, Request, Log } = Models;
+const { User, Group, Request, Log } = Models;
 
 // create reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
@@ -10,6 +10,34 @@ const transporter = nodemailer.createTransport({
   port: 25,
   tls: { rejectUnauthorized: false }
 });
+
+const matchSignature = (body) => {
+  const signatureRegex = /\.~[a-zA-Z0-9]*[a-zA-Z]+[a-zA-Z0-9]*/; // regex for username
+  const match = body.match(signatureRegex);
+  if (match) {
+    return User.findOne({ username: match[0].substring(2) }).then(
+      (user) => {
+        if (!user) {
+          return [null, body.replace(match[0], 'user not found')];
+        }
+
+        if (!user.signature) {
+          return [null, body.replace(match[0], 'user does not have an associated signature')];
+        }
+        const src = user.signature.filename;
+        const image = `<img src="cid:${src}"></img>`;
+        return [src, body.replace(match[0], image)];
+      },
+      (matchErr) => {
+        console.log('Error:', matchErr);
+        return [null, body.replace(match[0], 'signature failed to upload')];
+      }
+    );
+  }
+  return new Promise((resolve) => {
+    resolve([null, body]);
+  });
+};
 
 const sendApproverEmail = (approvers, request, userEmail) => {
   let html;
@@ -26,53 +54,71 @@ const sendApproverEmail = (approvers, request, userEmail) => {
       return rObj;
     });
   }
-
-  // send email to approvers
-  approvers.forEach((user) => {
-    html = `<html>
-      <head>
-        <style>
-
-        </style>
-      </head>
-      <body>
-        <div> Requester: ${userEmail} </div>
-        <div> Broadcast To: ${request.to} </div>
-        <div class="divider-top"> Subject: ${request.subject} </div>
-        <div class="divider-top"> ${request.body} </div>
-          <table cellspacing="0" cellpadding="0">
-            <tr>
-              <td align="center" bgcolor="#d9534f" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
-                <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&decision=reject" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Reject</span></a>
-              </td>
-              <td align="center" display="inline-block" width="10px"> </td>
-              <td align="center" bgcolor="#449d44" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
-                <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&decision=approve" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline; padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Approve</span></a>
-              </td>
-            </tr>
-          </table>
-          <div> Note that you may need to login in order to approve or reject the request - In this case, you must login before you can approve or reject a broadcast request.</div>
-      </body>
-    </html>`;
-
-    mailOptions = {
-      from: process.env.BROADCAST_ADDRESS, // sender address
-      to: '', // list of receivers
-      bcc: user.email,
-      subject: 'BROADCAST REQUEST', // Subject line
-      text: request.body, // plain text body
-      html, // html body
-      attachments: files // file attachments
-    };
-
-    // send mail with defined transport object
-    transporter.sendMail(mailOptions, (error) => { // callback contains (error, info)
-      if (error) {
-        return console.log('err', error);
+  matchSignature(request.body)
+    .then((bodyWithSignature) => {
+      // add on signature as embedded image
+      if (bodyWithSignature[0]) {
+        const signature = {
+          filename: bodyWithSignature[0],
+          path: `./public/user_data/signatures/${bodyWithSignature[0]}`,
+          cid: bodyWithSignature[0]
+        };
+        if (files) {
+          files.push(signature);
+        } else {
+          files = [signature];
+        }
       }
-      return console.log(`email approval sent to ${user.email}`);
+      // send email to approvers
+      approvers.forEach((user) => {
+        html = `<html>
+          <head>
+            <style>
+
+            </style>
+          </head>
+          <body>
+            <div> Requester: ${userEmail} </div>
+            <div> Broadcast To: ${request.to} </div>
+            <div class="divider-top"> Subject: ${request.subject} </div>
+            <div class="divider-top"> ${bodyWithSignature[1]} </div>
+              <table cellspacing="0" cellpadding="0">
+                <tr>
+                  <td align="center" bgcolor="#d9534f" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
+                    <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&decision=reject" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Reject</span></a>
+                  </td>
+                  <td align="center" display="inline-block" width="10px"> </td>
+                  <td align="center" bgcolor="#449d44" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
+                    <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&decision=approve" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline; padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Approve</span></a>
+                  </td>
+                </tr>
+              </table>
+              <div> Note that you may need to login in order to approve or reject the request - In this case, you must login before you can approve or reject a broadcast request.</div>
+          </body>
+        </html>`;
+
+        mailOptions = {
+          from: process.env.BROADCAST_ADDRESS, // sender address
+          to: '', // list of receivers
+          bcc: user.email,
+          subject: 'BROADCAST REQUEST', // Subject line
+          text: bodyWithSignature[1], // plain text body
+          html, // html body
+          attachments: files // file attachments
+        };
+
+        // send mail with defined transport object
+        transporter.sendMail(mailOptions, (error) => { // callback contains (error, info)
+          if (error) {
+            return console.log('send mail error', error);
+          }
+          return console.log(`email approval sent to ${user.email}`);
+        });
+      });
+    })
+    .catch((matchSignatureError) => {
+      console.log('match signature error', matchSignatureError);
     });
-  });
 };
 
 const rmDir = (dirPath, attachments) => {
@@ -95,6 +141,7 @@ const rmDir = (dirPath, attachments) => {
 
 const sendBroadcastEmail = (request) => {
   const date = new Date();
+  const bodyWithSignature = matchSignature(request.body);
   const html = `<html>
     <p>
       <strong>
@@ -142,7 +189,7 @@ const sendBroadcastEmail = (request) => {
     <div style="border:none; border-bottom:double windowtext 2.25pt; padding:0in 0in 1.0pt 0in">
       <p class="MsoNormal" style="border:none; padding:0in">&nbsp;</p>
     </div>
-    <div> ${request.body} </div>
+    <div> ${bodyWithSignature} </div>
   </html>`;
 
   Group.find({}).then(
@@ -154,7 +201,7 @@ const sendBroadcastEmail = (request) => {
         to: '', // list of receivers
         bcc: filteredGroups,
         subject: request.subject, // Subject line
-        text: request.body, // plain text body
+        text: bodyWithSignature, // plain text body
         html, // html body
         attachments: request.attachments
       };

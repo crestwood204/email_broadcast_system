@@ -204,7 +204,6 @@ router.post('/new_request', (req, res) => {
 
     // convert toField into an array
     to = to.split(',');
-
     // append filePaths to files * occurs if modifying file attachments while pending *
     if (id) {
       return Request.findByIdAndUpdate(id, {
@@ -224,7 +223,6 @@ router.post('/new_request', (req, res) => {
         return res.json({ redirect: '/pending_requests?request=saved' });
       });
     }
-
     // save request object
     const newRequest = new Request({
       to,
@@ -243,7 +241,6 @@ router.post('/new_request', (req, res) => {
 
       // add to log
       Log.log('Create', req.user._id, 'Broadcast Request Created', 'Broadcast', 'post new_request database_error', { requestId: request._id });
-
       // send emails to approvers
       return User.find({}).then(
         (users) => {
@@ -254,7 +251,6 @@ router.post('/new_request', (req, res) => {
             };
             return rObj;
           });
-
           sendApproverEmail(approvers, request, req.user.email);
           return res.json({ redirect: '/pending_requests?status=created' });
         },
