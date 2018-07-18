@@ -229,6 +229,7 @@ router.post('/new_request', (req, res) => {
     to = to.split(',');
 
     // if editing request: append filePaths to files
+    const lastUpdated = new Date();
     if (id) {
       return Request.findById(id)
         .then(
@@ -242,8 +243,8 @@ router.post('/new_request', (req, res) => {
                 from,
                 subject,
                 body,
+                lastUpdated,
                 createdBy: req.user._id,
-                lastUpdated: new Date(),
                 attachments: req.files.concat(JSON.parse(attachments))
               });
               request.save((updateErr, updatedRequest) => {
@@ -281,10 +282,10 @@ router.post('/new_request', (req, res) => {
       from,
       subject,
       body,
+      lastUpdated,
       createdBy: req.user._id,
       attachments: req.files,
-      dateCreated: new Date(),
-      lastUpdated: new Date()
+      dateCreated: lastUpdated
     });
     return newRequest.save((requestErr, request) => {
       if (requestErr) {
