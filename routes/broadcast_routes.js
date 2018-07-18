@@ -230,8 +230,6 @@ router.post('/new_request', (req, res) => {
         .then(
           (request) => {
             // if something changed then update
-            console.log(req.files);
-            console.log(attachments);
             if (to !== request.to || from !== request.from || subject !== request.subject ||
               body !== request.body) { // TODO: attachments changed as well
               Request.update(
