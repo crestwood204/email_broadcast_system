@@ -42,7 +42,7 @@ const matchSignature = (body) => {
 const sendApproverEmail = (approvers, request, userEmail, requestEdited) => {
   let html;
   let mailOptions;
-  let editedTag;
+  let editedTag = '';
   let files = request.attachments;
 
   if (files) {
