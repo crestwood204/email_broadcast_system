@@ -6,23 +6,28 @@ $(document).ready(() => {
   const MAX_FILE_SIZE = 250000;
   let submitted = false;
   const fileStore = [];
+  let fileId = 1;
   let editor;
 
   const createFileObjects = (validatedFiles, attachments) => {
     // store the validated files in global object
     for (let i = 0; i < validatedFiles.length; i += 1) {
-      fileStore.push(validatedFiles[i]);
+      fileStore.push({
+        file: validatedFiles[i],
+        id: fileId
+      });
       // create button objects for them
       $('#files').append(`
        <span class="file-upload" style="position: relative;">
          <span style="position: relative;">
            <i class="fa fa-file" style="font-size: 30px;"></i>
-           <button id="filestore-${fileStore.length - 1}" type="button" class="close-btn">&#10006</button>
+           <button id="${fileId}" type="button" class="close-btn">&#10006</button>
          </span>
          <span class="file-text">
            ${attachments ? validatedFiles[i].originalname : validatedFiles[i].name}
          </span>
        </span>`);
+      fileId += 1;
     }
   };
   /*
@@ -166,8 +171,12 @@ $(document).ready(() => {
 
   // remove file from global file store and remove the span
   $('#files').on('click', '.close-btn', function removeFile() {
-    const id = $(this).attr('id').split('-')[1];
-    fileStore.slice(id, 1);
+    const id = $(this).attr('id');
+    for (let i = 0; i < fileStore.length; i += 1) {
+      if (fileStore[i].id === parseInt(id, 10)) {
+        fileStore.splice(i, 1);
+      }
+    }
     $(this).parent().parent().remove();
   });
 
@@ -180,7 +189,7 @@ $(document).ready(() => {
       // if file is uploaded by user then store it in files
       // if file is uploaded by server then store it in attachments
       const attachments = [];
-      fileStore.forEach(file => (Object.prototype.hasOwnProperty.call(file, 'originalname') ? attachments.push(file) : data.append('files', file)));
+      fileStore.forEach(fileObj => (Object.prototype.hasOwnProperty.call(fileObj.file, 'originalname') ? attachments.push(fileObj.file) : data.append('files', fileObj.file)));
       data.append('to', $('#toField').val());
       data.append('location', $('#locationField').val());
       data.append('from', $('#fromField').val());

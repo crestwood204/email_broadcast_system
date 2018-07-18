@@ -226,22 +226,41 @@ router.post('/new_request', (req, res) => {
 
     // if editing request: append filePaths to files
     if (id) {
-      return Request.findByIdAndUpdate(id, {
-        $set: {
-          to,
-          from,
-          subject,
-          body,
-          createdBy: req.user._id,
-          attachments: req.files.concat(JSON.parse(attachments))
-        }
-      }, (updateErr) => {
-        if (updateErr) {
-          console.log('new_request update database_error', updateErr);
-          return res.json({ redirect: '/pending_requests?error=database' });
-        }
-        return res.json({ redirect: '/pending_requests?request=saved' });
-      });
+      return Request.findById(id)
+        .then(
+          (request) => {
+            // if something changed then update
+            console.log(req.files);
+            console.log(attachments);
+            if (to !== request.to || from !== request.from || subject !== request.subject ||
+              body !== request.body) { // TODO: attachments changed as well
+              Request.update(
+                { _id: id }, {
+                  $set: {
+                    to,
+                    from,
+                    subject,
+                    body,
+                    createdBy: req.user._id,
+                    lastUpdated: new Date(),
+                    attachments: req.files.concat(JSON.parse(attachments))
+                  }
+                },
+                (updateErr) => {
+                  if (updateErr) {
+                    console.log('new_request update database_error', updateErr);
+                    return res.json({ redirect: '/pending_requests?error=database' });
+                  }
+                  return res.json({ redirect: '/pending_requests?request=saved' });
+                }
+              );
+            }
+          },
+          (requestByIdErr) => {
+            console.log('requestByIdErr', requestByIdErr);
+            return res.json({ redirect: '/pending_requests?error=database' });
+          }
+        );
     }
     // save request object
     const newRequest = new Request({
@@ -251,7 +270,8 @@ router.post('/new_request', (req, res) => {
       body,
       createdBy: req.user._id,
       attachments: req.files,
-      dateCreated: new Date()
+      dateCreated: new Date(),
+      lastUpdated: new Date()
     });
     return newRequest.save((requestErr, request) => {
       if (requestErr) {

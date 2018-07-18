@@ -45,6 +45,10 @@ const RequestSchema = new Schema({
   dateCreated: {
     type: Date,
     default: undefined
+  },
+  lastUpdated: {
+    type: Date,
+    default: undefined
   }
 });
 
