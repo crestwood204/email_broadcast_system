@@ -268,8 +268,8 @@ const decideRequest = (requestId, approved, req, options) => {
       return console.log('decide_request request_lookup request_does-not-exist');
     }
     if (options) {
-      console.log(request.lastUpdated);
-      console.log(options.lastUpdated);
+      console.log(typeof (request.lastUpdated));
+      console.log(typeof (options.lastUpdated));
     }
     if (request.pending) {
       if (approved) {
