@@ -269,10 +269,8 @@ const decideRequest = (requestId, approved, req, options) => {
     }
     if (options) {
       const stringDate = request.lastUpdated.toString();
-      console.log(stringDate);
-      console.log(options.lastUpdated);
       // check if request has been updated since this email was sent
-      if (stringDate === options.lastUpdated) {
+      if (stringDate !== options.lastUpdated) {
         // render specific pending_request view
         return res.status(200).send('This request was edited'); // TODO: HANDLE THIS
       }
