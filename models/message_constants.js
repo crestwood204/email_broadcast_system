@@ -10,5 +10,6 @@ module.exports = {
   missing_fields: 'missingFields',
   deactivated: 'deactivated successfully!',
   activated: 'activated successfully',
-  file_extension: 'A file you attached is unsupported'
+  file_extension: 'A file you attached is unsupported',
+  lastUpdated: 'The request you tried to approve/reject has since been updated'
 };

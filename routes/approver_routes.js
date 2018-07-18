@@ -8,6 +8,7 @@ const datejs = require('datejs');
 const EmailHelpers = require('../helpers/email_helpers');
 const ValidationHelpers = require('../helpers/validation_helpers');
 const Constants = require('../models/constants');
+const Messages = require('../models/message_constants');
 
 // might require path
 
@@ -147,15 +148,19 @@ router.get('/decide_request_email', (req, res, next) => {
 
 router.get('/pending_broadcast', (req, res) => {
   const { requestId } = req.query;
+  const error = Messages[req.query.error];
   Request.findById(requestId)
-    .then(
-      (request) => {
-        res.render('/home_views/pending_broadcast', { request });
-      },
-      (err) => {
+    .populate({
+      model: 'User',
+      path: 'createdBy'
+    })
+    .exec((err, request) => {
+      if (err) {
         console.log('Error', err);
+      } else {
+        res.render('home_views/pending_broadcast', { request, error });
       }
-    );
+    });
 });
 
 

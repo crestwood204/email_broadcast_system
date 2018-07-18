@@ -274,7 +274,7 @@ const decideRequest = (requestId, approved, req, res, lastUpdated, options) => {
       if (options) {
         return res.redirect(`/pending_broadcast?request=${requestId}`);
       }
-      return res.json({ error: 'updated request' });
+      return res.json({ error: 'updatedRequest' });
     }
 
     if (request.pending) {

@@ -1,11 +1,12 @@
 <div class="content">
+  {{> banner}}
   <h1>
     <a href="/pending_requests" style="text-decoration: none; cursor: default;">
       <button class="btn yellow-button my-2 my-sm-0" type="button" style="cursor: pointer;">
         <i class="fa fa-arrow-left"></i>
       </button>
     </a>
-  Pending Broadcast - This is the Updated Version of the Request.
+  Pending Broadcast
   </h1>
   <div class="border-top">
     <div> Created By: {{request.createdBy.username}} </div>
@@ -24,8 +25,8 @@
       {{/each}}
     </div>
     <div style="float: right; cursor: default;">
-      <btn id="approve-{{request._id}}" class="approve-btn btn-sm btn-success" style="cursor: default; padding-bottom: 7px;">Approve</btn>
-      <btn id="reject-{{request._id}}" class="reject-btn btn-sm btn-danger" style="cursor: default; padding-bottom: 7px;">Reject</btn>
+      <btn id="approve-{{request._id}}" lastUpdated="{{request.lastUpdated}}" class="approve-btn btn-sm btn-success" style="cursor: default; padding-bottom: 7px;">Approve</btn>
+      <btn id="reject-{{request._id}}" lastUpdated="{{request.lastUpdated}}" class="reject-btn btn-sm btn-danger" style="cursor: default; padding-bottom: 7px;">Reject</btn>
       <a href="/new_request?id={{request._id}}">
         <button class="btn my-2 my-sm-0 edit-button" type="button" style="padding: 2px 8px 0px 10px; font-size: 16px;">
           <i class="fa fa-edit"></i>

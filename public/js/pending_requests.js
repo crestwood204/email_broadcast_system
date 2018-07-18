@@ -1,17 +1,22 @@
 $(document).ready(() => {
   const approveReject = function approveReject(that, event, id, decision) {
     event.preventDefault();
+    const lastUpdated = $(that).attr('lastUpdated');
     $.ajax({
       url: '/decide_request',
       method: 'post',
       data: {
         id,
-        decision
+        decision,
+        lastUpdated
       },
       error(err) {
         console.log('error communicating with server', err);
       },
-      success() {
+      success(res) {
+        if (res.error === 'updatedRequest') {
+          window.location.href = `/pending_broadcast?requestId=${id}&error=lastUpdated`;
+        }
       }
     });
   };

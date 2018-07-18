@@ -1,14 +1,19 @@
 {{#if error}}
   {{#compare error "missingFields" operator="!=="}}
-    <div class="alert alert-danger" role="alert">
+    <div class="alert alert-danger banner" role="alert">
       {{@root.error}}
     </div>
   {{/compare}}
 {{/if}}
 {{#unless error}}
   {{#if status}}
-    <div class="alert alert-success" role="alert">
+    <div class="alert alert-success banner" role="alert">
       {{@root.status}}
     </div>
   {{/if}}
 {{/unless}}
+<script>
+$(".banner").fadeTo(2000, 500).slideUp(500, function(){
+    $(".banner").slideUp(500);
+});
+</script>
