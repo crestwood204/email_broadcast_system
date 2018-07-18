@@ -229,7 +229,6 @@ router.post('/new_request', (req, res) => {
     to = to.split(',');
 
     // if editing request: append filePaths to files
-    const lastUpdated = new Date();
     if (id) {
       return Request.findById(id)
         .then(
@@ -243,11 +242,11 @@ router.post('/new_request', (req, res) => {
                 from,
                 subject,
                 body,
-                lastUpdated,
+                lastUpdated: new Date(),
                 createdBy: req.user._id,
                 attachments: req.files.concat(JSON.parse(attachments))
               });
-              request.save((updateErr, updatedRequest) => {
+              return request.save((updateErr, updatedRequest) => {
                 if (updateErr) {
                   console.log('new_request update database_error', updateErr);
                   return res.json({ redirect: '/pending_requests?error=database' });
@@ -263,12 +262,12 @@ router.post('/new_request', (req, res) => {
                     return rObj;
                   });
                   sendApproverEmail(approvers, updatedRequest, req.user.email, true);
-                  return res.json({ redirect: '/pending_requests?status=created' });
+                  return res.json({ redirect: '/pending_requests?status=saved' });
                 });
               });
             }
             // nothing updated
-            return res.json({ redirect: '/pending_requests?request=saved' });
+            return res.json({ redirect: '/pending_requests?status=saved' });
           },
           (requestByIdErr) => {
             console.log('requestByIdErr', requestByIdErr);
@@ -277,15 +276,16 @@ router.post('/new_request', (req, res) => {
         );
     }
     // save request object
+    const newDate = new Date();
     const newRequest = new Request({
       to,
       from,
       subject,
       body,
-      lastUpdated,
+      lastUpdated: newDate,
       createdBy: req.user._id,
       attachments: req.files,
-      dateCreated: lastUpdated
+      dateCreated: newDate
     });
     return newRequest.save((requestErr, request) => {
       if (requestErr) {

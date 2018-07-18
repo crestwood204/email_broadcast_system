@@ -75,6 +75,7 @@ const sendApproverEmail = (approvers, request, userEmail, requestEdited) => {
           files = [signature];
         }
       }
+      console.log('lastupdated', request.lastUpdated);
       // send email to approvers
       approvers.forEach((user) => {
         html = `<html>
