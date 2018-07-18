@@ -147,84 +147,100 @@ const rmDir = (dirPath, attachments) => {
 
 const sendBroadcastEmail = (request) => {
   const date = new Date();
-  const bodyWithSignature = matchSignature(request.body);
-  const html = `<html>
-    <p>
-      <strong>
-        <b style="font-size:36.0pt; font-family:Arial,sans-serif">MEMO</b>
-      </strong>
-    </p>
-    <table class="MsoNormalTable" border="0" cellspacing="0" cellpadding="0" width="75%" style="width:75.0%; border-collapse:collapse font-size: 8px">
-      <tbody>
-        <tr>
-          <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
-            <p class="MsoNormal"><b style="font-size:10.0pt; font-family:Arial,sans-serif">TO: </b></p>
-          </td>
-          <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
-            <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${request.to}</span></p>
-          </td>
-        </tr>
-        <tr>
-          <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
-            <p class="MsoNormal"><b><span style="font-size:10.0pt; font-family:Arial,sans-serif">FROM: </span></b></p>
-          </td>
-          <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
-            <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${request.from}</span></p>
-          </td>
-        </tr>
-        <tr>
-          <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
-            <p class="MsoNormal"><b><span style="font-size:10.0pt; font-family:Arial,sans-serif">DATE: </span></b></p>
-          </td>
-          <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
-            <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${date.format('l, F')} ${date.format('j')}<sup>${date.format('S')}</sup>, ${date.format('Y')}</span></p>
-          </td>
-        </tr>
-        <tr>
-        </tr>
-        <tr>
-          <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
-            <p class="MsoNormal"><b><span style="font-size:10.0pt; font-family:Arial,sans-serif">SUBJECT: </span></b></p>
-          </td>
-          <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
-            <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${request.subject}</span></p>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div style="border:none; border-bottom:double windowtext 2.25pt; padding:0in 0in 1.0pt 0in">
-      <p class="MsoNormal" style="border:none; padding:0in">&nbsp;</p>
-    </div>
-    <div> ${bodyWithSignature} </div>
-  </html>`;
-
-  Group.find({}).then(
-    (groups) => {
-      let filteredGroups = groups.filter(x => request.to.includes(x.name));
-      filteredGroups = filteredGroups.map(x => x.email);
-      const mailOptions = {
-        from: groups.filter(x => x.name === request.from)[0].email, // sender address
-        to: '', // list of receivers
-        bcc: filteredGroups,
-        subject: request.subject, // Subject line
-        text: bodyWithSignature, // plain text body
-        html, // html body
-        attachments: request.attachments
-      };
-      // send mail with defined transport object
-      transporter.sendMail(mailOptions, (error) => { // callback contains (error, info)
-        if (error) {
-          return console.log('err', error);
+  let files = request.attachments;
+  matchSignature(request.body)
+    .then((bodyWithSignature) => {
+      // add on signature as embedded image
+      if (bodyWithSignature[0]) {
+        const signature = {
+          filename: bodyWithSignature[0],
+          path: `./public/user_data/signatures/${bodyWithSignature[0]}`,
+          cid: bodyWithSignature[0]
+        };
+        if (files) {
+          files.push(signature);
+        } else {
+          files = [signature];
         }
-        return console.log('email broadcast sent');
+      }
+      const html = `<html>
+        <p>
+          <strong>
+            <b style="font-size:36.0pt; font-family:Arial,sans-serif">MEMO</b>
+          </strong>
+        </p>
+        <table class="MsoNormalTable" border="0" cellspacing="0" cellpadding="0" width="75%" style="width:75.0%; border-collapse:collapse font-size: 8px">
+          <tbody>
+            <tr>
+              <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
+                <p class="MsoNormal"><b style="font-size:10.0pt; font-family:Arial,sans-serif">TO: </b></p>
+              </td>
+              <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
+                <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${request.to}</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
+                <p class="MsoNormal"><b><span style="font-size:10.0pt; font-family:Arial,sans-serif">FROM: </span></b></p>
+              </td>
+              <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
+                <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${request.from}</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
+                <p class="MsoNormal"><b><span style="font-size:10.0pt; font-family:Arial,sans-serif">DATE: </span></b></p>
+              </td>
+              <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
+                <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${date.format('l, F')} ${date.format('j')}<sup>${date.format('S')}</sup>, ${date.format('Y')}</span></p>
+              </td>
+            </tr>
+            <tr>
+            </tr>
+            <tr>
+              <td width="10%" style="width:10.0%; padding:0in 0in 0in 0in">
+                <p class="MsoNormal"><b><span style="font-size:10.0pt; font-family:Arial,sans-serif">SUBJECT: </span></b></p>
+              </td>
+              <td width="90%" style="width:90.0%; padding:0in 0in 0in 0in">
+                <p class="MsoNormal"><span style="font-size:10.0pt; font-family:Arial,sans-serif">${request.subject}</span></p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="border:none; border-bottom:double windowtext 2.25pt; padding:0in 0in 1.0pt 0in">
+          <p class="MsoNormal" style="border:none; padding:0in">&nbsp;</p>
+        </div>
+        <div> ${bodyWithSignature[1]} </div>
+      </html>`;
 
-        // don't delete attachments from server directory
-      });
-    },
-    (err) => {
-      console.log('sendEmail error_fetching_groups database_error', err);
-    }
-  );
+      Group.find({}).then(
+        (groups) => {
+          let filteredGroups = groups.filter(x => request.to.includes(x.name));
+          filteredGroups = filteredGroups.map(x => x.email);
+          const mailOptions = {
+            from: groups.filter(x => x.name === request.from)[0].email, // sender address
+            to: '', // list of receivers
+            bcc: filteredGroups,
+            subject: request.subject, // Subject line
+            text: bodyWithSignature[1], // plain text body
+            html, // html body
+            attachments: files
+          };
+          // send mail with defined transport object
+          transporter.sendMail(mailOptions, (error) => { // callback contains (error, info)
+            if (error) {
+              return console.log('err', error);
+            }
+            return console.log('email broadcast sent');
+
+            // don't delete attachments from server directory
+          });
+        },
+        (err) => {
+          console.log('sendEmail error_fetching_groups database_error', err);
+        }
+      );
+    });
 };
 
 const decideRequest = (requestId, approved, req, options) => {
