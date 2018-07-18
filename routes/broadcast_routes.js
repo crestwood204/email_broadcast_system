@@ -129,38 +129,57 @@ router.get('/', (req, res, next) => {
  * Loads new_request page
  */
 router.get('/new_request', (req, res) => {
-  const { to, from, subject, body, attachments, id } = req.query;
+  const { id } = req.query;
+  let { to, from, subject, body, attachments } = req.query;
   const error = Messages[req.query.error];
   const status = Messages[req.query.status];
-  Group.find({}).then(
-    (groups) => {
-      Template.find({}).then(
-        (templates) => {
-          templates.sort((a, b) => (`${a.name}`).localeCompare(b.name));
-          groups.sort((a, b) => (`${a.name}`).localeCompare(b.name));
-          res.render('new_request', {
-            to,
-            body,
-            from,
-            subject,
-            templates,
-            attachments,
-            id,
-            groups,
-            error,
-            status,
-            user: req.user
-          });
-        },
-        (err) => {
-          res.status(500).send('Database Error: "/new_request templates"', err);
-        }
-      );
-    },
-    (err) => {
-      res.status(500).send('Database Error: "/new_request groups"', err);
-    }
-  );
+
+  const renderRequest = () => {
+    Group.find({}).then(
+      (groups) => {
+        Template.find({}).then(
+          (templates) => {
+            templates.sort((a, b) => (`${a.name}`).localeCompare(b.name));
+            groups.sort((a, b) => (`${a.name}`).localeCompare(b.name));
+            res.render('new_request', {
+              to,
+              body,
+              from,
+              subject,
+              templates,
+              attachments,
+              id,
+              groups,
+              error,
+              status,
+              user: req.user
+            });
+          },
+          (err) => {
+            res.status(500).send('Database Error: "/new_request templates"', err);
+          }
+        );
+      },
+      (err) => {
+        res.status(500).send('Database Error: "/new_request groups"', err);
+      }
+    );
+  };
+
+  if (id) {
+    Request.findById(id).then(
+      (request) => {
+        ({ to, from, subject, body, attachments } = request);
+        attachments = JSON.stringify(attachments);
+        renderRequest();
+      },
+      (err) => {
+        res.status(500).send('Database Error: "new_request templates"', err);
+      }
+    );
+  } else {
+    renderRequest();
+  }
 });
 
 /**
@@ -204,7 +223,8 @@ router.post('/new_request', (req, res) => {
 
     // convert toField into an array
     to = to.split(',');
-    // append filePaths to files * occurs if modifying file attachments while pending *
+
+    // if editing request: append filePaths to files
     if (id) {
       return Request.findByIdAndUpdate(id, {
         $set: {
@@ -331,7 +351,7 @@ router.get('/pending_requests', (req, res, next) => {
         pendingRequests = requests ? requests.filter(x => x.pending) : [];
         pendingRequests = pendingRequests.map((x) => {
           const attachments = JSON.stringify(x.attachments);
-          x.modificationHref = `/new_request?to=${x.to}&subject=${x.subject}&body=${x.body}&from=${x.from}&attachments=${attachments}&id=${x._id}`;
+          x.modificationHref = `/new_request?id=${x._id}`;
           x.dateString = x.dateCreated.format('Y-m-d');
           x.subjectString = x.subject.substring(0, MAX_LENGTH);
           if (x.subjectString.length === MAX_LENGTH) {
