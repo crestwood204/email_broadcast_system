@@ -11,54 +11,75 @@ const transporter = nodemailer.createTransport({
   tls: { rejectUnauthorized: false }
 });
 
-const getHTML = (to, from, subject, date, body) => `
-<html>
-  <p style="margin: 0 0 5px 0;">
-    <strong>
-      <b style="font-size: 36pt; font-family: Arial,sans-serif;">MEMO</b>
-    </strong>
-  </p>
-
-  <table border="0" cellspacing="0" cellpadding="0" width="75%" style="width:75.0%; border-collapse:collapse font-size: 8px">
-    <tbody>
-      <tr>
-        <td width="15%" style="width:10.0%; padding: 0;">
-          <p style="margin: 0 0 8px 0;"><b style="font-size: 10.0pt; font-family: Arial, sans-serif;">TO: </b></p>
-        </td>
-        <td width="85%" style="width:90.0%; padding:0in 0in 0in 0in">
-          <p style="margin: 0 0 8px 0;"><span style="font-size:10.0pt; font-family:Arial, sans-serif;">${to}</span></p>
-        </td>
-      </tr>
-      <tr style="margin: 0 0 2px 0;">
-        <td width="15%" style="width:10.0%; padding:0in 0in 0in 0in">
-          <p style="margin: 0 0 8px 0;"><b><span style="font-size:10.0pt; font-family: Arial, sans-serif;">FROM: </span></b></p>
-        </td>
-        <td width="85%" style="width:90.0%; padding:0in 0in 0in 0in">
-          <p style="margin: 0 0 8px 0;"><span style="font-size:10.0pt; font-family:Arial, sans-serif;">${from}</span></p>
-        </td>
-      </tr>
-      <tr style="margin: 0 0 2px 0;">
-        <td width="15%" style="width:10.0%; padding:0in 0in 0in 0in">
-          <p style="margin: 0 0 8px 0;"><b><span style="font-size:10.0pt; font-family: Arial, sans-serif;">DATE: </span></b></p>
-        </td>
-        <td width="85%" style="width:90.0%; padding:0in 0in 0in 0in">
-          <p style="margin: 0 0 8px 0;"><span style="font-size:10.0pt; font-family:Arial, sans-serif;">${date.format('l, F')} ${date.format('%d')}<sup>${date.format('S')}</sup>, ${date.format('Y')}</span></p>
-        </td>
-      </tr>
-      <tr style="margin: 0 0 2px 0;">
-        <td width="15%" style="width:10.0%; padding:0in 0in 0in 0in">
-          <p style="margin: 0 0 8px 0;"><b><span style="font-size: 10.0pt; font-family: Arial, sans-serif;">SUBJECT: </span></b></p>
-        </td>
-        <td width="85%" style="width:90.0%; padding:0in 0in 0in 0in">
-          <p style="margin: 0 0 8px 0;"><span style="font-size: 10.0pt; font-family: Arial, sans-serif;">${subject}</span></p>
-        </td>
-      </tr>
-    </tbody>
+const getHTML = (request, body, approver, edit, userEmail, user) => {
+  const date = new Date();
+  const requester = userEmail ? `<div>Requester: ${userEmail}</div>` : '';
+  const editedTag = edit ? '<div style="color: red;">This is an edited request</div>' : '';
+  const buttons = approver ? `<table cellspacing="0" cellpadding="0">
+    <tr>
+      <td align="center" bgcolor="#d9534f" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
+        <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&lastUpdated=${request.lastUpdated.toString()}&decision=reject" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Reject</span></a>
+      </td>
+      <td align="center" display="inline-block" width="10px"> </td>
+      <td align="center" bgcolor="#449d44" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
+        <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&lastUpdated=${request.lastUpdated.toString()}&decision=approve" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline; padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Approve</span></a>
+      </td>
+    </tr>
   </table>
-  <div style="border-bottom: 3px double black; padding-top: 9px;"></div>
-  <div style="margin-top: 9px;"> ${body} </div>
-</html>
-`;
+  ${editedTag}
+  <div> Note that you may need to login in order to approve or reject the request - In this case, you must login before you can approve or reject a broadcast request.</div>
+  ` : '';
+  return (`
+  <html>
+    ${requester}
+    <p style="margin: 0 0 5px 0;">
+      <strong>
+        <b style="font-size: 36pt; font-family: Arial,sans-serif;">MEMO</b>
+      </strong>
+    </p>
+
+    <table border="0" cellspacing="0" cellpadding="0" width="75%" style="width:75.0%; border-collapse:collapse font-size: 8px">
+      <tbody>
+        <tr>
+          <td width="15%" style="width:10.0%; padding: 0;">
+            <p style="margin: 0 0 8px 0;"><b style="font-size: 10.0pt; font-family: Arial, sans-serif;">TO: </b></p>
+          </td>
+          <td width="85%" style="width:90.0%; padding:0in 0in 0in 0in">
+            <p style="margin: 0 0 8px 0;"><span style="font-size:10.0pt; font-family:Arial, sans-serif;">${request.to}</span></p>
+          </td>
+        </tr>
+        <tr style="margin: 0 0 2px 0;">
+          <td width="15%" style="width:10.0%; padding:0in 0in 0in 0in">
+            <p style="margin: 0 0 8px 0;"><b><span style="font-size:10.0pt; font-family: Arial, sans-serif;">FROM: </span></b></p>
+          </td>
+          <td width="85%" style="width:90.0%; padding:0in 0in 0in 0in">
+            <p style="margin: 0 0 8px 0;"><span style="font-size:10.0pt; font-family:Arial, sans-serif;">${request.from}</span></p>
+          </td>
+        </tr>
+        <tr style="margin: 0 0 2px 0;">
+          <td width="15%" style="width:10.0%; padding:0in 0in 0in 0in">
+            <p style="margin: 0 0 8px 0;"><b><span style="font-size:10.0pt; font-family: Arial, sans-serif;">DATE: </span></b></p>
+          </td>
+          <td width="85%" style="width:90.0%; padding:0in 0in 0in 0in">
+            <p style="margin: 0 0 8px 0;"><span style="font-size:10.0pt; font-family:Arial, sans-serif;">${date.format('l, F')} ${date.format('%d')}<sup>${date.format('S')}</sup>, ${date.format('Y')}</span></p>
+          </td>
+        </tr>
+        <tr style="margin: 0 0 2px 0;">
+          <td width="15%" style="width:10.0%; padding:0in 0in 0in 0in">
+            <p style="margin: 0 0 8px 0;"><b><span style="font-size: 10.0pt; font-family: Arial, sans-serif;">SUBJECT: </span></b></p>
+          </td>
+          <td width="85%" style="width:90.0%; padding:0in 0in 0in 0in">
+            <p style="margin: 0 0 8px 0;"><span style="font-size: 10.0pt; font-family: Arial, sans-serif;">${request.subject}</span></p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="border-bottom: 3px double black; padding-top: 9px;"></div>
+    <div style="margin-top: 9px;"> ${body} </div>
+    ${buttons}
+  </html>
+  `);
+};
 
 const matchSignature = (body) => {
   const signatureRegex = /\.~[a-zA-Z0-9]*[a-zA-Z]+[a-zA-Z0-9]*/; // regex for username
@@ -104,10 +125,6 @@ const sendApproverEmail = (approvers, request, userEmail, requestEdited) => {
       return rObj;
     });
   }
-
-  if (requestEdited) {
-    editedTag = '<div style="color: red;">This is an edited request</div>';
-  }
   matchSignature(request.body)
     .then((bodyWithSignature) => {
       // add on signature as embedded image
@@ -125,32 +142,10 @@ const sendApproverEmail = (approvers, request, userEmail, requestEdited) => {
       }
       // send email to approvers
       approvers.forEach((user) => {
-        html = `<html>
-          <head>
-            <style>
-
-            </style>
-          </head>
-          <body>
-            <div> Requester: ${userEmail} </div>
-            <div> Broadcast To: ${request.to} </div>
-            <div class="divider-top"> Subject: ${request.subject} </div>
-            <div class="divider-top"> ${bodyWithSignature[1]} </div>
-              <table cellspacing="0" cellpadding="0">
-                <tr>
-                  <td align="center" bgcolor="#d9534f" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
-                    <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&lastUpdated=${request.lastUpdated.toString()}&decision=reject" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Reject</span></a>
-                  </td>
-                  <td align="center" display="inline-block" width="10px"> </td>
-                  <td align="center" bgcolor="#449d44" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
-                    <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&lastUpdated=${request.lastUpdated.toString()}&decision=approve" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline; padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Approve</span></a>
-                  </td>
-                </tr>
-              </table>
-              ${editedTag}
-              <div> Note that you may need to login in order to approve or reject the request - In this case, you must login before you can approve or reject a broadcast request.</div>
-          </body>
-        </html>`;
+        html = getHTML(
+          request, bodyWithSignature[1], true,
+          requestEdited, userEmail, user
+        );
 
         mailOptions = {
           from: process.env.BROADCAST_ADDRESS, // sender address
@@ -195,7 +190,6 @@ const rmDir = (dirPath, attachments) => {
 };
 
 const sendBroadcastEmail = (request) => {
-  const date = new Date();
   let files = request.attachments;
   matchSignature(request.body)
     .then((bodyWithSignature) => {
@@ -212,7 +206,7 @@ const sendBroadcastEmail = (request) => {
           files = [signature];
         }
       }
-      const html = getHTML(request.to, request.from, request.subject, date, bodyWithSignature[1]);
+      const html = getHTML(request, bodyWithSignature[1]);
 
       Group.find({}).then(
         (groups) => {
