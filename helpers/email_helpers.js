@@ -243,8 +243,7 @@ const sendBroadcastEmail = (request) => {
     });
 };
 
-const decideRequest = (requestId, approved, req, options) => {
-  const res = options ? options.res : false;
+const decideRequest = (requestId, approved, req, res, lastUpdated, options) => {
   const user = options ? options.user : false;
 
   const change = approved ? 'Approved' : 'Rejected';
@@ -252,7 +251,7 @@ const decideRequest = (requestId, approved, req, options) => {
     if (options) {
       return res.render('error_views/unauthorized');
     }
-    console.log('decide_request unauthorized_user attempted_request_decision');
+    return console.log('decide_request unauthorized_user attempted_request_decision');
   }
   return Request.findById(requestId, (requestErr, request) => {
     if (requestErr) {
@@ -267,14 +266,17 @@ const decideRequest = (requestId, approved, req, options) => {
       }
       return console.log('decide_request request_lookup request_does-not-exist');
     }
-    if (options) {
-      const stringDate = request.lastUpdated.toString();
-      // check if request has been updated since this email was sent
-      if (stringDate !== options.lastUpdated) {
-        // render specific pending_request view
-        return res.status(200).send('This request was edited'); // TODO: HANDLE THIS
+
+    const stringDate = request.lastUpdated.toString();
+    // check if request has been updated since this email was sent
+    if (stringDate !== lastUpdated) {
+      // render specific pending_request view
+      if (options) {
+        return res.redirect(`/pending_broadcast?request=${requestId}`);
       }
+      return res.json({ error: 'updated request' });
     }
+
     if (request.pending) {
       if (approved) {
         return Request.update(

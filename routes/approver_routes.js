@@ -119,9 +119,10 @@ router.get('/log', (req, res, next) => {
 
 router.post('/decide_request', (req, res) => {
   // edit the request
+  const { lastUpdated } = req.body;
   const approved = req.body.decision === 'approve';
   const requestId = req.body.id;
-  decideRequest(requestId, approved, req);
+  decideRequest(requestId, approved, req, res, lastUpdated);
 });
 
 router.get('/decide_request_email', (req, res, next) => {
@@ -138,14 +139,23 @@ router.get('/decide_request_email', (req, res, next) => {
     if (err) {
       console.log('decide_request user_lookup database_error', err);
     } else {
-      const options = {
-        user,
-        res,
-        lastUpdated
-      };
-      decideRequest(requestId, approved, req, options);
+      const options = { user };
+      decideRequest(requestId, approved, req, res, lastUpdated, options);
     }
   });
+});
+
+router.get('/pending_broadcast', (req, res) => {
+  const { requestId } = req.query;
+  Request.findById(requestId)
+    .then(
+      (request) => {
+        res.render('/home_views/pending_broadcast', { request });
+      },
+      (err) => {
+        console.log('Error', err);
+      }
+    );
 });
 
 
