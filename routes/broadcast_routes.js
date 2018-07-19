@@ -285,7 +285,8 @@ router.post('/new_request', (req, res) => {
       lastUpdated: newDate,
       createdBy: req.user._id,
       attachments: req.files,
-      dateCreated: newDate
+      dateCreated: newDate,
+      username: req.user.username
     });
     return newRequest.save((requestErr, request) => {
       if (requestErr) {

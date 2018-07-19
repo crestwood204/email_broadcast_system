@@ -49,6 +49,10 @@ const RequestSchema = new Schema({
   lastUpdated: {
     type: Date,
     default: undefined
+  },
+  username: {
+    type: String,
+    required: true
   }
 });
 
