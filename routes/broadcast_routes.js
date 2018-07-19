@@ -60,8 +60,8 @@ router.get('/', (req, res, next) => {
   const { search } = req.query;
 
   // create search object
-  const searchObj = createSearchObject(search);
-
+  const searchObj = createSearchObject(search, 'dateApproved');
+  console.log(searchObj);
   if (page < 1) {
     return next(new Error('User Malformed Input')); // TODO: Handle this error
   }
@@ -343,7 +343,7 @@ router.get('/pending_requests', (req, res, next) => {
   const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 0 if page is NaN
   const { search } = req.query;
 
-  const searchObj = createSearchObject(search); // create search object
+  const searchObj = createSearchObject(search, 'lastUpdated'); // create search object
   searchObj.pending = true;
 
   if (page < 1) {

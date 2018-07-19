@@ -24,15 +24,18 @@ const escapeRegExp = query => query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
  */
 const validateDateString = dateString => dateString.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/);
 
-const createSearchObject = (search, logParam) => {
+const createSearchObject = (search, dateParam) => {
   const searchObj = {};
 
   if (search) {
-    const date = logParam || '[date]';
+    const date = dateParam;
 
     // checks all fields are lowercase and without trailing spaces and that you can escape ':'
     const split = search.match(/([^\\\][^:]|\\:)+/g).map(x => x.trim().toLowerCase().split('\\').join(''));
-    const [type] = split;
+    let [type] = split;
+    if (type === 'Date') {
+      type = 'date';
+    }
     switch (split.length) {
       // case for specifying a type
       case 2:
