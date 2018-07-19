@@ -53,7 +53,7 @@
                               <div class="border-top"> From: {{../this.requestId.from}} </div>
                               <div> To: {{../this.requestId.to}} </div>
                               <div class="border-top"> Subject: {{../this.requestId.subject}}</div>
-                              <div> Body: {{../this.requestId.body}}</div>
+                              <div> Body: {{{../this.requestId.body}}}</div>
                           {{/compare}}
                           {{#compare this.type "User"}}
                               <div> User Edited: {{../this.editUserId.username}}</div>
