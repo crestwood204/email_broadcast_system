@@ -103,7 +103,18 @@ h1 {
 
 /* table header styles */
 @media (max-width: 760px) {
-  .yellow-button {
-    
+  .media: {
+    float: none !important;
+  }
+  .media-search: {
+    width: 70% !important;
+    margin-right: 5px !important;
+  }
+  .media-add: {
+    width: 10% !important;
+    margin-right: 5px !important;
+  }
+  .media-search: {
+    width: 10% !important;
   }
 }

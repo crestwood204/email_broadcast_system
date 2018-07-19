@@ -1,10 +1,10 @@
-<span style="float: right;">
+<span class="media" style="float: right;">
   <form id="search-bar-form" action="{{@root.endpoint.endpoint}}" class="form-inline my-2 my-lg-0">
-    <input id="search" class="form-control mr-sm-2" type="search" placeholder="Search Page" aria-label="Search" value="{{search}}">
-    <button id="search-btn" class="btn yellow-button my-2 my-sm-0 form-control" type="submit"><i class="fa fa-search"></i></button>
+    <input id="search" class="form-control mr-sm-2 media-input" type="search" placeholder="Search Page" aria-label="Search" value="{{search}}">
+    <button id="search-btn" class="btn yellow-button my-2 my-sm-0 form-control media-search" type="submit"><i class="fa fa-search"></i></button>
     <span style="padding: 4px;"> </span>
     {{#unless @root.add_disabled}}
-      <a href="{{@root.endpoint.new}}"><button class="btn yellow-button my-2 my-sm-0" type="button"><i class="fa fa-plus"></i></button></a>
+      <a href="{{@root.endpoint.new}}"><button class="btn yellow-button my-2 my-sm-0 media-add" type="button"><i class="fa fa-plus"></i></button></a>
     {{/unless}}
   </form>
 </span>
