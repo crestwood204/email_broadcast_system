@@ -23,7 +23,7 @@
               {{else}}
                 <tr class="clickable-row" data-href="/broadcast?id={{this._id}}&page={{@root.page}}">
               {{/if}}
-                  <th scope="row">{{math @index "+" ../startIndex}}</th>
+                  <th style="width: 5%;" scope="row">{{math @index "+" ../startIndex}}</th>
                   <td style="min-width: 20%;">{{this.createdBy.username}}</td>
                   <td style="min-width: 20%;">{{this.to}}</td>
                   <td style="width: 50%;">{{this.subjectString}}</td>
@@ -32,7 +32,7 @@
               {{#if ../pending}}
                 <tr>
                     <td class="blank-row"> </td>
-                    <td class="blank-row details" colspan="5">
+                    <td class="blank-row details" colspan="4">
                         <div id="decision-{{this._id}}" class="collapse out">
                             <div> To: {{this.to}} </div>
                             <div> From: {{this.from}} </div>
