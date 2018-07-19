@@ -307,13 +307,23 @@ const decideRequest = (requestId, approved, req, res, lastUpdated, options) => {
       // Log
       Log.log(change, options ? user._id : req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', { requestId: request._id });
 
-      // remove request
-      return Request.deleteOne({ _id: requestId }, (deleteErr) => {
-        if (deleteErr) {
-          return console.log('decide_request delete_attempt database_error');
+      // archive request
+      return Request.update(
+        { _id: requestId }, {
+          $set: {
+            approved,
+            pending: false,
+            approver: options ? user.username : req.user.username,
+            dateApproved: new Date()
+          }
+        },
+        (archiveErr) => {
+          if (archiveErr) {
+            return console.log('archive_request archive_attempt database_error');
+          }
+          return true;
         }
-        return true;
-      });
+      );
     }
 
     // broadcast was already processed by another approver

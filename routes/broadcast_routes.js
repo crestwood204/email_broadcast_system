@@ -14,7 +14,7 @@ const Messages = require('../models/message_constants');
 const { sendApproverEmail } = EmailHelpers;
 const { createSearchObject } = ValidationHelpers;
 const { User, Request, Log, Group, Template } = Models;
-const { DOCS_PER_PAGE, MAX_LENGTH, MAX_FILE_SIZE } = Constants;
+const { DOCS_PER_PAGE, MAX_LENGTH, MAX_FILE_SIZE, DAYS_BEFORE_ARCHIVE } = Constants;
 const router = express.Router();
 let upload = multer();
 
@@ -61,6 +61,8 @@ router.get('/', (req, res, next) => {
 
   // create search object
   const searchObj = createSearchObject(search, 'dateApproved');
+  searchObj.pending = false;
+  searchObj.approved = true;
   if (page < 1) {
     return next(new Error('User Malformed Input')); // TODO: Handle this error
   }
@@ -89,7 +91,7 @@ router.get('/', (req, res, next) => {
           console.log(err);
           return res.status(500).send('Database Error: "/"');
         }
-        let broadcasts = requests ? requests.filter(x => x.approved === true) : [];
+        let broadcasts = requests || [];
         broadcasts = broadcasts.map((x) => {
           x.dateString = x.dateApproved.format('Y-m-d');
           x.subjectString = x.subject;
@@ -376,6 +378,36 @@ router.get('/pending_requests', (req, res, next) => {
           console.log(err);
           return res.status(500).send('Database Error: "/"');
         }
+
+        // archive requests that are over 3 days old
+        const archiveRequest = (requestId) => {
+          Request.update(
+            { _id: requestId }, {
+              $set: {
+                approved: false,
+                pending: false,
+                approver: 'System',
+                dateApproved: new Date()
+              }
+            },
+            (archiveErr) => {
+              if (archiveErr) {
+                return console.log('archive_request archive_attempt database_error');
+              }
+              return Log.log(
+                'Archived', requestId, 'Request Archived by System',
+                'Broadcast', 'System error, archiving_request', { requestId }
+              );
+            }
+          );
+        };
+        for (let i = 0; i < requests.length; i += 1) {
+          if (Date.parse(requests[i].dateCreated).add({ days: DAYS_BEFORE_ARCHIVE })
+            .compareTo(Date.today()) === -1) {
+            archiveRequest(requests[i]._id);
+          }
+        }
+
         let pendingRequests = requests;
         // if user is not an approver, only show them their requests
         if (!req.user.approver) {
