@@ -33,7 +33,7 @@ if (!process.env.MONGODB_URI || !process.env.SECRET) {
 }
 
 // start connection to MONGODB
-mongoose.connect(encodeURIComponent(process.env.MONGODB_URI)).then(
+mongoose.connect(process.env.MONGODB_URI).then(
   () => {
     console.log('connected to mongoDB');
     models.User.find({}).then((users) => {
