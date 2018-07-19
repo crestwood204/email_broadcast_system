@@ -420,7 +420,7 @@ router.get('/pending_requests', (req, res, next) => {
 });
 
 router.get('/broadcast', (req, res) => {
-  const { id } = req.query;
+  const { id, page } = req.query;
   Request.findById(id)
     .populate({
       path: 'createdBy',
@@ -432,6 +432,7 @@ router.get('/broadcast', (req, res) => {
       }
       res.render('home_views/broadcast', {
         request,
+        page,
         user: req.user
       });
     });

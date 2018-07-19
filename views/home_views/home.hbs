@@ -21,7 +21,7 @@
               {{#if ../pending}}
                 <tr class="clickable-row" data-toggle="collapse" data-target="#decision-{{this._id}}">
               {{else}}
-                <tr class="clickable-row" data-href="/broadcast?id={{this._id}}">
+                <tr class="clickable-row" data-href="/broadcast?id={{this._id}}&page={{@root.page}}">
               {{/if}}
                   <th scope="row">{{math @index "+" ../startIndex}}</th>
                   <td style="min-width: 20%;">{{this.createdBy.username}}</td>
