@@ -12,7 +12,7 @@
     <div class="border-top"> To: {{request.to}} </div>
     <div> From: {{request.from}} </div>
     <div> Subject: {{request.subject}} </div>
-    <div class="border-top" style="padding-bottom: 10px;"> {{request.body}} </div>
+    <div class="border-top" style="padding-bottom: 10px;"> {{{request.body}}} </div>
     <div class="border-top">
       {{#each request.attachments}}
         <span style="display: inline-block; margin-right: 10px;">
