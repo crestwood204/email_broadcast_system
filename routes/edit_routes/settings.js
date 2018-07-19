@@ -44,7 +44,7 @@ router.get('/user_settings', (req, res, next) => {
 });
 
 const updateSignature = function updateSignature(req, res, next, file) {
-  if (Object.prototype.hasOwnProperty.call(req.user.signature, 'path')) {
+  if (req.user.signature && Object.prototype.hasOwnProperty.call(req.user.signature, 'path')) {
     rmDir('./public/user_data/signatures', [req.user.signature]);
   }
   return User.findByIdAndUpdate(req.user._id, { $set: { signature: file } })
