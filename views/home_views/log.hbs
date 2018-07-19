@@ -54,6 +54,16 @@
                               <div> To: {{../this.requestId.to}} </div>
                               <div class="border-top"> Subject: {{../this.requestId.subject}}</div>
                               <div> Body: {{{../this.requestId.body}}}</div>
+                              <div class="border-top">
+                                {{#each ../this.requestId.attachments}}
+                                  <span style="display: inline-block; margin-right: 10px;">
+                                    <a href="{{substring this.path 6 this.path.length}}" style="color: green; display: flex; flex-direction: column; align-items: center; justify-content: center;" download>
+                                      <div style="flex: start;"><i class="fa fa-file"></i></div>
+                                      <div style="color: black; flex: end;">{{this.originalname}}</div>
+                                    </a>
+                                  </span>
+                                {{/each}}
+                              </div>
                           {{/compare}}
                           {{#compare this.type "User"}}
                               <div> User Edited: {{../this.editUserId.username}}</div>
