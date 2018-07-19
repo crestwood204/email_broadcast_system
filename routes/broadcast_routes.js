@@ -250,6 +250,7 @@ router.post('/new_request', (req, res) => {
                   console.log('new_request update database_error', updateErr);
                   return res.json({ redirect: '/pending_requests?error=database' });
                 }
+                Log.log('Edited', req.user._id, 'Broadcast Request Edited', 'Broadcast', 'new_request updated database_error', { requestId: request._id });
                 // This code is repeated => Move to email helpers later?
                 // send approval email
                 return User.find({}).then((users) => {
