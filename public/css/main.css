@@ -102,11 +102,11 @@ h1 {
 }
 
 /* table header styles */
-@media (max-width: 760px) {
-  .media: {
+@media screen (min-width 360px) and (max-width: 760px) {
+  .media-span: {
     float: none !important;
   }
-  .media-search: {
+  .media-input: {
     width: 70% !important;
     margin-right: 5px !important;
   }
