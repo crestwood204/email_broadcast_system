@@ -100,3 +100,10 @@ h1 {
 .edit-button:hover {
   background-color: #E5CE4B;
 }
+
+/* table header styles */
+@media (max-width: 760px) {
+  .yellow-button {
+    
+  }
+}
