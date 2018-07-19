@@ -27,9 +27,11 @@
             </li>
           </ul>
           <ul class="navbar-nav ml-auto">
+            {{#if user.approver}}
             <li id="log_page" class="nav-item">
               <a class="nav-link" href="/log">Log</a>
             </li>
+            {{/if}}
             <li id="dropdown_page" class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Dropdown
@@ -37,10 +39,12 @@
               <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                 <a class="dropdown-item" href="/user_settings">User: {{user.username}}</a>
                 <div class="dropdown-divider"></div>
+                {{#if user.approver}}
                 <a class="dropdown-item" href="/edit_users">Edit Users</a>
                 <a class="dropdown-item" href="/edit_groups">Edit Groups</a>
                 <a class="dropdown-item" href="/edit_templates">Edit Templates</a>
                 <div class="dropdown-divider"></div>
+                {{/if}}
                 <a class="dropdown-item" href="/logout">Logout</a>
               </div>
             </li>
