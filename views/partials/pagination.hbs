@@ -8,7 +8,7 @@
       {{#compare @root.page 4 operator="<"}}
       <li class="page-item disabled">
       {{/compare}}
-        <a class="page-link" href="{{@root.endpoint.endpoint}}page={{math @root.page "-" 3}}&search={{@root.search}}" aria-label="Previous">
+        <a class="page-link" href="{{@root.endpoint.endpoint}}search={{@root.search}}&page={{math @root.page "-" 3}}" aria-label="Previous">
           <span aria-hidden="true"><i class="fa fa-angle-double-left"></i> Skip 3</span>
           <span class="sr-only">Back 3</span>
         </a>
@@ -21,7 +21,7 @@
       {{#compare @root.page 1}}
       <li class="page-item disabled">
       {{/compare}}
-        <a class="page-link" href="{{@root.endpoint.endpoint}}page={{math @root.page "-" 1}}&search={{@root.search}}" aria-label="Previous">
+        <a class="page-link" href="{{@root.endpoint.endpoint}}search={{@root.search}}&page={{math @root.page "-" 1}}" aria-label="Previous">
           <span aria-hidden="true"><i class="fa fa-angle-left"></i></span>
           <span class="sr-only">Previous</span>
         </a>
@@ -29,7 +29,7 @@
 
       <!-- Current page -->
       <li class="page-item">
-        <a class="page-link" href="{{@root.endpoint.endpoint}}page={{@root.page}}&search={{@root.search}}">
+        <a class="page-link" href="{{@root.endpoint.endpoint}}search={{@root.search}}&page={{@root.page}}">
           <b>{{@root.page}}</b>
         </a>
       </li>
@@ -41,7 +41,7 @@
       {{#compare @root.page @root.last operator=">="}}
       <li class="page-item disabled">
       {{/compare}}
-      <a class="page-link" href="{{@root.endpoint.endpoint}}page={{math @root.page "+" 1}}&search={{@root.search}}" aria-label="Next">
+      <a class="page-link" href="{{@root.endpoint.endpoint}}search={{@root.search}}&page={{math @root.page "+" 1}}" aria-label="Next">
         <span aria-hidden="true"><i class="fa fa-angle-right"></i></span>
         <span class="sr-only">Next</span>
       </a>
@@ -54,7 +54,7 @@
       {{#compare @root.page @root.threeBeforeLast operator=">="}}
       <li class="page-item disabled">
       {{/compare}}
-        <a class="page-link" href="{{@root.endpoint.endpoint}}page={{math @root.page "+" 3}}&search={{@root.search}}" aria-label="Previous">
+        <a class="page-link" href="{{@root.endpoint.endpoint}}search={{@root.search}}&page={{math @root.page "+" 3}}" aria-label="Previous">
           <span aria-hidden="true">Skip 3 <i class="fa fa-angle-double-right"></i></span>
           <span class="sr-only">Skip 3</span>
         </a>

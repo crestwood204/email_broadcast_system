@@ -61,7 +61,6 @@ router.get('/', (req, res, next) => {
 
   // create search object
   const searchObj = createSearchObject(search, 'dateApproved');
-  console.log(searchObj);
   if (page < 1) {
     return next(new Error('User Malformed Input')); // TODO: Handle this error
   }
