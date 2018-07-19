@@ -49,7 +49,7 @@ const updateSignature = function updateSignature(req, res, next, file) {
   }
   return User.findByIdAndUpdate(req.user._id, { $set: { signature: file } })
     .then(
-      () => (Object.prototype.hasOwnProperty.call(req.user.signature, 'path') ? res.status(200).send('success') : res.redirect('/user_settings')),
+      () => ((req.user.signature && Object.prototype.hasOwnProperty.call(req.user.signature, 'path')) ? res.status(200).send('success') : res.redirect('/user_settings')),
       userErr => next(userErr)
     )
     .catch(promiseErr => next(promiseErr));
