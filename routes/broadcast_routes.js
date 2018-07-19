@@ -70,7 +70,7 @@ router.get('/', (req, res, next) => {
   return Request.count(searchObj).exec((lastErr, count) => {
     if (lastErr) {
       console.log(lastErr);
-      return res.status(500).send('Database Error: "/"');
+      return res.status(500).send('Database Count Error: "/"');
     }
     let last = parseInt(count / DOCS_PER_PAGE, 10);
     if (count % DOCS_PER_PAGE !== 0) {

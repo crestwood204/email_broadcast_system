@@ -58,6 +58,13 @@ const createSearchObject = (search, dateParam) => {
           if (type === 'after') {
             searchObj[date] = { $gte: new Date(year, month, day, 0, 0, 0, 0).toISOString() };
           }
+
+          /*
+           * database will error on string to boolean conversion.
+           * search by pending is unwanted behavior
+           */
+        } else if (type === 'pending' || type === 'approved' || type === 'attachments') {
+          searchObj.unwantedKey = 'unwanted';
         } else {
           searchObj[type] = { $regex: new RegExp(escapeRegExp(split[1]), 'ig') };
         }
