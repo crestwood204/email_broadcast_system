@@ -76,7 +76,9 @@
                           {{#compare this.type "Template"}}
                               <div> Title: {{../this.templateName}} </div>
                               {{#unless ../this.templateId}}
+                                {{#compare ../this.change "Deleted" operator="!=="}}
                                   <div> Note: Template has been Deleted </div>
+                                {{/compare}}
                               {{/unless}}
                           {{/compare}}
                           {{#compare this.type "Group"}}
