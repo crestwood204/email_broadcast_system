@@ -87,7 +87,15 @@ const createSearchObject = (search, dateParam) => {
             };
 
             searchObj[date] = {
-              $lte: new Date(upperBound.year, upperBound.month, upperBound.day, 0, 0, 0, 0),
+              $lte: new Date(
+                upperBound.year,
+                upperBound.month,
+                upperBound.day,
+                0,
+                0,
+                0,
+                0
+              ).add({ days: 1 }),
               $gte: new Date(lowerBound.year, lowerBound.month, lowerBound.day, 0, 0, 0, 0)
             };
             break;
