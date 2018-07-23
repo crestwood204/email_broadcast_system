@@ -1,6 +1,7 @@
 const ar = require('./auth');
 const br = require('./broadcast_routes');
 const apr = require('./approver_routes');
+const api = require('./api_routes');
 const ur = require('./edit_routes/user_routes');
 const gr = require('./edit_routes/group_routes');
 const tr = require('./edit_routes/template_routes');
@@ -13,5 +14,6 @@ module.exports = {
   USER_ROUTES: ur,
   GROUP_ROUTES: gr,
   TEMPLATE_ROUTES: tr,
-  SETTINGS: st
+  SETTINGS_ROUTES: st,
+  API_ROUTES: api
 };
