@@ -35,16 +35,18 @@
       </a>
     </div>
     {{else}}
-      This request has already been
-      {{#if request.approved}}
-        Approved
-      {{else}}
-        {{#compare @root.request.approver "System"}}
-          Archived
+      <span style="float: right;">
+        This request has already been
+        {{#if request.approved}}
+          Approved
         {{else}}
-          Rejected
-        {{/compare}}
-      {{/if}}
+          {{#compare @root.request.approver "System"}}
+            Archived
+          {{else}}
+            Rejected
+          {{/compare}}
+        {{/if}}
+      </span>
     {{/if}}
   </div>
 </div>
