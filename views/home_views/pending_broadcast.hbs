@@ -24,6 +24,7 @@
         </span>
       {{/each}}
     </div>
+    {{#if request.pending}}
     <div style="float: right; cursor: default;">
       <btn id="approve-{{request._id}}" lastUpdated="{{request.lastUpdated}}" class="approve-btn btn-sm btn-success" style="cursor: default; padding-bottom: 7px;">Approve</btn>
       <btn id="reject-{{request._id}}" lastUpdated="{{request.lastUpdated}}" class="reject-btn btn-sm btn-danger" style="cursor: default; padding-bottom: 7px;">Reject</btn>
@@ -33,6 +34,17 @@
         </button>
       </a>
     </div>
+    {{else}}
+      This request has already been
+      {{#if request.approved}}
+        Approved
+      {{else}}
+        {{#compare @root.request.approver "System"}}
+          Archived
+        {{else}}
+          Rejected
+        {{/compare}}
+      {{/if}}
   </div>
 </div>
 <script src="/js/pending_requests.js"></script>
