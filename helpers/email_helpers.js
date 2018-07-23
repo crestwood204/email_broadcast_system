@@ -17,7 +17,7 @@ const getHTML = (request, body, approver, edit, userEmail) => {
   const editedTag = edit ? '<div style="color: red;">This is an edited request</div>' : '';
   const buttons = approver ? `<table cellspacing="0" cellpadding="0">
     <tr>
-      <td align="center" bgcolor="#ffffcc" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
+      <td align="center" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
         <a href="http://10.10.1.79:3000/pending_broadcast?requestId=${request._id}&lastUpdated=${request.lastUpdated.toString()}" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span>Details</span></a>
       </td>
     </tr>
