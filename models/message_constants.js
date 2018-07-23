@@ -11,5 +11,6 @@ module.exports = {
   deactivated: 'deactivated successfully!',
   activated: 'activated successfully',
   file_extension: 'A file you attached is unsupported',
-  lastUpdated: 'The request you tried to approve/reject has since been updated'
+  lastUpdated: 'The request you tried to approve/reject has since been updated',
+  limit_file_size: 'A file you attached is larger than the limit - 250 KB'
 };
