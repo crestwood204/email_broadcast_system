@@ -83,7 +83,8 @@ router.get('/edit_groups', (req, res, next) => {
 });
 
 router.get('/new_group', (req, res) => {
-  const { name, email, type, error } = req.query;
+  const { name, email, type } = req.query;
+  const error = Messages[req.query.error];
   return res.render('edit_views/group/new_group', {
     name,
     email,
