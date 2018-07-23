@@ -23,7 +23,7 @@ const getHTML = (request, body, approver, edit, userEmail) => {
     </tr>
   </table>
   ${editedTag}
-  <div> Note that you may need to login in order to approve or reject the request - In this case, you must login before you can approve or reject a broadcast request.</div>
+  <div> Note that you may need to login in order to approve or reject the request</div>
   ` : '';
   return (`
   <html>
