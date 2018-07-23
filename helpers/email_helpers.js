@@ -11,18 +11,18 @@ const transporter = nodemailer.createTransport({
   tls: { rejectUnauthorized: false }
 });
 
-const getHTML = (request, body, approver, edit, userEmail, user) => {
+const getHTML = (request, body, approver, edit, userEmail) => {
   const date = new Date();
   const requester = userEmail ? `<div>Requester: ${userEmail}</div>` : '';
   const editedTag = edit ? '<div style="color: red;">This is an edited request</div>' : '';
   const buttons = approver ? `<table cellspacing="0" cellpadding="0">
     <tr>
       <td align="center" bgcolor="#d9534f" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
-        <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&lastUpdated=${request.lastUpdated.toString()}&decision=reject" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Reject</span></a>
+        <a href="http://10.10.1.79:3000/pending_broadcast?requestId=${request._id}&lastUpdated=${request.lastUpdated.toString()}&decision=reject" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Reject</span></a>
       </td>
       <td align="center" display="inline-block" width="10px"> </td>
       <td align="center" bgcolor="#449d44" style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
-        <a href="http://10.10.1.79:3000/decide_request_email?user_id=${user.id}&request_id=${request._id}&lastUpdated=${request.lastUpdated.toString()}&decision=approve" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline; padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Approve</span></a>
+        <a href="http://10.10.1.79:3000/pending_broadcast?requestId=${request._id}&lastUpdated=${request.lastUpdated.toString()}&decision=approve" style="font-size:16px; font-weight: bold; font-family: ITC New Baskerville Std Roman, Helvetica, Arial, sans-serif; text-decoration: none; line-height:30px; width:100%; display:inline; padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px;"><span style="color: #FFFFFF">Approve</span></a>
       </td>
     </tr>
   </table>
@@ -143,7 +143,7 @@ const sendApproverEmail = (approvers, request, userEmail, requestEdited) => {
       approvers.forEach((user) => {
         html = getHTML(
           request, bodyWithSignature[1], true,
-          requestEdited, userEmail, user
+          requestEdited, userEmail
         );
 
         mailOptions = {
@@ -237,66 +237,43 @@ const sendBroadcastEmail = (request) => {
     });
 };
 
-const decideRequest = (requestId, approved, req, res, lastUpdated, options) => {
-  const user = options ? options.user : false;
-
+const decideRequest = (requestId, approved, req, res, lastUpdated) => {
   const change = approved ? 'Approved' : 'Rejected';
   if (!req.user.approver) {
-    if (options) {
-      return res.render('error_views/unauthorized');
-    }
     return console.log('decide_request unauthorized_user attempted_request_decision');
   }
   return Request.findById(requestId, (requestErr, request) => {
     if (requestErr) {
-      if (options) {
-        return res.redirect('/?error=database');
-      }
       return console.log('decide_request request_lookup database_error', requestErr);
     }
     if (!request) {
-      if (options) {
-        return res.redirect('/?error=notFound');
-      }
       return console.log('decide_request request_lookup request_does-not-exist');
     }
 
-    const stringDate = request.lastUpdated.toString();
-    // check if request has been updated since this email was sent
-    if (stringDate !== lastUpdated) {
-      // render specific pending_request view
-      if (options) {
-        return res.redirect(`/pending_broadcast?request=${requestId}`);
-      }
-      return res.json({ error: 'updatedRequest' });
-    }
-
     if (request.pending) {
+      const stringDate = request.lastUpdated.toString();
+      // check if request has been updated since this email was sent
+      if (stringDate !== lastUpdated) {
+        // render specific pending_request view
+        return res.json({ error: 'updatedRequest' });
+      }
       if (approved) {
         return Request.update(
           { _id: requestId }, {
             $set: {
               approved,
               pending: false,
-              approver: options ? user.username : req.user.username,
+              approver: req.user.username,
               dateApproved: new Date()
             }
           },
           (updateErr) => {
             if (updateErr) {
-              if (options) {
-                return res.redirect('/?error=database');
-              }
               return console.log('decide_request update database_error', updateErr);
             }
             // broadcast email
             sendBroadcastEmail(request);
 
-            // make log
-            if (options) {
-              Log.log(change, user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', { requestId: request._id });
-              return res.render('close_window', { user: req.user });
-            }
             return Log.log(change, req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', { requestId: request._id });
           }
         );
@@ -305,7 +282,7 @@ const decideRequest = (requestId, approved, req, res, lastUpdated, options) => {
       rmDir('./public/uploads', request.attachments);
 
       // Log
-      Log.log(change, options ? user._id : req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', { requestId: request._id });
+      Log.log(change, req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', { requestId: request._id });
 
       // reject request
       return Request.update(
@@ -313,7 +290,7 @@ const decideRequest = (requestId, approved, req, res, lastUpdated, options) => {
           $set: {
             approved,
             pending: false,
-            approver: options ? user.username : req.user.username,
+            approver: req.user.username,
             dateApproved: new Date()
           }
         },
@@ -327,9 +304,6 @@ const decideRequest = (requestId, approved, req, res, lastUpdated, options) => {
     }
 
     // broadcast was already processed by another approver
-    if (options) {
-      return res.redirect(`request_decision?requestId=${request._id}`);
-    }
     return res.json({ error: 'requestDecision' });
   });
 };

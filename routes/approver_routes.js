@@ -118,33 +118,19 @@ router.get('/log', (req, res, next) => {
   });
 });
 
-router.post('/decide_request', (req, res) => {
+router.post('/decide_request', (req, res, next) => {
   // edit the request
-  const { lastUpdated } = req.body;
-  const approved = req.body.decision === 'approve';
-  const requestId = req.body.id;
-  decideRequest(requestId, approved, req, res, lastUpdated);
-});
+  const { lastUpdated } = req.body || req.query;
+  const approved = req.body.decision === 'approve' || req.query.decision === 'approve';
+  const requestId = req.body.id || req.query.request_id;
 
-router.get('/decide_request_email', (req, res, next) => {
-  const userId = req.query.user_id;
-  const requestId = req.query.request_id;
-  const approved = req.query.decision === 'approve';
-  const { lastUpdated } = req.query;
-
-  if (!userId || !requestId) {
+  if (!requestId) {
     next(new Error('malformed user input'));
   }
 
-  User.findById(userId, (err, user) => {
-    if (err) {
-      console.log('decide_request user_lookup database_error', err);
-    } else {
-      const options = { user };
-      decideRequest(requestId, approved, req, res, lastUpdated, options);
-    }
-  });
+  decideRequest(requestId, approved, req, res, lastUpdated);
 });
+
 
 router.get('/pending_broadcast', (req, res) => {
   const { requestId } = req.query;
