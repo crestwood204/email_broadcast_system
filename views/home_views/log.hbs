@@ -82,7 +82,9 @@
                           {{#compare this.type "Group"}}
                               <div> Name: {{../this.templateName}} </div>
                               {{#unless ../this.groupId}}
+                                {{#compare ../this.change "Deleted" operator="!=="}}
                                   <div> Note: Group has been Deleted </div>
+                                {{/compare}}
                               {{/unless}}
                           {{/compare}}
                       </div>
