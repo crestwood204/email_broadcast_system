@@ -477,7 +477,7 @@ router.get('/request_decision', (req, res) => {
   Request.findById(requestId)
     .then(
       (request) => {
-        res.render('request_decision', request);
+        res.render('request_decision', { request });
       },
       (err) => {
         console.log('database error request decision', err);

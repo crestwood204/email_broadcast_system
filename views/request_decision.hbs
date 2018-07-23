@@ -2,6 +2,10 @@
   {{#if request.approved}}
     Approved
   {{else}}
-    Rejected
+    {{#compare @root.request.approver "System"}}
+      Archived
+    {{else}}
+      Rejected
+    {{/compare}}
   {{/if}}
 </h2>

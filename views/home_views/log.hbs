@@ -70,24 +70,20 @@
                           {{/compare}}
                           {{#if this.templateId.username}}
                               {{#compare this.type "Template"}}
-                                  <div> Template Edited: {{../this.templateId.title}}</div>
+                                  <div> Template Edited: {{../this.templateId}}</div>
                               {{/compare}}
                           {{/if}}
                           {{#compare this.type "Template"}}
                               <div> Title: {{../this.templateName}} </div>
-                              {{#compare ../this.change "Deleted" operator="!=="}}
-                                  {{#unless ../../this.templateId}}
-                                      <div> Note: Template has been Deleted </div>
-                                  {{/unless}}
-                              {{/compare}}
+                              {{#unless ../this.templateId}}
+                                  <div> Note: Template has been Deleted </div>
+                              {{/unless}}
                           {{/compare}}
                           {{#compare this.type "Group"}}
-                              <div> Name: {{this.templateName}} </div>
-                              {{#compare ../this.change "Deleted" operator="!=="}}
-                                  {{#unless ../../this.groupId}}
-                                      <div> Note: Group has been Deleted </div>
-                                  {{/unless}}
-                              {{/compare}}
+                              <div> Name: {{../this.templateName}} </div>
+                              {{#unless ../this.groupId}}
+                                  <div> Note: Group has been Deleted </div>
+                              {{/unless}}
                           {{/compare}}
                       </div>
                   </td>

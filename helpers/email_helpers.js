@@ -307,7 +307,7 @@ const decideRequest = (requestId, approved, req, res, lastUpdated, options) => {
       // Log
       Log.log(change, options ? user._id : req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', { requestId: request._id });
 
-      // archive request
+      // reject request
       return Request.update(
         { _id: requestId }, {
           $set: {
