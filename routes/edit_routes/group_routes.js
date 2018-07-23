@@ -186,13 +186,13 @@ router.post('/edit_group', (req, res) => {
 });
 
 router.put('/delete_group', (req, res) => {
-  const { groupName, id } = req.body;
+  const { name, id } = req.body;
   Group.deleteOne({ _id: id }, (err) => {
     if (err) {
       return res.status(500).send('Database Error, could not delete document.');
     }
     // make a log
-    Log.log('Deleted', req.user._id, 'Group Deleted', 'Group', 'put delete_group database_error', { templateName: groupName });
+    Log.log('Deleted', req.user._id, 'Group Deleted', 'Group', 'put delete_group database_error', { templateName: name });
     return res.status(200).send('Document deleted');
   });
 });
