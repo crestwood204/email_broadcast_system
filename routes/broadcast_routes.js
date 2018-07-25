@@ -400,6 +400,7 @@ router.get('/pending_requests', (req, res, next) => {
         // filter so that there are only pending requests
         pendingRequests = requests ? requests.filter(x => x.pending) : [];
         return Promise.all(pendingRequests.map(async x => ({
+          _id: x._id,
           to: x.to,
           from: x.from,
           subject: x.subject,
@@ -421,7 +422,6 @@ router.get('/pending_requests', (req, res, next) => {
             [, x.body] = x.body;
             return x;
           });
-          pendingRequests = newRequests;
           const startIndex = ((page - 1) * DOCS_PER_PAGE) + 1;
           let [noBroadcasts, noResults] = [false, false];
           if (!search && page === 1 && pendingRequests.length === 0) {
