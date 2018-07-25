@@ -147,7 +147,7 @@ router.get('/pending_broadcast', (req, res) => {
       } else {
         const request = broadcast;
         matchSignature(broadcast.body).then((bodyWithSignature) => {
-          request.body = bodyWithSignature;
+          [, request.body] = bodyWithSignature;
           res.render('home_views/pending_broadcast', { request, error });
         });
       }
