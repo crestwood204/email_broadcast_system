@@ -13,7 +13,7 @@ const Messages = require('../models/message_constants');
 // might require path
 
 const router = express.Router();
-const { User, Request, Log } = Models;
+const { Request, Log } = Models;
 const { decideRequest } = EmailHelpers;
 const { createSearchObject } = ValidationHelpers;
 const { DOCS_PER_PAGE } = Constants;

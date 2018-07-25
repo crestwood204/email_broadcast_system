@@ -76,7 +76,10 @@ const getHTML = (request, body, approver, edit, userEmail) => {
   </html>
   `);
 };
-
+/*
+ * Takes in a request body and returns an array
+ * returns [filename, html with replacement, date of signature last update]
+ */
 const matchSignature = (body) => {
   const signatureRegex = /\.~[a-zA-Z0-9]*[a-zA-Z]+[a-zA-Z0-9]*/; // regex for username
   const match = body.match(signatureRegex);
@@ -84,19 +87,19 @@ const matchSignature = (body) => {
     return User.findOne({ username: match[0].substring(2) }).then(
       (user) => {
         if (!user) {
-          return [null, body.replace(match[0], 'user not found')];
+          return [null, body.replace(match[0], 'user not found'), null];
         }
 
         if (!user.signature) {
-          return [null, body.replace(match[0], 'user does not have an associated signature')];
+          return [null, body.replace(match[0], 'user does not have an associated signature'), user.signatureLastUpdated];
         }
         const src = user.signature.filename;
         const image = `<img src="cid:${src}"></img>`;
-        return [src, body.replace(match[0], image)];
+        return [src, body.replace(match[0], image), user.signatureLastUpdated];
       },
       (matchErr) => {
         console.log('Error:', matchErr);
-        return [null, body.replace(match[0], 'signature failed to upload')];
+        return [null, body.replace(match[0], 'signature failed to upload'), null];
       }
     );
   }
@@ -105,65 +108,77 @@ const matchSignature = (body) => {
   });
 };
 // consolidate email functions?
-const sendApproverEmail = (approvers, request, userEmail, requestEdited) => {
+const sendApproverEmail = (request, userEmail, requestEdited) => {
   let html;
   let mailOptions;
   let files = request.attachments;
 
-  if (files) {
-    files = files.map((x) => {
-      const rObj = {
-        filename: x.originalname,
-        encoding: x.encoding,
-        path: x.path
-      };
-      return rObj;
-    });
-  }
-  matchSignature(request.body)
-    .then((bodyWithSignature) => {
-      // add on signature as embedded image
-      if (bodyWithSignature[0]) {
-        const signature = {
-          filename: bodyWithSignature[0],
-          path: `./public/user_data/signatures/${bodyWithSignature[0]}`,
-          cid: bodyWithSignature[0]
+  return User.find({ approver: true, active: true }).then(
+    (users) => {
+      const approvers = users.map((x) => {
+        const rObj = {
+          email: x.email,
+          id: x._id
         };
-        if (files) {
-          files.push(signature);
-        } else {
-          files = [signature];
-        }
-      }
-      // send email to approvers
-      approvers.forEach((user) => {
-        html = getHTML(
-          request, bodyWithSignature[1], true,
-          requestEdited, userEmail
-        );
-
-        mailOptions = {
-          from: process.env.BROADCAST_ADDRESS, // sender address
-          to: '', // list of receivers
-          bcc: user.email,
-          subject: 'BROADCAST REQUEST', // Subject line
-          text: bodyWithSignature[1], // plain text body
-          html, // html body
-          attachments: files // file attachments
-        };
-
-        // send mail with defined transport object
-        transporter.sendMail(mailOptions, (error) => { // callback contains (error, info)
-          if (error) {
-            return console.log('send mail error', error);
-          }
-          return console.log(`email approval sent to ${user.email}`);
-        });
+        return rObj;
       });
-    })
-    .catch((matchSignatureError) => {
-      console.log('match signature error', matchSignatureError);
-    });
+
+      if (files) {
+        files = files.map((x) => {
+          const rObj = {
+            filename: x.originalname,
+            encoding: x.encoding,
+            path: x.path
+          };
+          return rObj;
+        });
+      }
+      return matchSignature(request.body)
+        .then((bodyWithSignature) => {
+          // add on signature as embedded image
+          if (bodyWithSignature[0]) {
+            const signature = {
+              filename: bodyWithSignature[0],
+              path: `./public/user_data/signatures/${bodyWithSignature[0]}`,
+              cid: bodyWithSignature[0]
+            };
+            if (files) {
+              files.push(signature);
+            } else {
+              files = [signature];
+            }
+          }
+          // send email to approvers
+          approvers.forEach((user) => {
+            html = getHTML(
+              request, bodyWithSignature[1], true,
+              requestEdited, userEmail
+            );
+
+            mailOptions = {
+              from: process.env.BROADCAST_ADDRESS, // sender address
+              to: '', // list of receivers
+              bcc: user.email,
+              subject: 'BROADCAST REQUEST', // Subject line
+              text: bodyWithSignature[1], // plain text body
+              html, // html body
+              attachments: files // file attachments
+            };
+
+            // send mail with defined transport object
+            transporter.sendMail(mailOptions, (error) => { // callback contains (error, info)
+              if (error) {
+                return console.log('send mail error', error);
+              }
+              return console.log(`email approval sent to ${user.email}`);
+            });
+          });
+          return true;
+        })
+        .catch(matchSignatureError => Promise.reject(matchSignatureError));
+    },
+    approverErr => Promise.reject(approverErr)
+  );
 };
 
 const rmDir = (dirPath, attachments) => {
@@ -253,52 +268,74 @@ const decideRequest = (requestId, approved, req, res, lastUpdated) => {
         // render specific pending_request view
         return res.json({ error: 'updatedRequest' });
       }
-      if (approved) {
-        return Request.update(
-          { _id: requestId }, {
-            $set: {
-              approved,
-              pending: false,
-              approver: req.user.username,
-              dateApproved: new Date()
+
+      // check if there is a signature in this request
+      return matchSignature(request.body)
+        .then((bodyWithSignature) => {
+          if (bodyWithSignature[0]) {
+            // check if the signature has been updated since this request has been updated
+            const signatureLastUpdated = bodyWithSignature[2];
+            const requestLastUpdated = request.lastUpdated;
+            if (signatureLastUpdated && signatureLastUpdated.compareTo(requestLastUpdated) === 1) {
+              // update request
+              return Request.update(
+                { _id: requestId }, { $set: { lastUpdated: new Date() } },
+                (updateErr) => {
+                  if (updateErr) {
+                    return console.log('database error', updateErr);
+                  }
+                  return res.json({ error: 'updatedRequest' });
+                }
+              );
             }
-          },
-          (updateErr) => {
-            if (updateErr) {
-              return console.log('decide_request update database_error', updateErr);
+          }
+          if (approved) {
+            return Request.update(
+              { _id: requestId }, {
+                $set: {
+                  approved,
+                  pending: false,
+                  approver: req.user.username,
+                  dateApproved: new Date()
+                }
+              },
+              (updateErr) => {
+                if (updateErr) {
+                  return console.log('decide_request update database_error', updateErr);
+                }
+                // broadcast email
+                sendBroadcastEmail(request);
+
+                return Log.log(change, req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', { requestId: request._id });
+              }
+            );
+          }
+          // remove uploads
+          rmDir('./public/uploads', request.attachments);
+
+          // Log
+          Log.log(change, req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', { requestId: request._id });
+
+          // reject request
+          return Request.update(
+            { _id: requestId }, {
+              $set: {
+                approved,
+                pending: false,
+                approver: req.user.username,
+                dateApproved: new Date()
+              }
+            },
+            (archiveErr) => {
+              if (archiveErr) {
+                return console.log('archive_request archive_attempt database_error');
+              }
+              return true;
             }
-            // broadcast email
-            sendBroadcastEmail(request);
-
-            return Log.log(change, req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', { requestId: request._id });
-          }
-        );
-      }
-      // remove uploads
-      rmDir('./public/uploads', request.attachments);
-
-      // Log
-      Log.log(change, req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', { requestId: request._id });
-
-      // reject request
-      return Request.update(
-        { _id: requestId }, {
-          $set: {
-            approved,
-            pending: false,
-            approver: req.user.username,
-            dateApproved: new Date()
-          }
-        },
-        (archiveErr) => {
-          if (archiveErr) {
-            return console.log('archive_request archive_attempt database_error');
-          }
-          return true;
-        }
-      );
+          );
+        })
+        .catch(err => console.log('Error', err));
     }
-
     // broadcast was already processed by another approver
     return res.json({ error: 'requestDecision' });
   });

@@ -5,9 +5,9 @@ const Constants = require('../../models/constants');
 const EmailHelpers = require('../../helpers/email_helpers');
 const Messages = require('../../models/message_constants');
 
-const { rmDir } = EmailHelpers;
+const { sendApproverEmail, rmDir } = EmailHelpers;
 const { MAX_FILE_SIZE } = Constants;
-const { User } = Models;
+const { User, Request } = Models;
 const router = express.Router();
 
 let upload = multer();
@@ -54,7 +54,46 @@ const updateSignature = function updateSignature(req, res, next, file) {
     }
   })
     .then(
-      () => ((req.user.signature && Object.prototype.hasOwnProperty.call(req.user.signature, 'path')) ? res.status(200).send('success') : res.redirect('/user_settings')),
+      () => {
+        // check if any request has this signature, if so, update them
+        Request.find({ pending: true }).then(
+          (requests) => {
+            const signature = `.~${req.user.username}`;
+            for (let i = 0; i < requests.length; i += 1) {
+              if (requests[i].body.includes(signature)) {
+                // send approval email
+                Request.update(
+                  { _id: requests[i]._id }, { $set: { lastUpdated: new Date() } },
+                  (updateErr) => {
+                    if (updateErr) {
+                      return console.log('database error', updateErr);
+                    }
+                    return sendApproverEmail(requests[i], req.user.email).then(() => {
+                      if (req.user.signature && Object.prototype.hasOwnProperty.call(req.user.signature, 'path')) {
+                        return res.status(200).send('success');
+                      }
+                      return res.redirect('/user_settings');
+                    })
+                      .catch((approverEmailErr) => {
+                        console.log('approver email error', approverEmailErr);
+                        if (req.user.signature && Object.prototype.hasOwnProperty.call(req.user.signature, 'path')) {
+                          return res.status(500).send('database_error');
+                        }
+                        return res.redirect('/user_settings?error=database');
+                      });
+                  }
+                );
+              }
+            }
+          },
+          requestsErr => next(requestsErr)
+        );
+        if (req.user.signature && Object.prototype.hasOwnProperty.call(req.user.signature, 'path')) {
+          res.status(200).send('success');
+        } else {
+          res.redirect('/user_settings');
+        }
+      },
       userErr => next(userErr)
     )
     .catch(promiseErr => next(promiseErr));

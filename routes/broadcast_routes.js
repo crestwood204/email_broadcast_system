@@ -255,17 +255,11 @@ router.post('/new_request', (req, res) => {
                 Log.log('Edited', req.user._id, 'Broadcast Request Edited', 'Broadcast', 'new_request updated database_error', { requestId: request._id });
                 // This code is repeated => Move to email helpers later?
                 // send approval email
-                return User.find({}).then((users) => {
-                  const approvers = users.filter(x => (x.approver && x.active)).map((x) => {
-                    const rObj = {
-                      email: x.email,
-                      id: x._id
-                    };
-                    return rObj;
+                return sendApproverEmail(request, req.user.email).then(() => res.json({ redirect: '/pending_requests?status=created' }))
+                  .catch((approverEmailErr) => {
+                    console.log('new_request error_sending_emails database_error', approverEmailErr);
+                    return res.json({ redirect: '/pending_requests?error=database' });
                   });
-                  sendApproverEmail(approvers, updatedRequest, req.user.email, true);
-                  return res.json({ redirect: '/pending_requests?status=saved' });
-                });
               });
             }
             // nothing updated
@@ -299,23 +293,11 @@ router.post('/new_request', (req, res) => {
       // add to log
       Log.log('Create', req.user._id, 'Broadcast Request Created', 'Broadcast', 'post new_request database_error', { requestId: request._id });
       // send emails to approvers
-      return User.find({}).then(
-        (users) => {
-          const approvers = users.filter(x => (x.approver && x.active)).map((x) => {
-            const rObj = {
-              email: x.email,
-              id: x._id
-            };
-            return rObj;
-          });
-          sendApproverEmail(approvers, request, req.user.email);
-          return res.json({ redirect: '/pending_requests?status=created' });
-        },
-        (userErr) => {
-          console.log('new_request error_sending_emails database_error', userErr);
+      return sendApproverEmail(request, req.user.email).then(() => res.json({ redirect: '/pending_requests?status=created' }))
+        .catch((approverEmailErr) => {
+          console.log('new_request error_sending_emails database_error', approverEmailErr);
           return res.json({ redirect: '/pending_requests?error=database' });
-        }
-      );
+        });
     });
   });
 });
