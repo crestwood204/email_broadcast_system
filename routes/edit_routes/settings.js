@@ -47,7 +47,12 @@ const updateSignature = function updateSignature(req, res, next, file) {
   if (req.user.signature && Object.prototype.hasOwnProperty.call(req.user.signature, 'path')) {
     rmDir('./public/user_data/signatures', [req.user.signature]);
   }
-  return User.findByIdAndUpdate(req.user._id, { $set: { signature: file } })
+  return User.findByIdAndUpdate(req.user._id, {
+    $set: {
+      signature: file,
+      signatureLastUpdated: new Date()
+    }
+  })
     .then(
       () => ((req.user.signature && Object.prototype.hasOwnProperty.call(req.user.signature, 'path')) ? res.status(200).send('success') : res.redirect('/user_settings')),
       userErr => next(userErr)

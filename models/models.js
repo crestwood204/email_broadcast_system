@@ -83,6 +83,10 @@ const UserSchema = new Schema({
   signature: {
     type: Object,
     required: false
+  },
+  signatureLastUpdated: {
+    type: Date,
+    required: false
   }
 });
 
