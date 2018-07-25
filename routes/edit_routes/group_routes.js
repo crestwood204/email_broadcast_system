@@ -23,7 +23,7 @@ router.get('/edit_groups', (req, res, next) => {
     return next(new Error('User Malformed Input')); // TODO: Handle this error
   }
 
-  return Group.count(searchObj).exec((lastErr, count) => {
+  return Group.countDocuments(searchObj).exec((lastErr, count) => {
     if (lastErr) {
       console.log(lastErr);
       return res.status(500).send('Database Error: "/"');

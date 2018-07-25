@@ -21,7 +21,7 @@ router.get('/edit_templates', (req, res, next) => {
   if (page < 1) {
     return next(new Error('User Malformed Input')); // TODO: Handle this error
   }
-  return Template.count(searchObj).exec((lastErr, count) => {
+  return Template.countDocuments(searchObj).exec((lastErr, count) => {
     if (lastErr) {
       console.log(lastErr);
       return res.status(500).send('Database Error: "/"');

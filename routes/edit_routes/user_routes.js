@@ -21,7 +21,7 @@ router.get('/edit_users', (req, res, next) => {
   if (page < 1) {
     return next(new Error('User Malformed Input')); // TODO: Handle this error
   }
-  return User.count(searchObj).exec((lastErr, count) => {
+  return User.countDocuments(searchObj).exec((lastErr, count) => {
     if (lastErr) {
       console.log(lastErr);
       return res.status(500).send('Database Error: "/"');
