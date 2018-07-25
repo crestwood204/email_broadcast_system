@@ -415,7 +415,7 @@ router.get('/pending_requests', (req, res, next) => {
           username: x.username,
           modificationHref: `/new_request?id=${x._id}`,
           dateString: x.dateCreated.format('Y-m-d'),
-          subjectString: (x.subjectString.length === MAX_LENGTH) ? `${x.subject.substring(0, MAX_LENGTH)} ...` : x.subject.substring(0, MAX_LENGTH)
+          subjectString: (x.subject.length >= MAX_LENGTH) ? `${x.subject.substring(0, MAX_LENGTH)} ...` : x.subject.substring(0, MAX_LENGTH)
         }))).then((newRequests) => {
           pendingRequests = newRequests;
           const startIndex = ((page - 1) * DOCS_PER_PAGE) + 1;
