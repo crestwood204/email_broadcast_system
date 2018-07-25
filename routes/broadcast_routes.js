@@ -403,7 +403,7 @@ router.get('/pending_requests', (req, res, next) => {
           to: x.to,
           from: x.from,
           subject: x.subject,
-          body: await matchSignature(x.body)[1],
+          body: await matchSignature(x.body),
           pending: x.pending,
           approver: x.approver,
           approved: x.approved,

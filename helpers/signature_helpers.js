@@ -9,24 +9,24 @@ const matchSignature = async (body) => {
     return User.findOne({ username: match[0].substring(2) }).then(
       (user) => {
         if (!user) {
-          return [null, body.replace(match[0], 'user not found'), null];
+          return body.replace(match[0], 'user not found');
         }
 
         if (!user.signature) {
-          return [null, body.replace(match[0], 'user does not have an associated signature'), user.signatureLastUpdated];
+          return body.replace(match[0], 'user does not have an associated signature');
         }
         const src = user.signature.filename;
         const image = `<img src="/user_data/signatures/${src}"></img>`;
-        return [src, body.replace(match[0], image), user.signatureLastUpdated];
+        return body.replace(match[0], image);
       },
       (matchErr) => {
         console.log('Error:', matchErr);
-        return [null, body.replace(match[0], 'signature failed to upload'), null];
+        return body.replace(match[0], 'signature failed to upload');
       }
     );
   }
   return new Promise((resolve) => {
-    resolve([null, body]);
+    resolve(body);
   });
 };
 
