@@ -43,7 +43,7 @@ router.get('/user_settings', (req, res, next) => {
   );
 });
 
-const updateSignature = function updateSignature(req, res, next, file) {
+const updateSignature = function updateSignature(req, res, next, file, deletion) {
   if (req.user.signature && Object.prototype.hasOwnProperty.call(req.user.signature, 'path')) {
     rmDir('./public/user_data/signatures', [req.user.signature]);
   }
@@ -75,10 +75,10 @@ const updateSignature = function updateSignature(req, res, next, file) {
               );
             }
           }
-          if (req.user.signature && Object.prototype.hasOwnProperty.call(req.user.signature, 'path')) {
-            res.redirect('/user_settings');
-          } else {
+          if (deletion) {
             res.status(200).send('success');
+          } else {
+            res.redirect('/user_settings');
           }
         },
         requestsErr => next(requestsErr)
@@ -111,13 +111,13 @@ router.post('/user_settings', (req, res, next) => {
         return res.redirect('/user_settings?error=limit_unexpected_file');
       }
       if (err.message === 'extension') {
-        return res.redirect('user_settings?error=file_extension');
+        return res.redirect('/user_settings?error=file_extension');
       }
       return res.status(400).send({ redirect: '/404' });
     }
 
     if (!req.file) {
-      return res.redirect('user_settings');
+      return res.redirect('/user_settings');
     }
 
     return updateSignature(req, res, next, req.file);
@@ -125,6 +125,6 @@ router.post('/user_settings', (req, res, next) => {
 });
 
 router.put('/delete_signature', (req, res, next) => {
-  updateSignature(req, res, next, {});
+  updateSignature(req, res, next, {}, true);
 });
 module.exports = router;
