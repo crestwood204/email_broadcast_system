@@ -417,6 +417,10 @@ router.get('/pending_requests', (req, res, next) => {
           dateString: x.dateCreated.format('Y-m-d'),
           subjectString: (x.subject.length >= MAX_LENGTH) ? `${x.subject.substring(0, MAX_LENGTH)} ...` : x.subject.substring(0, MAX_LENGTH)
         }))).then((newRequests) => {
+          pendingRequests = newRequests.map((x) => {
+            [, x.body] = x.body;
+            return x;
+          });
           pendingRequests = newRequests;
           const startIndex = ((page - 1) * DOCS_PER_PAGE) + 1;
           let [noBroadcasts, noResults] = [false, false];
