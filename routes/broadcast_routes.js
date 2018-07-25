@@ -10,10 +10,11 @@ const EmailHelpers = require('../helpers/email_helpers');
 const ValidationHelpers = require('../helpers/validation_helpers');
 const Constants = require('../models/constants');
 const Messages = require('../models/message_constants');
+const { matchSignature } = require('../helpers/signature_helpers');
 
 const { sendApproverEmail } = EmailHelpers;
 const { createSearchObject } = ValidationHelpers;
-const { User, Request, Log, Group, Template } = Models;
+const { Request, Log, Group, Template } = Models;
 const { DOCS_PER_PAGE, MAX_LENGTH, MAX_FILE_SIZE, DAYS_BEFORE_ARCHIVE } = Constants;
 const router = express.Router();
 let upload = multer();
@@ -398,39 +399,50 @@ router.get('/pending_requests', (req, res, next) => {
         }
         // filter so that there are only pending requests
         pendingRequests = requests ? requests.filter(x => x.pending) : [];
-        pendingRequests = pendingRequests.map((x) => {
-          const attachments = JSON.stringify(x.attachments);
-          x.modificationHref = `/new_request?id=${x._id}`;
-          x.dateString = x.dateCreated.format('Y-m-d');
-          x.subjectString = x.subject.substring(0, MAX_LENGTH);
-          if (x.subjectString.length === MAX_LENGTH) {
-            x.subjectString += ' ...';
+        return Promise.all(pendingRequests.map(async x => ({
+          to: x.to,
+          from: x.from,
+          subject: x.subject,
+          body: await matchSignature(x.body),
+          pending: x.pending,
+          approver: x.approver,
+          approved: x.approved,
+          attachments: x.attachments,
+          dateApproved: x.dateApproved,
+          createdBy: x.createdBy,
+          dateCreated: x.dateCreated,
+          lastUpdated: x.lastUpdated,
+          username: x.username,
+          modificationHref: `/new_request?id=${x._id}`,
+          dateString: x.dateCreated.format('Y-m-d'),
+          subjectString: (x.subjectString.length === MAX_LENGTH) ? `${x.subject.substring(0, MAX_LENGTH)} ...` : x.subject.substring(0, MAX_LENGTH)
+        }))).then((newRequests) => {
+          pendingRequests = newRequests;
+          const startIndex = ((page - 1) * DOCS_PER_PAGE) + 1;
+          let [noBroadcasts, noResults] = [false, false];
+          if (!search && page === 1 && pendingRequests.length === 0) {
+            noBroadcasts = true;
           }
-          return x;
-        });
-        const startIndex = ((page - 1) * DOCS_PER_PAGE) + 1;
-        let [noBroadcasts, noResults] = [false, false];
-        if (!search && page === 1 && pendingRequests.length === 0) {
-          noBroadcasts = true;
-        }
-        if (page === 1 && pendingRequests.length === 0) {
-          noResults = true;
-        }
-        return res.render('home_views/home', {
-          startIndex,
-          noBroadcasts,
-          noResults,
-          search,
-          page,
-          last,
-          error,
-          status,
-          threeBeforeLast: (last - 3) < page ? page : (last - 3),
-          user: req.user,
-          broadcasts: pendingRequests.reverse(),
-          pending: true,
-          endpoint: { endpoint: '/pending_requests?', new: 'new_request' }
-        });
+          if (page === 1 && pendingRequests.length === 0) {
+            noResults = true;
+          }
+          return res.render('home_views/home', {
+            startIndex,
+            noBroadcasts,
+            noResults,
+            search,
+            page,
+            last,
+            error,
+            status,
+            threeBeforeLast: (last - 3) < page ? page : (last - 3),
+            user: req.user,
+            broadcasts: pendingRequests.reverse(),
+            pending: true,
+            endpoint: { endpoint: '/pending_requests?', new: 'new_request' }
+          });
+        })
+          .catch(mappingErr => console.log('pending_requests match_singature error', mappingErr));
       });
   });
 });
