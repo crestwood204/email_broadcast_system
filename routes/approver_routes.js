@@ -9,6 +9,7 @@ const EmailHelpers = require('../helpers/email_helpers');
 const ValidationHelpers = require('../helpers/validation_helpers');
 const Constants = require('../models/constants');
 const Messages = require('../models/message_constants');
+const { matchSignature } = require('../helpers/signature_helpers');
 
 // might require path
 
@@ -140,11 +141,15 @@ router.get('/pending_broadcast', (req, res) => {
       model: 'User',
       path: 'createdBy'
     })
-    .exec((err, request) => {
+    .exec((err, broadcast) => {
       if (err) {
         console.log('Error', err);
       } else {
-        res.render('home_views/pending_broadcast', { request, error });
+        const request = broadcast;
+        matchSignature(broadcast.body).then((bodyWithSignature) => {
+          request.body = bodyWithSignature;
+          res.render('home_views/pending_broadcast', { request, error });
+        });
       }
     });
 });
