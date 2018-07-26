@@ -67,7 +67,7 @@ const updateSignature = function updateSignature(req, res, next, file, deletion)
                   if (updateErr) {
                     return console.log('database error', updateErr);
                   }
-                  return sendApproverEmail(requests[i], req.user.email)
+                  return sendApproverEmail(requests[i], req.user.email, true)
                     .catch((approverEmailErr) => {
                       console.log('approver email error', approverEmailErr);
                     });

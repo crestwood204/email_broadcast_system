@@ -255,7 +255,7 @@ router.post('/new_request', (req, res) => {
                 Log.log('Edited', req.user._id, 'Broadcast Request Edited', 'Broadcast', 'new_request updated database_error', { requestId: request._id });
                 // This code is repeated => Move to email helpers later?
                 // send approval email
-                return sendApproverEmail(request, req.user.email).then(() => res.json({ redirect: '/pending_requests?status=created' }))
+                return sendApproverEmail(request, req.user.email, true).then(() => res.json({ redirect: '/pending_requests?status=created' }))
                   .catch((approverEmailErr) => {
                     console.log('new_request error_sending_emails database_error', approverEmailErr);
                     return res.json({ redirect: '/pending_requests?error=database' });
