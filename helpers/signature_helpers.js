@@ -1,7 +1,11 @@
 const Models = require('../models/models');
 
 const { User } = Models;
-
+/**
+  * function to find and replace a signature code with its corresponding html img tag
+  * @param {string} body The request body with or without a signature code
+  * @returns {array} [filename or null, body with img tag, date of signatures last update]
+  */
 const matchSignature = async (body) => {
   const signatureRegex = /\.~[a-zA-Z0-9]*[a-zA-Z]+[a-zA-Z0-9]*/; // regex for username
   const match = body.match(signatureRegex);
