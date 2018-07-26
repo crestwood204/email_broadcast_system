@@ -10,7 +10,7 @@ const router = express.Router();
 
 
 router.get('/edit_users', (req, res, next) => {
-  const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 0 if page is NaN
+  const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 1 if page is NaN
   const { search } = req.query;
   const [error, status] = [Messages[req.query.error],
     req.query.status ? `User ${Messages[req.query.status]}` : undefined];
@@ -19,7 +19,7 @@ router.get('/edit_users', (req, res, next) => {
   const searchObj = ValidationHelpers.createEditSearchObject(search);
 
   if (page < 1) {
-    return next(new Error('User Malformed Input')); // TODO: Handle this error
+    return next(new Error('User Malformed Input'));
   }
   return User.countDocuments(searchObj).exec((lastErr, count) => {
     if (lastErr) {

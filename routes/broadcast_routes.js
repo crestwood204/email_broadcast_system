@@ -65,7 +65,7 @@ router.get('/', (req, res, next) => {
   searchObj.pending = false;
   searchObj.approved = true;
   if (page < 1) {
-    return next(new Error('User Malformed Input')); // TODO: Handle this error
+    return next(new Error('User Malformed Input'));
   }
   /* sort by date approved so that pending requests appear last (pendings don't have dateApproved)
    * makes it so that pages that aren't the last one always have 8 documents displayed
@@ -208,7 +208,6 @@ router.post('/new_request', (req, res) => {
     const { id, subject, body, from, attachments } = req.body;
     const query = `to=${to}&subject=${subject}&body=${body}&from=${from}&attachments=${req.files}`;
     if (err) {
-      // TODO: format error message
       console.log('err:', err);
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.json({ redirect: `/new_request?error=limit_file_size&${query}` });
@@ -325,14 +324,14 @@ router.get('/get_templates', (req, res) => {
 router.get('/pending_requests', (req, res, next) => {
   const error = Messages[req.query.error];
   const status = Messages[req.query.status];
-  const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 0 if page is NaN
+  const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 1 if page is NaN
   const { search } = req.query;
 
   const searchObj = createSearchObject(search, 'lastUpdated'); // create search object
   searchObj.pending = true;
 
   if (page < 1) {
-    return next(new Error('User Malformed Input')); // TODO: Handle this error
+    return next(new Error('User Malformed Input'));
   }
 
   /* sort by date approved so that pending requests appear first

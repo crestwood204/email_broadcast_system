@@ -11,7 +11,7 @@ const { EDIT_OBJECTS_PER_PAGE, MAX_TEMPLATE_LINE_LENGTH } = Constants;
 const router = express.Router();
 
 router.get('/edit_templates', (req, res, next) => {
-  const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 0 if page is NaN
+  const page = (parseInt(req.query.page, 10) || 1) || 1; // set to 1 if page is NaN
   const { search } = req.query;
   const error = Messages[req.query.error];
   const status = req.query.status ? `Template ${Messages[req.query.status]}` : undefined;
@@ -19,7 +19,7 @@ router.get('/edit_templates', (req, res, next) => {
   const searchObj = ValidationHelpers.createEditSearchObject(search);
 
   if (page < 1) {
-    return next(new Error('User Malformed Input')); // TODO: Handle this error
+    return next(new Error('User Malformed Input'));
   }
   return Template.countDocuments(searchObj).exec((lastErr, count) => {
     if (lastErr) {

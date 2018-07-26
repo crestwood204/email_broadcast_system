@@ -102,7 +102,6 @@ router.post('/user_settings', (req, res, next) => {
   }).single('fileUpload');
   upload(req, res, (err) => {
     if (err) {
-      // TODO: format error message
       console.log('err:', err);
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.redirect('/user_settings?error=limit_file_size');
