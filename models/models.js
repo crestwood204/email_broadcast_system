@@ -162,7 +162,6 @@ LogSchema.statics.log = (
           body: request.body,
           approved: request.approved,
           approver: request.approver,
-          createdBy: request.createdBy,
           username: request.username
         });
 
