@@ -152,7 +152,7 @@ LogSchema.statics.log = (
     newLog[keys[i]] = options[keys[i]];
   }
 
-  if (Object.prototype.hasOwnProperty.call(options, 'requestId') && change !== 'Approved' && change !== 'Rejected') {
+  if (Object.prototype.hasOwnProperty.call(options, 'requestId')) {
     Request.findById(options.requestId).then(
       (request) => {
         const requestVersion = new RequestVersion({

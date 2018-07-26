@@ -60,7 +60,7 @@ router.get('/log', (req, res, next) => {
       .skip((page - 1) * DOCS_PER_PAGE)
       .populate([{
         path: 'requestId',
-        model: 'Request',
+        model: 'RequestVersion',
         populate: {
           path: 'createdBy',
           model: 'User'
