@@ -27,7 +27,7 @@
         <select id="toField" name="toField" class="form-control">
             {{#each groups}}
               {{#compare this.type "distribution"}}
-                <option value={{../this.name}}>{{../this.name}}</option>
+                <option value="{{../this.name}}">{{../this.name}}</option>
               {{/compare}}
             {{/each}}
         </select>
@@ -42,7 +42,7 @@
             <option value=""selected>Choose...</option>
             {{#each groups}}
               {{#compare this.type "sender"}}
-                <option value={{../this.name}}>{{../this.name}}</option>
+                <option value="{{../this.name}}">{{../this.name}}</option>
               {{/compare}}
             {{/each}}
           </select>

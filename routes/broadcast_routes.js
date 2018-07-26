@@ -207,7 +207,6 @@ router.post('/new_request', (req, res) => {
     let { to } = req.body;
     const { id, subject, body, from, attachments } = req.body;
     const query = `to=${to}&subject=${subject}&body=${body}&from=${from}&attachments=${req.files}`;
-
     if (err) {
       // TODO: format error message
       console.log('err:', err);

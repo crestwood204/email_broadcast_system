@@ -152,11 +152,45 @@ LogSchema.statics.log = (
     newLog[keys[i]] = options[keys[i]];
   }
 
-  newLog.save((err) => {
-    if (err) {
-      console.log(errMsg);
-    }
-  });
+  if (Object.prototype.hasOwnProperty.call(options, 'requestId') && change !== 'Approved' && change !== 'Rejected') {
+    Request.findById(options.requestId).then(
+      (request) => {
+        const requestVersion = new RequestVersion({
+          to: request.to,
+          from: request.from,
+          subject: request.subject,
+          body: request.body,
+          approved: request.approved,
+          approver: request.approver,
+          createdBy: request.createdBy,
+          username: request.username
+        });
+
+        requestVersion.save((versionSaveError, newRequestVersion) => {
+          if (versionSaveError) {
+            console.log('Error saving request version:', versionSaveError);
+          }
+          newLog.requestId = newRequestVersion;
+          newLog.save((err) => {
+            if (err) {
+              console.log(errMsg);
+            }
+          });
+        });
+      },
+      (versionError) => {
+        if (versionError) {
+          console.log('Error creating request version:', versionError);
+        }
+      }
+    );
+  } else {
+    newLog.save((err) => {
+      if (err) {
+        console.log(errMsg);
+      }
+    });
+  }
 };
 
 /*
@@ -200,10 +234,47 @@ const TemplateSchema = new Schema({
   }
 });
 
+const RequestVersionSchema = new Schema({
+  to: {
+    type: [String],
+    required: true
+  },
+  from: {
+    type: String,
+    required: true
+  },
+  subject: {
+    type: String,
+    required: true
+  },
+  body: {
+    type: String,
+    required: true
+  },
+  approved: {
+    type: Boolean,
+    default: undefined
+  },
+  approver: {
+    type: String,
+    default: undefined
+  },
+  createdBy: {
+    type: Schema.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  username: {
+    type: String,
+    required: true
+  }
+});
+
 const Request = mongoose.model('Request', RequestSchema);
 const User = mongoose.model('User', UserSchema);
 const Log = mongoose.model('Log', LogSchema);
 const Group = mongoose.model('Group', GroupSchema);
 const Template = mongoose.model('Template', TemplateSchema);
+const RequestVersion = mongoose.model('RequestVersion', RequestVersionSchema);
 
-module.exports = { Request, User, Log, Group, Template };
+module.exports = { Request, User, Log, Group, Template, RequestVersion };
