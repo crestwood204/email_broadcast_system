@@ -1,12 +1,12 @@
 /* eslint no-unused-vars: 1 */
 
 /**
- * Adds two numbers together.
+ * Retrieves value of query parameter
  * @param {string} name name of query parameter you want the value of.
  * @param {string} url Optional url. Defaults to current window url.
  * @returns {string} The value of the query paramater you are looking for.
  */
-function getParamterByName(name, url) {
+function getParameterByName(name, url) {
   const newUrl = url || window.location.href;
   const newName = name.replace(/[[]]/g, '\\$&');
   const regex = new RegExp(`[?&]${newName}(=([^&#]*)|&|#|$)`);

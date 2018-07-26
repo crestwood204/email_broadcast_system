@@ -11,6 +11,15 @@ const transporter = nodemailer.createTransport({
   tls: { rejectUnauthorized: false }
 });
 
+/**
+  * function to generate HTML of an email broadcast
+  * @param {Object} request The request object to be broadcast.
+  * @param {string} body Body of request: Might include embedded signature
+  * @param {number} approver True if HTML is being sent to approvers - Appends button footer
+  * @param {boolean} edit True if the request has been edited - Appends an editedTag
+  * @param {string} userEmail The email of the submiter of this request
+  * @returns {string} The resulting HTML making up the email
+  */
 const getHTML = (request, body, approver, edit, userEmail) => {
   const date = new Date();
   const requester = userEmail ? `<div>Requester: ${userEmail}</div>` : '';
@@ -76,9 +85,11 @@ const getHTML = (request, body, approver, edit, userEmail) => {
   </html>
   `);
 };
-/*
- * Takes in a request body and returns an array
- * returns [filename, html with replacement, date of signature last update]
+
+/**
+ * function to replace a signature .~<username> with an html <img> with appropriate src
+ * @param {string} body Body of request: Might include embedded signature
+ * @returns {Array} [filename, html with replacement, date of signature last update]
  */
 const matchSignature = (body) => {
   const signatureRegex = /\.~[a-zA-Z0-9]*[a-zA-Z]+[a-zA-Z0-9]*/; // regex for username
@@ -94,7 +105,7 @@ const matchSignature = (body) => {
           return [null, body.replace(match[0], 'user does not have an associated signature'), user.signatureLastUpdated];
         }
         const src = user.signature.filename;
-        const image = `<img src="cid:${src}"></img>`;
+        const image = `<img src="cid:${src}"></img>`; // cid is used as an id # for embedded attachments
         return [src, body.replace(match[0], image), user.signatureLastUpdated];
       },
       (matchErr) => {
@@ -103,16 +114,25 @@ const matchSignature = (body) => {
       }
     );
   }
+  // above returns a Promise, so if nothing happens, return a Promise that does nothing
   return new Promise((resolve) => {
     resolve([null, body]);
   });
 };
-// consolidate email functions?
+
+/**
+  * function to send emails to all approvers
+  * @param {Object} request The request object to be broadcast.
+  * @param {string} userEmail The email of the submiter of this request
+  * @param {number} requestEdited True if the request has been edited
+  * @returns {Object} undefined - returns nothing, only sends approver emails
+  */
 const sendApproverEmail = (request, userEmail, requestEdited) => {
   let html;
   let mailOptions;
   let files = request.attachments;
 
+  // get approvers
   return User.find({ approver: true, active: true }).then(
     (users) => {
       const approvers = users.map((x) => {
@@ -123,6 +143,7 @@ const sendApproverEmail = (request, userEmail, requestEdited) => {
         return rObj;
       });
 
+      // map attachments
       if (files) {
         files = files.map((x) => {
           const rObj = {
@@ -133,6 +154,8 @@ const sendApproverEmail = (request, userEmail, requestEdited) => {
           return rObj;
         });
       }
+
+      // replace signatures with image tags
       return matchSignature(request.body)
         .then((bodyWithSignature) => {
           // add on signature as embedded image
@@ -142,6 +165,8 @@ const sendApproverEmail = (request, userEmail, requestEdited) => {
               path: `./public/user_data/signatures/${bodyWithSignature[0]}`,
               cid: bodyWithSignature[0]
             };
+
+            // append signature file to files sent
             if (files) {
               files.push(signature);
             } else {
@@ -157,8 +182,8 @@ const sendApproverEmail = (request, userEmail, requestEdited) => {
 
             mailOptions = {
               from: process.env.BROADCAST_ADDRESS, // sender address
-              to: '', // list of receivers
-              bcc: user.email,
+              to: '', // don't send this to anyone
+              bcc: user.email, // bcc all approvers
               subject: 'BROADCAST REQUEST', // Subject line
               text: bodyWithSignature[1], // plain text body
               html, // html body
@@ -166,7 +191,7 @@ const sendApproverEmail = (request, userEmail, requestEdited) => {
             };
 
             // send mail with defined transport object
-            transporter.sendMail(mailOptions, (error) => { // callback contains (error, info)
+            transporter.sendMail(mailOptions, (error) => {
               if (error) {
                 return console.log('send mail error', error);
               }
@@ -181,6 +206,12 @@ const sendApproverEmail = (request, userEmail, requestEdited) => {
   );
 };
 
+/**
+  * function to remove files from directory
+  * @param {string} dirPath The directory to look in
+  * @param {Array} attachments The attachments to remove
+  * @returns {Object} undefined - removes specified files
+  */
 const rmDir = (dirPath, attachments) => {
   try {
     fs.readdirSync(dirPath);
@@ -199,8 +230,15 @@ const rmDir = (dirPath, attachments) => {
   });
 };
 
+/**
+  * function to broadcast the email
+  * @param {Object} request The request object to be broadcast
+  * @returns {Object} undefined
+  */
 const sendBroadcastEmail = (request) => {
   let files = request.attachments;
+
+  // replace signature code .~<username> with img tag
   matchSignature(request.body)
     .then((bodyWithSignature) => {
       // add on signature as embedded image
@@ -210,14 +248,19 @@ const sendBroadcastEmail = (request) => {
           path: `./public/user_data/signatures/${bodyWithSignature[0]}`,
           cid: bodyWithSignature[0]
         };
+
+        // include embedded image as an attachment
         if (files) {
           files.push(signature);
         } else {
           files = [signature];
         }
       }
+
+      // generate the HTML for a broadcast email
       const html = getHTML(request, bodyWithSignature[1]);
 
+      // turn list of group names into list of email addresses
       Group.find({}).then(
         (groups) => {
           let filteredGroups = groups.filter(x => request.to.includes(x.name));
@@ -248,11 +291,22 @@ const sendBroadcastEmail = (request) => {
     });
 };
 
+/**
+  * function to handle deciding requests
+  * @param {ObjectId} requestId The request object to be decided.
+  * @param {boolean} approved True if request was approved, False otherwise
+  * @param {Object} req The request express object - Contains information about the User
+  * @param {Object} res The response express object - Used to send data to the user.
+  * @param {Date} lastUpdated The date/time at which the request the user clicked on was updated
+  * @returns {string} The resulting HTML making up the email
+  */
 const decideRequest = (requestId, approved, req, res, lastUpdated) => {
   const change = approved ? 'Approved' : 'Rejected';
   if (!req.user.approver) {
     return console.log('decide_request unauthorized_user attempted_request_decision');
   }
+
+  // lookup the request
   return Request.findById(requestId, (requestErr, request) => {
     if (requestErr) {
       return console.log('decide_request request_lookup database_error', requestErr);
@@ -260,12 +314,12 @@ const decideRequest = (requestId, approved, req, res, lastUpdated) => {
     if (!request) {
       return console.log('decide_request request_lookup request_does-not-exist');
     }
-
+    // only continue if the request is still pending
     if (request.pending) {
       const stringDate = request.lastUpdated.toString();
       // check if request has been updated since this email was sent
       if (stringDate !== lastUpdated) {
-        // render specific pending_request view
+        // render specific pending_broadcast view
         return res.json({ error: 'updatedRequest' });
       }
 
@@ -276,6 +330,7 @@ const decideRequest = (requestId, approved, req, res, lastUpdated) => {
             // check if the signature has been updated since this request has been updated
             const signatureLastUpdated = bodyWithSignature[2];
             const requestLastUpdated = request.lastUpdated;
+            // if so, render updated request in pending_broadcast view
             if (signatureLastUpdated && signatureLastUpdated.compareTo(requestLastUpdated) === 1) {
               // update request
               return Request.update(
@@ -289,7 +344,9 @@ const decideRequest = (requestId, approved, req, res, lastUpdated) => {
               );
             }
           }
+          // if request is pending and current, check if approved
           if (approved) {
+            // update the request
             return Request.update(
               { _id: requestId }, {
                 $set: {
@@ -310,10 +367,12 @@ const decideRequest = (requestId, approved, req, res, lastUpdated) => {
               }
             );
           }
+          // If broadcast was rejected:
+
           // remove uploads
           rmDir('./public/uploads', request.attachments);
 
-          // Log
+          // Log reject
           Log.log(change, req.user._id, `Broadcast Request ${change}`, 'Broadcast', 'post decide_request database_error', { requestId: request._id });
 
           // reject request
@@ -337,6 +396,7 @@ const decideRequest = (requestId, approved, req, res, lastUpdated) => {
         .catch(err => console.log('Error', err));
     }
     // broadcast was already processed by another approver
+    // it is no longer pending - render requestDecision view
     return res.json({ error: 'requestDecision' });
   });
 };

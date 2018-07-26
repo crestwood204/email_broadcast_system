@@ -24,6 +24,12 @@ const escapeRegExp = query => query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
  */
 const validateDateString = dateString => dateString.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/);
 
+/**
+  * Creates a search object for mongoose query
+  * @param {string} search String that the user entered
+  * @param {string} dateParam The key that specifies date created in the associated model
+  * @returns {Object} The search object
+  */
 const createSearchObject = (search, dateParam) => {
   const searchObj = {};
 
@@ -114,6 +120,12 @@ const createSearchObject = (search, dateParam) => {
   return searchObj;
 };
 
+/**
+  * Creates Search Object for Edit Pages
+  * @param {Object} search The user inputed search string
+  * @param {string} options 'group' if searching the group page
+  * @returns {string} The resulting search object
+  */
 const createEditSearchObject = (search, options) => {
   const searchObj = {};
 

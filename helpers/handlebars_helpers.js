@@ -4,7 +4,7 @@
 const Handlebars = require('handlebars');
 
 /**
-  * functino to handle basic mathematical operations
+  * function to handle basic mathematical operations
   * @param {number} lvalue The first number.
   * @param {string} operator The operator.
   * @param {number} rvalue The second number.

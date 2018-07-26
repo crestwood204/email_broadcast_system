@@ -1,5 +1,5 @@
 /* eslint no-unused-vars: 1 */
-/* global getParamterByName */
+/* global getParameterByName */
 /*
  * Function is selecting attributes from a div defined on the .hbs file
  */
@@ -114,7 +114,7 @@ $(document).ready(() => {
   };
 
   const runValidation = function runValidation() {
-    const error = getParamterByName('error');
+    const error = getParameterByName('error');
     if (error) {
       customValidation();
     }

@@ -1,4 +1,4 @@
-/* global getParamterByName */
+/* global getParameterByName */
 /* global customValidation */
 // JavaScript for disabling form submissions if there are invalid fields
 
@@ -22,7 +22,7 @@ $(document).ready(() => {
   };
 
   const runValidation = function runValidation() {
-    const error = getParamterByName('error');
+    const error = getParameterByName('error');
     if (error) {
       customValidation();
     }

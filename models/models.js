@@ -4,132 +4,138 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const RequestSchema = new Schema({
-  to: {
+  to: { // array of distribution group names
     type: [String],
     required: true
   },
-  from: {
+  from: { // sender group name
     type: String,
     required: true
   },
-  subject: {
+  subject: { // request subject - user input
     type: String,
     required: true
   },
-  body: {
+  body: { // request body - user input
     type: String,
     required: true
   },
-  pending: {
+  pending: { // whether or not a decision has been made about the request
     type: Boolean,
     default: true
   },
-  approved: {
+  approved: { // whether or not the decision made is approved or rejected
     type: Boolean,
     default: undefined
   },
-  approver: {
+  approver: { // name of approver that approved this request
     type: String,
     default: undefined
   },
-  attachments: { type: [] },
-  dateApproved: {
+  attachments: { type: [] }, // array of file attachments to send with the email
+  dateApproved: { // the date on which the broadcast was approved/rejected
     type: Date,
     default: undefined
   },
-  createdBy: {
+  createdBy: { // the user object that this request was created by
     type: Schema.ObjectId,
     ref: 'User',
     required: true
   },
-  dateCreated: {
+  dateCreated: { // the date that this request was created
     type: Date,
     default: undefined
   },
-  lastUpdated: {
+  lastUpdated: { // the date at which the request was last updated
     type: Date,
     default: undefined
   },
-  username: {
+  username: { // the username of the user that created this request
     type: String,
     required: true
   }
 });
 
 const UserSchema = new Schema({
-  username: {
+  username: { // the username of the user
     type: String,
     required: true,
     unique: true,
     dropDups: true
   },
-  password: {
+  password: { // the password of the user
     type: String,
     required: true
   },
-  approver: {
+  approver: { // specifies whether or not the user is an approver
     type: Boolean,
     default: false
   },
-  email: {
+  email: { // the email of the user
     type: String,
     required: true
   },
-  active: {
+  active: { // specifies whether or not the user is activated, deactivated users cannot user the app
     type: Boolean,
     default: true,
     required: true
   },
-  signature: {
+  signature: { // An object that points to a file in public/user_data/signatures if uploaded
     type: Object,
     required: false
   },
-  signatureLastUpdated: {
+  signatureLastUpdated: { // The date at which the signature was uploaded
     type: Date,
     required: false
   }
 });
 
 const LogSchema = new Schema({
-  change: {
+  change: { // The type of action that is occuring: 'Created/Edited/Deleted/etc.'
     type: String,
     required: true
   },
-  user_id: {
+  user_id: { // The user creating the request
     type: Schema.ObjectId,
     ref: 'User'
   },
-  description: {
+  description: { // A description of the request
     type: String,
     required: true
   },
-  type: {
+  type: { // The model being accessed resulting in a log: User, Request, Group, Template, etc.
     type: String,
     required: true
   },
-  date: {
+  date: { // The date at which the log is created
     type: Date,
     required: true
   },
-  requestId: {
+  requestId: { // optional request id associated with the log
     type: Schema.ObjectId,
     ref: 'Request'
   },
-  editUserId: {
+  editUserId: { // optional user id associated with the log - the user being edited
     type: Schema.ObjectId,
     ref: 'User'
   },
-  templateId: {
+  templateId: { // optional template id associated with the log
     type: Schema.ObjectId,
     ref: 'Template'
   },
-  groupId: {
+  groupId: { // optional group id associated with the log
     type: Schema.ObjectId,
     ref: 'Group'
   },
-  templateName: String
+  templateName: String // the name of a group/template associated with the log
 });
 
+/*
+ * A function for creating logs
+ * options is an object with possible values of requestId, editUserId,
+ *   templateId, groupId, and templateName
+ * Refer to log model for more detailed description of each parameter
+ */
 LogSchema.statics.log = (
   change,
   userId,
@@ -152,6 +158,8 @@ LogSchema.statics.log = (
     newLog[keys[i]] = options[keys[i]];
   }
 
+  // if the log is referencing a request, then create a version of it
+  // version control allows requests to be edited while being able to view each edit
   if (Object.prototype.hasOwnProperty.call(options, 'requestId')) {
     Request.findById(options.requestId).then(
       (request) => {
@@ -198,41 +206,44 @@ LogSchema.statics.log = (
  *                - Just used to change the email address sent from
  */
 const GroupSchema = new Schema({
-  name: {
+  name: { // name of the group
     type: String,
     required: true,
     unique: true,
     dropDups: true
   },
-  email: {
+  email: { // email that the broadcast system sends to/from
     type: String,
     required: true
   },
-  type: {
+  type: { // specifies distibution/sender
     type: String,
     required: true
   }
 });
 
 const TemplateSchema = new Schema({
-  name: {
+  name: { // name of template
     type: String,
     required: true
   },
-  subject: {
+  subject: { // subject of template
     type: String,
     required: true
   },
-  body: {
+  body: { // body of template
     type: String,
     required: true
   },
-  createdBy: {
+  createdBy: { // user that created the template
     type: Schema.ObjectId,
     required: true
   }
 });
 
+/*
+ * Version of a Request used for logging
+ */
 const RequestVersionSchema = new Schema({
   to: {
     type: [String],
