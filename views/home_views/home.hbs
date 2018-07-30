@@ -48,17 +48,17 @@
                                 </span>
                               {{/each}}
                             </div>
-                            {{#if @root.user.approver}}
-                              <div style="float: right; cursor: default;">
+                            <div style="float: right; cursor: default;">
+                              {{#if @root.user.approver}}
                                 <btn id="approve-{{this._id}}" lastUpdated="{{this.lastUpdated}}" class="approve-btn btn-sm btn-success" style="cursor: default; padding-bottom: 7px;">Approve</btn>
                                 <btn id="reject-{{this._id}}" lastUpdated="{{this.lastUpdated}}" class="reject-btn btn-sm btn-danger" style="cursor: default; padding-bottom: 7px;">Reject</btn>
-                                <a href="{{this.modificationHref}}">
-                                  <button class="btn my-2 my-sm-0 edit-button" type="button" style="padding: 2px 8px 0px 10px; font-size: 16px;">
-                                    <i class="fa fa-edit"></i>
-                                  </button>
-                                </a>
-                              </div>
-                            {{/if}}
+                              {{/if}}
+                              <a href="{{this.modificationHref}}">
+                                <button class="btn my-2 my-sm-0 edit-button" type="button" style="padding: 2px 8px 0px 10px; font-size: 16px;">
+                                  <i class="fa fa-edit"></i>
+                                </button>
+                              </a>
+                            </div>
                         </div>
                     </td>
                 </tr>
