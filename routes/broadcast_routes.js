@@ -392,11 +392,10 @@ router.get('/pending_requests', (req, res, next) => {
         let pendingRequests = requests;
         // if user is not an approver, only show them their requests
         if (!req.user.approver) {
-          pendingRequests = requests ? requests.filter(x => x.createdBy._id.toString() ===
-                  req.user._id.toString()) : [];
+          pendingRequests = requests ? requests.filter(x => x.username ===
+                  req.user.username) : [];
         }
         // filter so that there are only pending requests
-        pendingRequests = requests ? requests.filter(x => x.pending) : [];
         return Promise.all(pendingRequests.map(async x => ({
           _id: x._id,
           to: x.to,
