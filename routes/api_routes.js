@@ -15,7 +15,7 @@ router.use('/', (req, res, next) => {
 });
 
 // route that returns last 10 broadcasts, configurable with params
-router.get('/broadcasts', (req, res) => {
+router.post('/broadcasts', (req, res) => {
   const searchObj = JSON.parse(req.body.searchObj) || {};
   const limit = parseInt(req.body.limit, 10) || 10;
   const skip = parseInt(req.body.limit, 10) || 0;
@@ -34,7 +34,7 @@ router.get('/broadcasts', (req, res) => {
 });
 
 // route that returns a specific broadcast in json by Id
-router.get('/broadcast', (req, res) => {
+router.post('/broadcast', (req, res) => {
   const { requestId } = req.body;
   Request.findById(requestId).then(
     (request) => {
