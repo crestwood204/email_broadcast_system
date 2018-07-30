@@ -238,6 +238,18 @@ const rmDir = (dirPath, attachments) => {
 const sendBroadcastEmail = (request) => {
   let files = request.attachments;
 
+  // map attachments
+  if (files) {
+    files = files.map((x) => {
+      const rObj = {
+        filename: x.originalname,
+        encoding: x.encoding,
+        path: x.path
+      };
+      return rObj;
+    });
+  }
+
   // replace signature code .~<username> with img tag
   matchSignature(request.body)
     .then((bodyWithSignature) => {
