@@ -111,7 +111,11 @@ const createSearchObject = (search, dateParam) => {
 
       default:
         if (split.length === 1) {
-          searchObj.subject = { $regex: new RegExp(escapeRegExp(split[0]), 'ig') };
+          if (date === 'date') {
+            searchObj.type = { $regex: new RegExp(escapeRegExp(split[0]), 'ig') };
+          } else {
+            searchObj.subject = { $regex: new RegExp(escapeRegExp(split[0]), 'ig') };
+          }
         } else {
           searchObj.subject = { $regex: new RegExp(escapeRegExp(search), 'ig') };
         }
@@ -134,6 +138,7 @@ const createEditSearchObject = (search, options) => {
     const split = search.match(/([^\\\][^:]|\\:)+/g).map(x => x.trim().toLowerCase().split('\\').join(''));
     let [type] = split;
     if (split.length === 2) {
+      // boolean converter for group type
       if (options === 'group' && type === 'distribution') {
         type = 'type';
         if (split[1] === 'true') {
@@ -142,7 +147,22 @@ const createEditSearchObject = (search, options) => {
           split[1] = 'sender';
         }
       }
+
+      // boolean converter for user approver and active
+      if (options === 'user' && (type === 'approver' || type === 'active')) {
+        if (split[1] === 'true') {
+          split[1] = true;
+        } else {
+          split[1] = false;
+        }
+        [, searchObj[type]] = split;
+        return searchObj;
+      }
       searchObj[type] = { $regex: new RegExp(escapeRegExp(split[1]), 'ig') };
+    } else if (split.length === 1) {
+      if (options === 'user') {
+        searchObj.username = { $regex: new RegExp(escapeRegExp(search), 'ig') };
+      }
     } else {
       searchObj.name = { $regex: new RegExp(escapeRegExp(search), 'ig') };
     }

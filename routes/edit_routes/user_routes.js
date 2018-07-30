@@ -7,6 +7,7 @@ const ValidationHelpers = require('../../helpers/validation_helpers');
 const { User, Log } = Models;
 const { EDIT_OBJECTS_PER_PAGE } = Constants;
 const router = express.Router();
+const { createEditSearchObject, validateEmail } = ValidationHelpers;
 
 
 router.get('/edit_users', (req, res, next) => {
@@ -16,7 +17,7 @@ router.get('/edit_users', (req, res, next) => {
     req.query.status ? `User ${Messages[req.query.status]}` : undefined];
 
   // create search object
-  const searchObj = ValidationHelpers.createEditSearchObject(search);
+  const searchObj = createEditSearchObject(search, 'user');
 
   if (page < 1) {
     return next(new Error('User Malformed Input'));
@@ -101,6 +102,10 @@ router.post('/new_user', (req, res) => {
 
   if (password !== confirmPassword) {
     return res.redirect(`/new_user?error=passwordMatch${query}`);
+  }
+
+  if (!validateEmail(email)) {
+    return res.redirect(`/new_user?error=emailFormat${query}`);
   }
 
   return User.findOne({ username }, (err, user) => {
