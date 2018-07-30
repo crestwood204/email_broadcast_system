@@ -68,13 +68,8 @@
                           {{#compare this.type "User"}}
                               <div> User Edited: {{../this.editUserId.username}}</div>
                           {{/compare}}
-                          {{#if this.templateId.username}}
-                              {{#compare this.type "Template"}}
-                                  <div> Template Edited: {{../this.templateId}}</div>
-                              {{/compare}}
-                          {{/if}}
                           {{#compare this.type "Template"}}
-                              <div> Title: {{../this.templateName}} </div>
+                              <div> Name: {{../this.templateName}} </div>
                               {{#unless ../this.templateId}}
                                 {{#compare ../this.change "Deleted" operator="!=="}}
                                   <div> Note: Template has been Deleted </div>

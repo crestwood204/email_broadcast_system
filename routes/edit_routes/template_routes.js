@@ -16,7 +16,7 @@ router.get('/edit_templates', (req, res, next) => {
   const error = Messages[req.query.error];
   const status = req.query.status ? `Template ${Messages[req.query.status]}` : undefined;
   // create search object
-  const searchObj = ValidationHelpers.createEditSearchObject(search);
+  const searchObj = ValidationHelpers.createEditSearchObject(search, 'template');
 
   if (page < 1) {
     return next(new Error('User Malformed Input'));
@@ -104,7 +104,8 @@ router.post('/new_template', (req, res) => {
     name,
     subject,
     body,
-    createdBy
+    createdBy,
+    username: req.user.username
   });
 
   return newTemplate.save((err, template) => {

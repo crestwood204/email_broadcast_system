@@ -147,6 +147,9 @@ const createEditSearchObject = (search, options) => {
           split[1] = 'sender';
         }
       }
+      if (options === 'template' && (type === 'created by' || type === 'createdby')) {
+        type = 'username';
+      }
 
       // boolean converter for user approver and active
       if (options === 'user' && (type === 'approver' || type === 'active')) {
@@ -159,10 +162,8 @@ const createEditSearchObject = (search, options) => {
         return searchObj;
       }
       searchObj[type] = { $regex: new RegExp(escapeRegExp(split[1]), 'ig') };
-    } else if (split.length === 1) {
-      if (options === 'user') {
-        searchObj.username = { $regex: new RegExp(escapeRegExp(search), 'ig') };
-      }
+    } else if (split.length === 1 && options === 'user') {
+      searchObj.username = { $regex: new RegExp(escapeRegExp(search), 'ig') };
     } else {
       searchObj.name = { $regex: new RegExp(escapeRegExp(search), 'ig') };
     }

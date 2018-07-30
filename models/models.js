@@ -238,6 +238,10 @@ const TemplateSchema = new Schema({
   createdBy: { // user that created the template
     type: Schema.ObjectId,
     required: true
+  },
+  username: {
+    type: String,
+    required: true
   }
 });
 
