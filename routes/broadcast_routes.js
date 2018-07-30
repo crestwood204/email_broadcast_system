@@ -376,7 +376,7 @@ router.get('/pending_requests', (req, res, next) => {
                 return console.log('archive_request archive_attempt database_error');
               }
               return Log.log(
-                'Archived', requestId, 'Request Archived by System',
+                'Archived', req.user._id, 'Request Archived by System',
                 'Broadcast', 'System error, archiving_request', { requestId }
               );
             }

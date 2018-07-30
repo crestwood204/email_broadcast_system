@@ -269,11 +269,6 @@ const RequestVersionSchema = new Schema({
     type: String,
     default: undefined
   },
-  createdBy: {
-    type: Schema.ObjectId,
-    ref: 'User',
-    required: true
-  },
   username: {
     type: String,
     required: true
