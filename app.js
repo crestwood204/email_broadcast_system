@@ -133,6 +133,7 @@ app.use('/', routes.USER_ROUTES);
 app.use('/', routes.GROUP_ROUTES);
 app.use('/', routes.TEMPLATE_ROUTES);
 
+
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   const err = new Error('Not Found');

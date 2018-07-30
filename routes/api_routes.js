@@ -8,7 +8,7 @@ const { Request } = Models;
 
 router.use('/', (req, res, next) => {
   const { authToken } = req.body;
-  if (authToken === process.env.AUTH_TOKEN) {
+  if (authToken === decodeURIComponent(process.env.AUTH_TOKEN)) {
     return next();
   }
   return res.status(401).json({ error: 'unauthorized', error_msg: 'incorrect auth_token' });
@@ -16,7 +16,7 @@ router.use('/', (req, res, next) => {
 
 // route that returns last 10 broadcasts, configurable with params
 router.post('/broadcasts', (req, res) => {
-  const searchObj = JSON.parse(req.body.searchObj) || {};
+  const searchObj = req.body.searchObj ? JSON.parse(req.body.searchObj) : {};
   const limit = parseInt(req.body.limit, 10) || 10;
   const skip = parseInt(req.body.limit, 10) || 0;
 
@@ -24,7 +24,7 @@ router.post('/broadcasts', (req, res) => {
     .sort({ dateApproved: 'descending' })
     .limit(limit)
     .skip(skip)
-    .exec((requests, err) => {
+    .exec((err, requests) => {
       if (err) {
         res.json({ error: 'database_error', error_msg: err });
       } else {
