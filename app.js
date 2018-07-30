@@ -133,6 +133,9 @@ app.use('/', routes.USER_ROUTES);
 app.use('/', routes.GROUP_ROUTES);
 app.use('/', routes.TEMPLATE_ROUTES);
 
+app.use('/unauthorized', (req, res) => {
+  res.render('error_views/unauthorized', { user: req.user });
+});
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

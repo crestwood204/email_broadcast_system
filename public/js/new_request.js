@@ -213,6 +213,7 @@ $(document).ready(() => {
         error(err) {
           // Error Retrieving Template
           console.log('Error:', err);
+          window.location.href = err.redirect;
         },
         success(res) {
           window.location.href = res.redirect;

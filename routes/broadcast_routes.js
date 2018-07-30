@@ -218,7 +218,7 @@ router.post('/new_request', (req, res) => {
       if (err.message === 'extension') {
         return res.json({ redirect: `new_request?error=file_extension&${query}` });
       }
-      return res.status(400).send({ redirect: '/404' });
+      return res.status(400).json({ redirect: '/404' });
     }
 
     if (!to || !subject || !body) {
@@ -233,6 +233,11 @@ router.post('/new_request', (req, res) => {
       return Request.findById(id)
         .then(
           (request) => {
+            // check that the user is authorized to edit this request
+            if (!req.user.approver && request.username !== req.user.username) {
+              return res.status(401).json({ redirect: '/unauthorized' });
+            }
+
             // if something changed then update
             if (to !== request.to || from !== request.from ||
               subject !== request.subject || body !== request.body ||
